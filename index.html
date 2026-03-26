@@ -410,6 +410,8 @@ tbody tr:hover td{background:var(--bg);}
 <script>
 // ▼ Paste your Apps Script deployment URL here
 const API = "https://script.google.com/macros/s/AKfycbzB77MndzW2e1mNX4R0rqH_OQK_0zU41gD7s10Yq3pipx88DVyYaMvGCOtD1prG0sF3/exec";
+// ▼ Your GitHub Pages / custom domain URL (used in dashboard links on email-link pages)
+const APP_URL_JS = "https://htaruli-code.github.io/freightquote";
 let S = {email:'', token:'', role:''};
 let userTz = '';
 let selFreight = '';
@@ -1711,11 +1713,184 @@ async function loadAdminAllQuotes() {
 // ─── INIT ─────────────────────────────────────────────────────
 
 (function(){
+  // ── Check for email-link URL params first ──────────────────
+  const params = new URLSearchParams(window.location.search);
+  const page   = params.get('page');
+
+  if (page === 'broker') {
+    const requestId   = params.get('requestId')   || '';
+    const brokerEmail = params.get('brokerEmail')  || '';
+    const sig         = params.get('sig')          || '';
+    if (requestId && brokerEmail && sig) {
+      showBrokerQuotePage(requestId, brokerEmail, sig);
+      return;
+    }
+  }
+
+  if (page === 'accept') {
+    const quoteId = params.get('quoteId') || '';
+    const action  = params.get('action')  || '';
+    const sig     = params.get('sig')     || '';
+    if (quoteId && action && sig) {
+      showAcceptRejectPage(quoteId, action, sig);
+      return;
+    }
+  }
+
+  // ── Normal portal load ────────────────────────────────────
   const stored = localStorage.getItem('fq');
   if (stored) { try { S=JSON.parse(stored); if(S.email&&S.token){ launch(); return; } }catch(e){} }
   document.getElementById('loginEmail').addEventListener('keydown', e => e.key==='Enter' && sendOTP());
   document.getElementById('otpCode').addEventListener('keydown',   e => e.key==='Enter' && verifyOTP());
 })();
+
+// ─── BROKER QUOTE PAGE (from email link) ──────────────────────
+
+async function showBrokerQuotePage(requestId, brokerEmail, sig) {
+  // Show a clean full-screen page — no login required, sig is verified server-side
+  document.body.innerHTML = `
+    <div id="bqPage" style="min-height:100vh;background:var(--bg);font-family:'Outfit',sans-serif;">
+      <div style="background:var(--ink);padding:16px 28px;display:flex;align-items:center;gap:10px;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚛</div>
+        <span style="font-weight:700;font-size:16px;color:white;">FreightQuote</span>
+      </div>
+      <div style="max-width:600px;margin:40px auto;padding:0 20px;">
+        <div id="bqContent" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;">
+          <div style="text-align:center;padding:32px 0;"><div class="spin" style="width:24px;height:24px;margin:0 auto;"></div><p style="color:var(--ink2);margin-top:12px;font-size:14px;">Loading request details…</p></div>
+        </div>
+      </div>
+    </div>`;
+
+  const r = await api({ action: 'getRequest', requestId, brokerEmail, sig });
+  const el = document.getElementById('bqContent');
+
+  if (!r.success) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:24px 0;">
+        <div style="font-size:40px;margin-bottom:16px;">⚠️</div>
+        <h2 style="font-size:20px;margin-bottom:8px;">Link Invalid</h2>
+        <p style="color:var(--ink2);font-size:14px;">${esc(r.error || 'This link is invalid or has expired. Please use the original link from your email.')}</p>
+      </div>`;
+    return;
+  }
+
+  if (r.alreadyQuoted) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:24px 0;">
+        <div style="font-size:40px;margin-bottom:16px;">✅</div>
+        <h2 style="font-size:20px;margin-bottom:8px;">Already Submitted</h2>
+        <p style="color:var(--ink2);font-size:14px;">You have already submitted a quote for this request.</p>
+      </div>`;
+    return;
+  }
+
+  const req = r.request;
+  el.innerHTML = `
+    <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;">Submit Your Quote</h2>
+    <p style="color:var(--ink2);font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:24px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:10px;">Shipment Details</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+        <div><span style="color:var(--ink3);">Origin</span><br><strong>${esc(req.origin)} ${esc(req.originZip)}</strong></div>
+        <div><span style="color:var(--ink3);">Destination</span><br><strong>${esc(req.destination)} ${esc(req.destZip)}</strong></div>
+        <div><span style="color:var(--ink3);">Freight Type</span><br><strong>${esc(req.freightType)}</strong></div>
+        <div><span style="color:var(--ink3);">Weight</span><br><strong>${Number(req.weight).toLocaleString()} lbs</strong></div>
+        ${req.notes ? `<div style="grid-column:1/-1;"><span style="color:var(--ink3);">Notes</span><br><strong>${esc(req.notes)}</strong></div>` : ''}
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:10px;">Request ID: ${esc(req.requestId)}</div>
+    </div>
+
+    <div id="bqMsg"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="ff"><label>All-In Rate ($) *</label><input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
+      <div class="ff"><label>Transit Days *</label><input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
+      <div class="ff"><label>Valid Until</label><input type="date" id="bqValid" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
+      <div class="ff"><label>Your Company Name *</label><input type="text" id="bqCo" placeholder="Carrier Company LLC" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
+      <div class="ff" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:70px;"></textarea></div>
+    </div>
+    <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}')"
+      style="width:100%;padding:13px;background:var(--ink);color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
+      Submit Quote →
+    </button>`;
+}
+
+async function submitBrokerQuoteFromPage(requestId, brokerEmail) {
+  const rate    = document.getElementById('bqRate')?.value.trim();
+  const transit = document.getElementById('bqTransit')?.value.trim();
+  const co      = document.getElementById('bqCo')?.value.trim();
+  const valid   = document.getElementById('bqValid')?.value || '';
+  const notes   = document.getElementById('bqNotes')?.value.trim() || '';
+
+  if (!rate || isNaN(rate) || Number(rate) < 1) return msg('bqMsg','Enter a valid rate.','error');
+  if (!transit || isNaN(transit))                return msg('bqMsg','Enter transit days.','error');
+  if (!co)                                       return msg('bqMsg','Enter your company name.','error');
+
+  const btn = document.getElementById('bqBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const r = await api({ action:'submitQuote', requestId, brokerEmail,
+    brokerCompany: co, rate: Number(rate), transitDays: Number(transit),
+    validUntil: valid, notes });
+
+  if (r.success) {
+    document.getElementById('bqContent').innerHTML = `
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:8px;">Quote Submitted!</h2>
+        <p style="color:var(--ink2);font-size:14px;">Your quote has been sent to the client. You will be notified by email if it is accepted.</p>
+        <p style="font-size:12px;color:var(--ink3);margin-top:12px;">Quote ID: ${esc(r.quoteId)}</p>
+      </div>`;
+  } else {
+    btn.disabled = false; btn.textContent = 'Submit Quote →';
+    msg('bqMsg', r.error || 'Submission failed. Please try again.', 'error');
+  }
+}
+
+// ─── ACCEPT / REJECT PAGE (from email link) ───────────────────
+
+async function showAcceptRejectPage(quoteId, action, sig) {
+  const isAccept = action === 'accept';
+  document.body.innerHTML = `
+    <div style="min-height:100vh;background:var(--bg);font-family:'Outfit',sans-serif;">
+      <div style="background:var(--ink);padding:16px 28px;display:flex;align-items:center;gap:10px;">
+        <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚛</div>
+        <span style="font-weight:700;font-size:16px;color:white;">FreightQuote</span>
+      </div>
+      <div style="max-width:480px;margin:60px auto;padding:0 20px;text-align:center;">
+        <div id="arContent" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px 32px;">
+          <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
+          <p style="color:var(--ink2);margin-top:12px;font-size:14px;">${isAccept ? 'Accepting' : 'Declining'} quote…</p>
+        </div>
+      </div>
+    </div>`;
+
+  const r = await api({ action: 'processQuoteAction', quoteId, action, sig });
+  const el = document.getElementById('arContent');
+
+  if (r.success) {
+    if (action === 'accept') {
+      el.innerHTML = `
+        <div style="font-size:52px;margin-bottom:16px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:10px;">Quote Accepted!</h2>
+        <p style="color:var(--ink2);font-size:15px;line-height:1.6;">Your booking is confirmed. The broker has been notified and a confirmation email is on its way.</p>
+        <p style="font-size:12px;color:var(--ink3);margin-top:20px;">You can manage all your shipments in the portal.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:16px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+    } else {
+      el.innerHTML = `
+        <div style="font-size:52px;margin-bottom:16px;">❌</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:10px;">Quote Declined</h2>
+        <p style="color:var(--ink2);font-size:15px;line-height:1.6;">You have declined this quote. The broker has been notified. Other quotes may still be available in your dashboard.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+    }
+  } else {
+    el.innerHTML = `
+      <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
+      <h2 style="font-family:'Instrument Serif',serif;font-size:22px;margin-bottom:10px;">Unable to Process</h2>
+      <p style="color:var(--ink2);font-size:14px;line-height:1.6;">${esc(r.error || 'This link is invalid or has already been used.')}</p>
+      <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+  }
+}
 </script>
 </body>
 </html>
