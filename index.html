@@ -422,7 +422,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = '202603261038';
+  out.textContent = '202603261100';
 }
 
 async function sendOTP() {
@@ -1091,11 +1091,24 @@ async function loadAdmin() {
 
 async function loadClientsPanel() {
   if (!adminCache.allClients) { const r = await api({action:'adminGetOverview',email:S.email,token:S.token}); if(r.success) adminCache=r; }
-  const cl = adminCache.allClients||[];
-  let h = `<div class="page-head"><h1>Clients</h1><p>${cl.length} registered clients</p></div><div class="table-wrap"><table><thead><tr><th>Email</th><th>Company</th><th>Joined</th><th>Requests</th></tr></thead><tbody>`;
-  if (!cl.length) h += '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--ink3);">No clients yet.</td></tr>';
-  cl.forEach(c => { h += `<tr><td>${c.email}</td><td>${c.company||'<span style="color:var(--ink3)">—</span>'}</td><td>${fd(c.createdAt)}</td><td><span class="badge b-quoted">${c.requestCount}</span></td></tr>`; });
-  document.getElementById('p-adminClients').innerHTML = h + '</tbody></table></div>';
+  const cl = adminCache.allClients || [];
+  const el = document.getElementById('p-adminClients');
+  el.innerHTML = `<div class="page-head"><h1>Clients</h1><p>${cl.length} registered clients</p></div><div class="table-wrap" id="clTableWrap"></div>`;
+  let clPage = 1;
+  const clSize = 20;
+  function renderClPage(p) {
+    clPage = p;
+    const tp = Math.max(1, Math.ceil(cl.length/clSize));
+    const slice = cl.slice((p-1)*clSize, p*clSize);
+    let h = '<table><thead><tr><th>Email</th><th>Company</th><th>Joined</th><th>Requests</th></tr></thead><tbody>';
+    if (!cl.length) h += '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--ink3);">No clients yet.</td></tr>';
+    slice.forEach(c => { h += `<tr><td>${c.email}</td><td>${c.company||'<span style="color:var(--ink3)">—</span>'}</td><td>${fd(c.createdAt)}</td><td><span class="badge b-quoted">${c.requestCount}</span></td></tr>`; });
+    h += '</tbody></table>';
+    if (tp>1) h += paginationBar(p, tp, cl.length, 'renderClPage');
+    document.getElementById('clTableWrap').innerHTML = h;
+  }
+  window.renderClPage = renderClPage;
+  renderClPage(1);
 }
 
 async function loadBrokerPanel() {
@@ -1120,7 +1133,41 @@ async function loadBrokerPanel() {
       <td><button class="btn-edit" onclick='openEditBrokerModal(${JSON.stringify(b)})' style="font-size:12px;padding:4px 10px;">Edit</button></td>
     </tr>`;
   });
-  document.getElementById('p-adminBrokers').innerHTML = h + '</tbody></table></div>';
+  // wrap table in paginated container
+  const brAll = brokers;
+  const brEl  = document.getElementById('p-adminBrokers');
+  const headerHtml = h.split('<table>')[0];
+  brEl.innerHTML = headerHtml + '<div id="brTableWrap"></div>';
+  let brPage = 1;
+  const brSize = 20;
+  function renderBrPage(p) {
+    brPage = p;
+    const tp    = Math.max(1, Math.ceil(brAll.length/brSize));
+    const slice = brAll.slice((p-1)*brSize, p*brSize);
+    let th = '<div class="table-wrap"><table><thead><tr><th>Company</th><th>Email</th><th>Freight Types</th><th>Quotes</th><th>Accepted</th><th>Status</th><th>Active</th><th></th></tr></thead><tbody>';
+    if (!slice.length) th += '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--ink3);">No brokers yet.</td></tr>';
+    slice.forEach(b => {
+      const rate = b.quoteCount ? Math.round(b.acceptedCount/b.quoteCount*100) : 0;
+      const ftChips = b.freightTypes && b.freightTypes.length
+        ? b.freightTypes.map(t => `<span class="badge b-neutral" style="margin:1px 2px;font-size:10px;">${t}</span>`).join('')
+        : '<span style="color:var(--ink3);font-size:12px;">All types</span>';
+      th += `<tr>
+        <td style="font-weight:600;">${b.company}</td>
+        <td style="font-size:12px;color:var(--ink2);">${b.email}</td>
+        <td style="max-width:180px;">${ftChips}</td>
+        <td>${b.quoteCount}</td>
+        <td>${b.acceptedCount} <span style="color:var(--ink3);font-size:12px;">(${rate}%)</span></td>
+        <td><span class="badge ${b.active?'b-active':'b-inactive'}">${b.active?'Active':'Paused'}</span></td>
+        <td><div class="toggle" onclick="toggleBroker('${b.id}',this)"><div class="toggle-track ${b.active?'on':''}"><div class="toggle-thumb"></div></div></div></td>
+        <td><button class="btn-edit" onclick='openEditBrokerModal(${JSON.stringify(b)})' style="font-size:12px;padding:4px 10px;">Edit</button></td>
+      </tr>`;
+    });
+    th += '</tbody></table></div>';
+    if (tp>1) th += paginationBar(p, tp, brAll.length, 'renderBrPage');
+    document.getElementById('brTableWrap').innerHTML = th;
+  }
+  window.renderBrPage = renderBrPage;
+  renderBrPage(1);
 }
 
 function openAddBrokerModal() {
@@ -1175,36 +1222,110 @@ async function loadEmpPanel() {
 }
 
 async function loadActivityPanel() {
-  document.getElementById('p-adminActivity').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const el = document.getElementById('p-adminActivity');
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
   const r = await api({action:'adminGetActivity', email:S.email, token:S.token});
-  if (!r.activities||!r.activities.length) { document.getElementById('p-adminActivity').innerHTML = '<div class="empty"><h3>No activity yet</h3><p>Actions will appear here as users interact with the system.</p></div>'; return; }
-  const cm = {LOGIN:'var(--blue)',REQUEST_SUBMITTED:'var(--green)',QUOTE_SUBMITTED:'var(--accent)',QUOTE_ACCEPT:'var(--green)',QUOTE_REJECT:'var(--red)',EMPLOYEE_ADDED:'var(--blue)',BROKER_ADDED:'var(--accent)',SETTINGS_SAVED:'var(--amber)',TEMPLATE_SAVED:'#7c3aed',TEMPLATE_RESET:'var(--ink3)'};
-  let h = `<div class="page-head"><h1>Activity Log</h1></div><div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px 20px;">`;
-  r.activities.forEach(a => {
-    h += `<div class="act-item"><div class="act-dot" style="background:${cm[a.action]||'var(--ink3)'};"></div><div style="flex:1;">
-      <div><span class="act-actor">${a.actor}</span> <span style="color:var(--ink2);">${fmtAction(a.action)}</span></div>
-      <div style="color:var(--ink2);font-size:13px;margin-top:2px;">${a.detail}</div>
-      <div class="act-time">${fdt(a.timestamp)}</div>
-    </div></div>`;
-  });
-  document.getElementById('p-adminActivity').innerHTML = h + '</div>';
+  if (!r.activities||!r.activities.length) { el.innerHTML = '<div class="empty"><h3>No activity yet</h3><p>Actions will appear here as users interact with the system.</p></div>'; return; }
+  const allActs = r.activities;
+  const cm = {LOGIN:'var(--blue)',REQUEST_SUBMITTED:'var(--green)',QUOTE_SUBMITTED:'var(--accent)',QUOTE_ACCEPT:'var(--green)',QUOTE_REJECT:'var(--red)',EMPLOYEE_ADDED:'var(--blue)',BROKER_ADDED:'var(--accent)',SETTINGS_SAVED:'var(--amber)',TEMPLATE_SAVED:'#7c3aed',TEMPLATE_RESET:'var(--ink3)',OTP_LOCKOUT:'var(--red)',PROFILE_UPDATED:'var(--blue)',CUSTOM_BROKER_ADDED:'var(--accent)'};
+  const acSize = 20;
+  let acPage = 1;
+  // Build unique user list for filter
+  const acUsers = ['', ...new Set(allActs.map(a => a.actor))].sort();
+
+  function getFilteredActs() {
+    const user = document.getElementById('acUser')?.value || '';
+    return allActs.filter(a => !user || a.actor === user);
+  }
+
+  function renderAcPage(p) {
+    acPage = p;
+    const filtered = getFilteredActs();
+    const tp    = Math.max(1, Math.ceil(filtered.length/acSize));
+    const slice = filtered.slice((p-1)*acSize, p*acSize);
+    let h = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px 20px;" id="actListWrap">';
+    if (!slice.length) h += '<div style="padding:32px;text-align:center;color:var(--ink3);">No activity for this user.</div>';
+    slice.forEach(a => {
+      h += `<div class="act-item"><div class="act-dot" style="background:${cm[a.action]||'var(--ink3)'};"></div><div style="flex:1;">
+        <div><span class="act-actor">${a.actor}</span> <span style="color:var(--ink2);">${fmtAction(a.action)}</span></div>
+        <div style="color:var(--ink2);font-size:13px;margin-top:2px;">${a.detail}</div>
+        <div class="act-time">${fdt(a.timestamp)}</div>
+      </div></div>`;
+    });
+    h += '</div>';
+    if (tp>1) h += paginationBar(p, tp, filtered.length, 'applyAcFilter');
+    document.getElementById('acListArea').innerHTML = h;
+  }
+
+  window.applyAcFilter = function(p) { acPage = p||1; renderAcPage(acPage); };
+
+  el.innerHTML = `
+    <div class="page-head"><h1>Activity Log</h1><p>${allActs.length} total entries</p></div>
+    <div class="filter-bar">
+      <div class="ff" style="margin:0;">
+        <label style="font-size:11px;">Filter by User</label>
+        <select id="acUser" onchange="applyAcFilter(1)" style="min-width:240px;">
+          <option value="">All Users</option>
+          ${acUsers.filter(u=>u).map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn-ghost" onclick="document.getElementById('acUser').value='';applyAcFilter(1);" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+    </div>
+    <div id="acListArea"></div>`;
+  renderAcPage(1);
 }
 
 async function loadRequestsPanel() {
   if (!adminCache.recentRequests) { const r = await api({action:'adminGetOverview',email:S.email,token:S.token}); if(r.success) adminCache=r; }
-  const rows = adminCache.recentRequests || [];
-  document.getElementById('p-adminRequests').innerHTML = `<div class="page-head"><h1>All Requests</h1><p>${rows.length} total requests</p></div><div class="table-wrap" id="reqTableWrap"></div>`;
-  let reqPage = 1;
+  const allRows = adminCache.recentRequests || [];
   const pageSize = 20;
+  let reqPage = 1;
+
+  const clientOptions = [...new Set(allRows.map(r => r.clientEmail).filter(Boolean))].sort()
+    .map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+
+  function getFilteredReqs() {
+    const client = document.getElementById('reqClientFilter')?.value || '';
+    const status = document.getElementById('reqStatusFilter')?.value || '';
+    return allRows.filter(r => {
+      if (client && r.clientEmail !== client) return false;
+      if (status && (r.status||'').toLowerCase() !== status.toLowerCase()) return false;
+      return true;
+    });
+  }
+
   function renderReqPage(p) {
     reqPage = p;
-    const tp = Math.max(1, Math.ceil(rows.length/pageSize));
+    const rows  = getFilteredReqs();
+    const tp    = Math.max(1, Math.ceil(rows.length / pageSize));
     const slice = rows.slice((p-1)*pageSize, p*pageSize);
-    let h = reqTable(slice);
-    if (tp>1) h += paginationBar(p, tp, rows.length, 'renderReqPage');
+    let h = slice.length ? reqTable(slice) : '<div style="padding:32px;text-align:center;color:var(--ink3);">No requests match the current filter.</div>';
+    if (tp > 1) h += paginationBar(p, tp, rows.length, 'renderReqPage');
     document.getElementById('reqTableWrap').innerHTML = h;
   }
   window.renderReqPage = renderReqPage;
+  window.applyReqFilter = function() { renderReqPage(1); };
+
+  document.getElementById('p-adminRequests').innerHTML = `
+    <div class="page-head"><h1>All Requests</h1><p>${allRows.length} total requests</p></div>
+    <div class="filter-bar">
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">Client</label>
+        <select id="reqClientFilter" onchange="applyReqFilter()">
+          <option value="">All Clients</option>
+          ${clientOptions}
+        </select>
+      </div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">Status</label>
+        <select id="reqStatusFilter" onchange="applyReqFilter()">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Quoted">Quoted</option>
+          <option value="Accepted">Accepted</option>
+        </select>
+      </div>
+      <button class="btn-ghost" onclick="document.getElementById('reqClientFilter').value='';document.getElementById('reqStatusFilter').value='';applyReqFilter();" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+    </div>
+    <div class="table-wrap" id="reqTableWrap"></div>`;
   renderReqPage(1);
 }
 
@@ -1699,14 +1820,19 @@ async function loadAdminAllQuotes() {
     document.getElementById('aqTableWrap').innerHTML = h;
   }
 
+  // Build unique broker list for filter
+  const aqBrokers = ['', ...new Set(allQuotes.map(q => q.brokerCompany||q.brokerEmail))].sort();
+
   function getFilteredQuotes() {
-    const dateFrom = document.getElementById('aqFrom')?.value || '';
-    const dateTo   = document.getElementById('aqTo')?.value   || '';
-    const status   = document.getElementById('aqStatus')?.value || '';
+    const broker   = document.getElementById('aqBroker')?.value  || '';
+    const status   = document.getElementById('aqStatus')?.value  || '';
+    const dateFrom = document.getElementById('aqFrom')?.value    || '';
+    const dateTo   = document.getElementById('aqTo')?.value      || '';
     return allQuotes.filter(q => {
+      if (broker && (q.brokerCompany||q.brokerEmail) !== broker) return false;
       if (status && q.status !== status) return false;
       if (dateFrom && q.submittedAt < dateFrom) return false;
-      if (dateTo   && q.submittedAt.slice(0,10) > dateTo)   return false;
+      if (dateTo   && q.submittedAt.slice(0,10) > dateTo) return false;
       return true;
     });
   }
@@ -1716,8 +1842,13 @@ async function loadAdminAllQuotes() {
   el.innerHTML = `
     <div class="page-head"><h1>All Quotes</h1><p>${allQuotes.length} total quotes submitted by brokers.</p></div>
     <div class="filter-bar">
-      <div class="ff" style="margin:0;"><label style="font-size:11px;">From Date</label><input type="date" id="aqFrom" onchange="applyAqFilter(1)"></div>
-      <div class="ff" style="margin:0;"><label style="font-size:11px;">To Date</label><input type="date" id="aqTo" onchange="applyAqFilter(1)"></div>
+      <div class="ff" style="margin:0;">
+        <label style="font-size:11px;">Broker</label>
+        <select id="aqBroker" onchange="applyAqFilter(1)" style="min-width:200px;">
+          <option value="">All Brokers</option>
+          ${aqBrokers.filter(b=>b).map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('')}
+        </select>
+      </div>
       <div class="ff" style="margin:0;"><label style="font-size:11px;">Status</label>
         <select id="aqStatus" onchange="applyAqFilter(1)">
           <option value="">All Statuses</option>
@@ -1726,7 +1857,9 @@ async function loadAdminAllQuotes() {
           <option value="rejected">Rejected</option>
         </select>
       </div>
-      <button class="btn-ghost" onclick="document.getElementById('aqFrom').value='';document.getElementById('aqTo').value='';document.getElementById('aqStatus').value='';applyAqFilter(1);" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">From Date</label><input type="date" id="aqFrom" onchange="applyAqFilter(1)"></div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">To Date</label><input type="date" id="aqTo" onchange="applyAqFilter(1)"></div>
+      <button class="btn-ghost" onclick="['aqBroker','aqStatus','aqFrom','aqTo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});applyAqFilter(1);" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
     </div>
     <div id="aqTableWrap"></div>`;
   renderAqPage(1, allQuotes);
