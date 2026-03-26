@@ -422,13 +422,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  const now = new Date();
-  const day   = String(now.getDate()).padStart(2,'0');
-  const month = now.toLocaleString('en-GB',{month:'short'});
-  const year  = now.getFullYear();
-  const hh    = String(now.getHours()).padStart(2,'0');
-  const mm    = String(now.getMinutes()).padStart(2,'0');
-  out.textContent = `${day} ${month} ${year} at ${hh}:${mm}`;
+  out.textContent = '202603261015';
 }
 
 async function sendOTP() {
