@@ -422,7 +422,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = '202603261015';
+  out.textContent = '202603261038';
 }
 
 async function sendOTP() {
@@ -796,7 +796,13 @@ async function loadClientDash() {
     slice.forEach(req => {
       const sc = {Pending:'b-pending',Quoted:'b-quoted',Accepted:'b-accepted'}[req.status]||'b-pending';
       ph += `<div class="req-card">
-        <div class="req-header"><div class="route-text">${req.origin}, ${req.originZip} → ${req.destination}, ${req.destZip}</div><span class="badge ${sc}">${req.status||'Pending'}</span></div>
+        <div class="req-header">
+          <div class="route-text">${req.origin}, ${req.originZip} → ${req.destination}, ${req.destZip}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${sc}">${req.status||'Pending'}</span>
+            <button onclick="requestAgain(${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,notes:req.notes||''}).replace(/"/g,'&quot;')})" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">↺ Request Again</button>
+          </div>
+        </div>
         <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span><span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>`;
       if (req.quotes.length) {
         ph += '<div class="quote-list">';
@@ -840,6 +846,41 @@ async function respondQuote(quoteId, quoteAction, btn) {
   const r = await api(payload);
   if (r.success) loadClientDash();
   else { btn.disabled = false; btn.textContent = orig; alert(r.error); }
+}
+
+function requestAgain(req) {
+  // Switch to New Request panel
+  setNav(document.getElementById('n-clientNew'), 'clientNew');
+
+  // Wait for the panel to render then pre-fill all fields
+  setTimeout(() => {
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    set('fO',  req.origin);
+    set('fOZ', req.originZip);
+    set('fD',  req.destination);
+    set('fDZ', req.destZip);
+    set('fW',  req.weight);
+    set('fN',  req.notes || '');
+
+    // Select the matching freight type button
+    const btns = document.querySelectorAll('#clientFtBtns .ft-btn');
+    btns.forEach(b => {
+      b.classList.remove('sel');
+      if (b.textContent.trim() === req.freightType) {
+        b.classList.add('sel');
+        selFreight = req.freightType;
+        loadBrokerSelector(req.freightType);
+      }
+    });
+
+    // Scroll to top of form and focus weight field so client can change it
+    document.getElementById('p-clientNew')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('fW')?.focus();
+    document.getElementById('fW')?.select();
+
+    // Show a subtle hint
+    msg('reqMsg', '✎ Pre-filled from previous request — update weight or any details before submitting.', 'info');
+  }, 100);
 }
 
 // ─── EMPLOYEE ─────────────────────────────────────────────────
