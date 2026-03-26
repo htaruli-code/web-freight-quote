@@ -422,23 +422,13 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  const checks = [
-    ['respondQuote', typeof respondQuote],
-    ['sendOTP',      typeof sendOTP],
-    ['verifyOTP',    typeof verifyOTP],
-    ['loadClient',   typeof loadClient],
-    ['buildClientFtBtns', typeof buildClientFtBtns],
-    ['API value',    typeof API !== 'undefined' ? API.substring(0,60)+'…' : 'UNDEFINED'],
-  ];
-  const lines = ['=== FreightQuote Version Check ==='];
-  checks.forEach(([name, val]) => {
-    const ok = val === 'function' || (name === 'API value' && val !== 'UNDEFINED');
-    lines.push((ok ? '✓' : '✗') + ' ' + name + ': ' + val);
-  });
-  // Show version fingerprint
-  lines.push('');
-  lines.push('Fix: respondQuote param = ' + (typeof respondQuote !== 'undefined' ? respondQuote.toString().split('\n')[0] : 'N/A'));
-  out.textContent = lines.join('\n');
+  const now = new Date();
+  const day   = String(now.getDate()).padStart(2,'0');
+  const month = now.toLocaleString('en-GB',{month:'short'});
+  const year  = now.getFullYear();
+  const hh    = String(now.getHours()).padStart(2,'0');
+  const mm    = String(now.getMinutes()).padStart(2,'0');
+  out.textContent = `${day} ${month} ${year} at ${hh}:${mm}`;
 }
 
 async function sendOTP() {
