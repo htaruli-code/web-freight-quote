@@ -1717,9 +1717,10 @@ async function loadAdminAllQuotes() {
   if (page === 'broker') {
     const requestId   = params.get('requestId')   || '';
     const brokerEmail = params.get('brokerEmail')  || '';
+    const brokerId    = params.get('brokerId')     || '';
     const sig         = params.get('sig')          || '';
     if (requestId && brokerEmail && sig) {
-      showBrokerQuotePage(requestId, brokerEmail, sig);
+      showBrokerQuotePage(requestId, brokerEmail, brokerId, sig);
       return;
     }
   }
@@ -1743,7 +1744,7 @@ async function loadAdminAllQuotes() {
 
 // ─── BROKER QUOTE PAGE (from email link) ──────────────────────
 
-async function showBrokerQuotePage(requestId, brokerEmail, sig) {
+async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
   // Show a clean full-screen page — no login required, sig is verified server-side
   document.body.innerHTML = `
     <div id="bqPage" style="min-height:100vh;background:var(--bg);font-family:'Outfit',sans-serif;">
@@ -1758,7 +1759,7 @@ async function showBrokerQuotePage(requestId, brokerEmail, sig) {
       </div>
     </div>`;
 
-  const r = await api({ action: 'getRequest', requestId, brokerEmail, sig });
+  const r = await api({ action: 'getRequest', requestId, brokerEmail, brokerId, sig });
   const el = document.getElementById('bqContent');
 
   if (!r.success) {
