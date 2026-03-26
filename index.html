@@ -407,11 +407,8 @@ tbody tr:hover td{background:var(--bg);}
   </div>
 </div>
 
+<script src="config.js"></script>
 <script>
-// ▼ Paste your Apps Script deployment URL here
-const API = "https://script.google.com/macros/s/AKfycbzB77MndzW2e1mNX4R0rqH_OQK_0zU41gD7s10Yq3pipx88DVyYaMvGCOtD1prG0sF3/exec";
-// ▼ Your GitHub Pages / custom domain URL (used in dashboard links on email-link pages)
-const APP_URL_JS = "https://htaruli-code.github.io/freightquote";
 let S = {email:'', token:'', role:''};
 let userTz = '';
 let selFreight = '';
@@ -1785,6 +1782,7 @@ async function showBrokerQuotePage(requestId, brokerEmail, sig) {
   }
 
   const req = r.request;
+  const bCo = r.brokerCompany || '';
   el.innerHTML = `
     <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;">Submit Your Quote</h2>
     <p style="color:var(--ink2);font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
@@ -1803,28 +1801,31 @@ async function showBrokerQuotePage(requestId, brokerEmail, sig) {
 
     <div id="bqMsg"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="ff" style="grid-column:1/-1;">
+        <label>Your Company</label>
+        <input type="text" id="bqCo" value="${esc(bCo)}" disabled
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;background:var(--surface2);color:var(--ink2);cursor:not-allowed;">
+      </div>
       <div class="ff"><label>All-In Rate ($) *</label><input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
       <div class="ff"><label>Transit Days *</label><input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
-      <div class="ff"><label>Valid Until</label><input type="date" id="bqValid" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
-      <div class="ff"><label>Your Company Name *</label><input type="text" id="bqCo" placeholder="Carrier Company LLC" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
+      <div class="ff" style="grid-column:1/-1;"><label>Valid Until (optional)</label><input type="date" id="bqValid" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
       <div class="ff" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:70px;"></textarea></div>
     </div>
-    <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}')"
+    <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}','${esc(bCo)}')"
       style="width:100%;padding:13px;background:var(--ink);color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
       Submit Quote →
     </button>`;
 }
 
-async function submitBrokerQuoteFromPage(requestId, brokerEmail) {
+async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) {
   const rate    = document.getElementById('bqRate')?.value.trim();
   const transit = document.getElementById('bqTransit')?.value.trim();
-  const co      = document.getElementById('bqCo')?.value.trim();
+  const co      = brokerCompany || document.getElementById('bqCo')?.value.trim();
   const valid   = document.getElementById('bqValid')?.value || '';
   const notes   = document.getElementById('bqNotes')?.value.trim() || '';
 
   if (!rate || isNaN(rate) || Number(rate) < 1) return msg('bqMsg','Enter a valid rate.','error');
   if (!transit || isNaN(transit))                return msg('bqMsg','Enter transit days.','error');
-  if (!co)                                       return msg('bqMsg','Enter your company name.','error');
 
   const btn = document.getElementById('bqBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
