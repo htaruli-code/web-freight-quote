@@ -1802,9 +1802,10 @@ async function showBrokerQuotePage(requestId, brokerEmail, sig) {
     <div id="bqMsg"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
       <div class="ff" style="grid-column:1/-1;">
-        <label>Your Company</label>
-        <input type="text" id="bqCo" value="${esc(bCo)}" disabled
-          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;background:var(--surface2);color:var(--ink2);cursor:not-allowed;">
+        <label>Your Company ${bCo ? '' : '*'}</label>
+        <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled' : 'placeholder="Your company name"'}
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;${bCo ? 'background:var(--surface2);color:var(--ink2);cursor:not-allowed;' : 'outline:none;'}">
+        ${bCo ? '<div style="font-size:11px;color:var(--ink3);margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
       </div>
       <div class="ff"><label>All-In Rate ($) *</label><input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
       <div class="ff"><label>Transit Days *</label><input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
@@ -1826,6 +1827,7 @@ async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) 
 
   if (!rate || isNaN(rate) || Number(rate) < 1) return msg('bqMsg','Enter a valid rate.','error');
   if (!transit || isNaN(transit))                return msg('bqMsg','Enter transit days.','error');
+  if (!co)                                       return msg('bqMsg','Enter your company name.','error');
 
   const btn = document.getElementById('bqBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
