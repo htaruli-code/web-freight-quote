@@ -416,6 +416,8 @@ let searchTimer;
 let adminCache = {};
 let currentTmplKey = '';
 let appSettings = {};
+let templatesCache = null;   // cached result of adminGetTemplates
+const panelLoaded = new Set(); // tracks which panels have already fetched data this session
 
 // ─── AUTH ──────────────────────────────────────────────────────
 
@@ -453,6 +455,7 @@ function backToEmail() { sw('ls2','ls1'); document.getElementById('otpCode').val
 
 function logout() {
   localStorage.removeItem('fq'); S = {email:'',token:'',role:''};
+  panelLoaded.clear(); templatesCache = null; adminCache = {}; appSettings = {};
   document.getElementById('appScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   sw('ls2','ls1');
@@ -548,21 +551,22 @@ function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('p-' + id);
   if (el) el.classList.add('active');
-  // Lazy-load panels on first visit
-  if (id === 'clientDash')      loadClientDash();
-  if (id === 'adminEmployees')  loadEmpPanel();
-  if (id === 'adminActivity')   loadActivityPanel();
-  if (id === 'adminBrokers')    loadBrokerPanel();
-  if (id === 'adminClients')    loadClientsPanel();
-  if (id === 'adminRequests')   loadRequestsPanel();
-  if (id === 'adminAllQuotes')  loadAdminAllQuotes();
-  if (id === 'clientSettings')  loadClientSettings();
-  if (id === 'brokerSettings')  loadBrokerSettings();
-  if (id === 'adminSettings')   loadSettingsPanel();
-  if (id === 'adminTemplates')  loadTemplatesPanel();
-  if (id === 'empRequests')     {} // already rendered
-  if (id === 'brokerDash')      loadBrokerDashboard();
-  if (id === 'brokerQuotes')    loadBrokerQuotesPanel();
+  // Lazy-load panels on first visit only (use panelLoaded to avoid duplicate API calls)
+  const once = (key, fn) => { if (!panelLoaded.has(key)) { panelLoaded.add(key); fn(); } };
+  if (id === 'clientDash')      loadClientDash();          // always refresh — quote state changes
+  if (id === 'adminEmployees')  once('adminEmployees',  loadEmpPanel);
+  if (id === 'adminActivity')   once('adminActivity',   loadActivityPanel);
+  if (id === 'adminBrokers')    once('adminBrokers',    loadBrokerPanel);
+  if (id === 'adminClients')    once('adminClients',    loadClientsPanel);
+  if (id === 'adminRequests')   once('adminRequests',   loadRequestsPanel);
+  if (id === 'adminAllQuotes')  once('adminAllQuotes',  loadAdminAllQuotes);
+  if (id === 'clientSettings')  once('clientSettings',  loadClientSettings);
+  if (id === 'brokerSettings')  once('brokerSettings',  loadBrokerSettings);
+  if (id === 'adminSettings')   once('adminSettings',   loadSettingsPanel);
+  if (id === 'adminTemplates')  once('adminTemplates',  loadTemplatesPanel);
+  if (id === 'empRequests')     {} // already rendered inline with employeeGetData
+  if (id === 'brokerDash')      once('brokerDash',      renderBrokerDash); // renders into existing shell
+  if (id === 'brokerQuotes')    once('brokerQuotes',    loadBrokerQuotesPanel);
 }
 
 // ─── CLIENT ───────────────────────────────────────────────────
@@ -897,6 +901,9 @@ async function loadBrokerDashboard() {
       <div id="brokerDashContent"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>
     </div>
     <div class="panel" id="p-brokerQuotes"></div>`;
+  // Mark brokerDash as loaded so showPanel won't fire renderBrokerDash again,
+  // then fetch immediately — this is the initial load triggered by launch().
+  panelLoaded.add('brokerDash');
   await renderBrokerDash();
 }
 
@@ -1478,6 +1485,7 @@ async function loadTemplatesPanel() {
   document.getElementById('p-adminTemplates').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
   const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
   if (!r.success) { document.getElementById('p-adminTemplates').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  templatesCache = r.templates; // cache for openTemplateEditor
 
   let h = `
     <div class="page-head"><h1>Email Templates</h1><p>Customise every outgoing email. Variables in <code style="background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px;font-size:12px;">{{double braces}}</code> are replaced automatically at send time.</p></div>
@@ -1509,10 +1517,13 @@ async function loadTemplatesPanel() {
 async function openTemplateEditor(key) {
   currentTmplKey = key;
   const meta = TEMPLATE_META[key];
-  const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
-  if (!r.success) { alert('Failed to load templates.'); return; }
-
-  const tmpl = r.templates[key];
+  // Use cached templates if available, otherwise fetch once
+  if (!templatesCache) {
+    const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
+    if (!r.success) { alert('Failed to load templates.'); return; }
+    templatesCache = r.templates;
+  }
+  const tmpl = templatesCache[key];
   document.getElementById('tmplModalTitle').textContent = 'Edit: ' + meta.name;
   document.getElementById('tmplModalDesc').textContent  = meta.desc;
   document.getElementById('tmplSubject').value = tmpl?.subject || '';
@@ -1544,7 +1555,7 @@ async function saveTemplate() {
   setBtnLoad('tmplSaveBtn','Saving…');
   const r = await api({action:'adminSaveTemplate', email:S.email, token:S.token, key:currentTmplKey, subject, body});
   resetBtn('tmplSaveBtn','Save Template');
-  if (r.success) { closeModal('tmplModal'); loadTemplatesPanel(); }
+  if (r.success) { templatesCache = null; panelLoaded.delete('adminTemplates'); closeModal('tmplModal'); loadTemplatesPanel(); }
   else msg('tmplModalMsg', r.error,'error');
 }
 
@@ -1554,6 +1565,7 @@ async function resetTemplate() {
   const r = await api({action:'adminResetTemplate', email:S.email, token:S.token, key:currentTmplKey});
   resetBtn('tmplSaveBtn','Save Template');
   if (r.success) {
+    templatesCache = null; panelLoaded.delete('adminTemplates');
     document.getElementById('tmplSubject').value = r.template.subject;
     document.getElementById('tmplBody').value    = r.template.body;
     msg('tmplModalMsg','Template reset to default.','success');
@@ -1570,7 +1582,7 @@ async function addEmployee() {
   setBtnLoad('empConfirmBtn','Adding…');
   const r = await api({action:'adminAddEmployee', email:S.email, token:S.token, newEmail:email, newName:name});
   resetBtn('empConfirmBtn','Add & Notify');
-  if (r.success) { closeModal('empModal'); document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; loadEmpPanel(); }
+  if (r.success) { closeModal('empModal'); document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; panelLoaded.delete('adminEmployees'); loadEmpPanel(); }
   else msg('empModalMsg', r.error,'error');
 }
 
@@ -1585,18 +1597,37 @@ async function saveBroker() {
   if (bid) payload.brokerId = bid;
   const r = await api(payload);
   resetBtn('brokerConfirmBtn', bid ? 'Save Changes' : 'Add Broker');
-  if (r.success) { closeModal('brokerModal'); loadBrokerPanel(); }
+  if (r.success) { closeModal('brokerModal'); panelLoaded.delete('adminBrokers'); loadBrokerPanel(); }
   else msg('brokerModalMsg', r.error,'error');
 }
 
 async function toggleBroker(brokerId, el) {
   const r = await api({action:'adminToggleBroker', email:S.email, token:S.token, brokerId});
-  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadBrokerPanel(); }
+  if (r.success) {
+    const track = el.querySelector('.toggle-track');
+    track.classList.toggle('on');
+    const isNowOn = track.classList.contains('on');
+    // Update the status badge in the same row without a full panel reload
+    const row = el.closest('tr');
+    if (row) {
+      const badge = row.querySelector('td:nth-child(6) .badge');
+      if (badge) {
+        badge.textContent = isNowOn ? 'Active' : 'Paused';
+        badge.className   = 'badge ' + (isNowOn ? 'b-active' : 'b-inactive');
+      }
+    }
+    // Evict cache so next explicit visit to Brokers panel re-fetches fresh data
+    panelLoaded.delete('adminBrokers');
+  }
 }
 
 async function toggleEmp(targetEmail, el) {
   const r = await api({action:'adminToggleEmployee', email:S.email, token:S.token, targetEmail});
-  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadEmpPanel(); }
+  if (r.success) {
+    el.querySelector('.toggle-track').classList.toggle('on');
+    // Evict cache so next visit to Employees panel re-fetches fresh data
+    panelLoaded.delete('adminEmployees');
+  }
 }
 
 // ─── SEARCH ───────────────────────────────────────────────────
