@@ -7,7 +7,7 @@
 
 // Apps Script deployment URL
 // Found at: Apps Script → Deploy → Manage Deployments → copy URL
-const API = "https://script.google.com/a/*/macros/s/AKfycbzB77MndzW2e1mNX4R0rqH_OQK_0zU41gD7s10Yq3pipx88DVyYaMvGCOtD1prG0sF3/exec";
+const API = "https://script.google.com/macros/s/AKfycby9Tb3yK_6dPHAlGIT31tBfFVmO7TVCDBOUbTy4imDv7odd1tPrnfE_YI4pFU7hKwLr_g/exec";
 
 // Your GitHub Pages or custom domain URL
 // Used in the "Go to Dashboard" links on broker and accept/reject pages
