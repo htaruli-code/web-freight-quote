@@ -11,4 +11,4 @@ const API = "https://script.google.com/macros/s/AKfycbzB77MndzW2e1mNX4R0rqH_OQK_
 
 // Your GitHub Pages or custom domain URL
 // Used in the "Go to Dashboard" links on broker and accept/reject pages
-const APP_URL_JS = "https://htaruli-code.github.io/freightquote";
+const APP_URL_JS = "https://freightratesnow.com/";
