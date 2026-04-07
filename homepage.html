@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loadro — Load Rates Optimized</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .logo-load { font-family: system-ui, -apple-system, sans-serif; }
+    .hero-bg { background: linear-gradient(135deg, #0A2540 0%, #1E3A8A 100%); }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <!-- Logo 1 (Default) -->
+        <div id="nav-logo" class="logo-load text-2xl font-bold text-[#0A2540]">
+          LOAD<span class="text-[#FF6200]">RO</span>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <a href="#" class="text-gray-700 hover:text-[#FF6200]">How it Works</a>
+        <a href="#" class="text-gray-700 hover:text-[#FF6200]">For Shippers</a>
+        <a href="#" class="text-gray-700 hover:text-[#FF6200]">For Carriers</a>
+        <a href="#" class="text-gray-700 hover:text-[#FF6200]">Pricing</a>
+      </div>
+      <a href="#" class="bg-[#FF6200] hover:bg-orange-600 text-white px-6 py-3 rounded-full font-semibold text-sm transition">
+        Get Optimized Quotes
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg text-white py-24">
+    <div class="max-w-5xl mx-auto px-6 text-center">
+      <div class="mb-8">
+        <span class="inline-block bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-6">
+          Load Rates Optimized
+        </span>
+      </div>
+
+      <!-- Headline Switcher -->
+      <div class="mb-12">
+        <div class="flex flex-wrap justify-center gap-3 mb-6" id="headline-buttons">
+          <button onclick="switchHeadline(0)" class="headline-btn active px-5 py-2 rounded-full text-sm bg-white/20 hover:bg-white/30 transition">Option 1</button>
+          <button onclick="switchHeadline(1)" class="headline-btn px-5 py-2 rounded-full text-sm bg-white/20 hover:bg-white/30 transition">Option 2</button>
+          <button onclick="switchHeadline(2)" class="headline-btn px-5 py-2 rounded-full text-sm bg-white/20 hover:bg-white/30 transition">Option 3</button>
+          <button onclick="switchHeadline(3)" class="headline-btn px-5 py-2 rounded-full text-sm bg-white/20 hover:bg-white/30 transition">Option 4</button>
+        </div>
+
+        <h1 id="main-headline" class="text-5xl md:text-6xl font-bold leading-tight mb-6">
+          Load Rates Optimized.
+        </h1>
+        <p id="main-subheadline" class="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
+          Compare freight quotes instantly and get the best rates for every load.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="#" class="bg-[#FF6200] hover:bg-orange-600 text-white px-10 py-4 rounded-full font-semibold text-lg transition flex items-center justify-center gap-2">
+          <i class="fas fa-bolt"></i> Optimize My Load Now
+        </a>
+        <a href="#" class="border-2 border-white/80 hover:bg-white/10 text-white px-10 py-4 rounded-full font-semibold text-lg transition">
+          Watch 1-Min Demo
+        </a>
+      </div>
+
+      <div class="mt-12 text-white/70 text-sm">
+        Trusted by shippers moving 10,000+ loads monthly
+      </div>
+    </div>
+  </section>
+
+  <!-- Logo Showcase Section -->
+  <section class="py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center text-[#0A2540] mb-12">Logo Concepts for Loadro</h2>
+      
+      <div class="grid md:grid-cols-3 gap-10">
+
+        <!-- Logo 1: Modern Wordmark -->
+        <div class="border border-gray-200 rounded-2xl p-8 text-center hover:shadow-lg transition">
+          <div class="mb-6 flex justify-center">
+            <div class="logo-load text-7xl font-black tracking-tighter text-[#0A2540]">
+              LOAD<span class="text-[#FF6200]">RO</span>
+            </div>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Logo 1 — Modern Wordmark</h3>
+          <p class="text-gray-600 text-sm">Clean, bold, and highly scalable. "RO" highlighted in orange for emphasis on optimization.</p>
+        </div>
+
+        <!-- Logo 2: Icon + Wordmark -->
+        <div class="border border-gray-200 rounded-2xl p-8 text-center hover:shadow-lg transition">
+          <div class="mb-6 flex justify-center">
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 bg-[#FF6200] rounded-xl flex items-center justify-center text-white text-3xl font-bold shadow-inner">📦</div>
+              <div class="logo-load text-5xl font-bold text-[#0A2540]">
+                LOAD<span class="text-[#FF6200]">RO</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Logo 2 — Icon + Wordmark</h3>
+          <p class="text-gray-600 text-sm">Features a stylized load/box icon with orange accent. Great for apps and marketing materials.</p>
+        </div>
+
+        <!-- Logo 3: Minimal Monogram -->
+        <div class="border border-gray-200 rounded-2xl p-8 text-center hover:shadow-lg transition">
+          <div class="mb-6 flex justify-center">
+            <div class="flex items-center gap-3">
+              <div class="w-20 h-20 border-4 border-[#0A2540] rounded-2xl flex items-center justify-center text-4xl font-black text-[#0A2540] relative">
+                LR
+                <div class="absolute -top-1 -right-1 w-6 h-6 bg-[#FF6200] rounded-full flex items-center justify-center text-white text-xs font-bold">↑</div>
+              </div>
+              <div class="logo-load text-5xl font-bold text-[#0A2540]">
+                LOAD<span class="text-[#FF6200]">RO</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Logo 3 — Minimal Monogram</h3>
+          <p class="text-gray-600 text-sm">Stylish "LR" monogram with upward arrow symbolizing optimization. Very premium and compact.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <footer class="bg-[#0A2540] text-white py-12">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-white/70">
+      © 2026 Loadro.com — Load Rates Optimized. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    const headlines = [
+      {
+        headline: "Load Rates Optimized.",
+        sub: "Compare freight quotes instantly and get the best rates for every load."
+      },
+      {
+        headline: "Load Smarter with Loadro.",
+        sub: "Real-time freight quote comparison. Optimized rates. Zero hassle."
+      },
+      {
+        headline: "Your Load. Optimized Rates.",
+        sub: "Compare multiple carriers in seconds and save on every shipment."
+      },
+      {
+        headline: "Better Rates for Every Load.",
+        sub: "Join thousands of shippers who use Loadro to optimize freight costs."
+      }
+    ];
+
+    function switchHeadline(index) {
+      document.getElementById('main-headline').textContent = headlines[index].headline;
+      document.getElementById('main-subheadline').textContent = headlines[index].sub;
+
+      // Update active button
+      document.querySelectorAll('.headline-btn').forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add('active', 'bg-white/30');
+        } else {
+          btn.classList.remove('active', 'bg-white/30');
+        }
+      });
+    }
+
+    // Set first option as active by default
+    window.onload = () => {
+      document.querySelector('.headline-btn').classList.add('active', 'bg-white/30');
+    };
+  </script>
+</body>
+</html>
