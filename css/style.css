@@ -1,0 +1,61 @@
+/* css/style.css - Fully Local Custom Styles for Loadro */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ====================== Loadro Brand Styles ====================== */
+
+:root {
+  --brand-navy: #0A2540;
+  --brand-orange: #FF6200;
+}
+
+/* Logo Font */
+.logo-load {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Brand Color Utilities */
+.bg-brand-navy { background-color: var(--brand-navy); }
+.text-brand-navy { color: var(--brand-navy); }
+.border-brand-navy { border-color: var(--brand-navy); }
+
+.bg-brand-orange { background-color: var(--brand-orange); }
+.text-brand-orange { color: var(--brand-orange); }
+.hover\:bg-brand-orange:hover { background-color: #E55A00; }
+
+/* Button Primary */
+.btn-primary {
+  background-color: var(--brand-orange);
+  color: white;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 1.75rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #E55A00;
+  transform: translateY(-1px);
+}
+
+/* Hero Background */
+.hero-bg {
+  background: linear-gradient(135deg, #0A2540 0%, #1E3A8A 100%);
+}
+
+/* Form Focus */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(255, 98, 0, 0.15);
+  outline: none;
+}
+
+/* General Enhancements */
+.transition-all {
+  transition: all 0.2s ease;
+}
