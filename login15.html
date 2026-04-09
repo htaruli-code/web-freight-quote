@@ -1,0 +1,2189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loadro — Load Rates Optimized</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.loadro-logo { font-family: system-ui, -apple-system, sans-serif; line-height: 1; }
+.loadro-logo .load { color: #0A2540; font-weight: 800; letter-spacing: -1px; }
+.loadro-logo .ro { color: #FF6200; font-weight: 800; letter-spacing: -1px; }
+.loadro-tagline { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #0A2540; margin-top: -1px; opacity: 0.55; }
+
+:root {
+  --bg:#f9f7f4; --surface:#fff; --surface2:#f2efe9; --border:#e5e1d8;
+  --ink:#1c1a17; --ink2:#6b6560; --ink3:#a8a39c;
+  --accent:#FF6200; --accent-bg:#fff3eb;
+  --blue:#1a4fc4; --blue-bg:#eef2fc;
+  --green:#197a45; --green-bg:#eaf5ef;
+  --amber:#b45309; --amber-bg:#fef9ee;
+  --red:#c0392b; --red-bg:#fdf0ef;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+.screen{display:none !important;} .screen.active{display:revert !important;}
+
+/* ─── LOGIN ─────────────────────────────────────────────────── */
+#loginScreen{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+.login-brand{background:#0A2540;padding:60px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+.login-brand::before{content:'';position:absolute;bottom:-80px;right:-80px;width:360px;height:360px;border-radius:50%;border:60px solid rgba(255,255,255,0.04);}
+.login-brand::after{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;border:40px solid rgba(255,255,255,0.03);}
+.brand-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.brand-icon{width:42px;height:42px;background:#FF6200;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.brand-name{font-size:22px;font-weight:700;color:white;}
+.brand-hero{position:relative;z-index:1;}
+.brand-hero h1{font-family:'Instrument Serif',serif;font-size:48px;color:white;line-height:1.15;margin-bottom:20px;}
+.brand-hero h1 em{font-style:italic;color:rgba(255,255,255,0.45);}
+.brand-hero p{color:rgba(255,255,255,0.5);font-size:16px;line-height:1.6;max-width:340px;}
+.brand-features{display:flex;flex-direction:column;gap:12px;position:relative;z-index:1;}
+.brand-feature{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.5);font-size:14px;}
+.bf-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.login-form-side{display:flex;align-items:center;justify-content:center;padding:60px 48px;}
+.login-box{width:100%;max-width:400px;}
+.login-box h2{font-family:'Instrument Serif',serif;font-size:34px;margin-bottom:6px;}
+.login-box>p{color:var(--ink2);font-size:15px;margin-bottom:36px;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;}
+.field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;color:var(--ink);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,75,26,.1);}
+.otp-input{text-align:center!important;letter-spacing:10px!important;font-size:26px!important;font-weight:700!important;}
+.btn-primary{width:100%;padding:13px;background:#0A2540;color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-primary:hover{background:#0d2f52;} .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-ghost{width:100%;padding:11px;background:transparent;color:var(--ink2);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;margin-top:8px;transition:all .15s;}
+.btn-ghost:hover{border-color:var(--ink2);color:var(--ink);}
+.alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;}
+.alert-error{background:var(--red-bg);border:1px solid rgba(192,57,43,.2);color:var(--red);}
+.alert-success{background:var(--green-bg);border:1px solid rgba(25,122,69,.2);color:var(--green);}
+.alert-info{background:var(--blue-bg);border:1px solid rgba(26,79,196,.2);color:var(--blue);}
+
+/* ─── APP SHELL ─────────────────────────────────────────────── */
+#appScreen{min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
+.topbar-left{display:flex;align-items:center;gap:20px;}
+.t-logo{display:flex;align-items:center;gap:8px;}
+.t-logo-icon{width:30px;height:30px;background:#0A2540;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.t-logo-text{font-weight:700;font-size:16px;}
+.role-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.r-admin{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(200,75,26,.2);}
+.r-employee{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,79,196,.2);}
+.r-client{background:var(--green-bg);color:var(--green);border:1px solid rgba(25,122,69,.2);}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.t-email{font-size:13px;color:var(--ink2);}
+.t-search-wrap{position:relative;}
+.t-search{display:flex;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0 12px;gap:6px;height:34px;}
+.t-search input{background:transparent;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:13px;color:var(--ink);width:200px;}
+.t-search input::placeholder{color:var(--ink3);}
+.btn-sm{padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .15s;}
+.btn-sm:hover{border-color:var(--ink2);color:var(--ink);}
+
+/* ─── LAYOUT ────────────────────────────────────────────────── */
+.app-body{display:flex;flex:1;}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);padding:20px 12px;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;flex-shrink:0;}
+.nav-section{margin-bottom:18px;}
+.nav-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);padding:0 8px;margin-bottom:4px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink2);transition:all .12s;border:none;background:transparent;width:100%;text-align:left;}
+.nav-item:hover{background:var(--surface2);color:var(--ink);}
+.nav-item.active{background:#0A2540;color:white;}
+.nav-icon{font-size:15px;flex-shrink:0;}
+.main{flex:1;padding:32px 36px;overflow-x:hidden;}
+
+/* ─── PANELS ────────────────────────────────────────────────── */
+.panel{display:none;animation:fadeUp .25s ease;max-width:1060px;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ─── STATS ─────────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;}
+.stat-label{font-size:12px;color:var(--ink2);font-weight:500;margin-bottom:6px;}
+.stat-value{font-family:'Instrument Serif',serif;font-size:38px;color:var(--ink);line-height:1;}
+.stat-sub{font-size:12px;color:var(--ink3);margin-top:4px;}
+.s-accent .stat-value{color:var(--accent);} .s-green .stat-value{color:var(--green);} .s-blue .stat-value{color:var(--blue);}
+
+/* ─── SECTION HEAD ──────────────────────────────────────────── */
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.section-head h2{font-family:'Instrument Serif',serif;font-size:22px;}
+
+/* ─── TABLE ─────────────────────────────────────────────────── */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:24px;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--surface2);padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--ink);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--bg);}
+
+/* ─── BADGES ────────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.b-pending{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(180,83,9,.2);}
+.b-quoted{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,79,196,.2);}
+.b-accepted{background:var(--green-bg);color:var(--green);border:1px solid rgba(25,122,69,.2);}
+.b-rejected{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,.2);}
+.b-active{background:var(--green-bg);color:var(--green);border:1px solid rgba(25,122,69,.2);}
+.b-inactive{background:var(--surface2);color:var(--ink3);border:1px solid var(--border);}
+.b-neutral{background:var(--surface2);color:var(--ink2);border:1px solid var(--border);}
+.b-custom{background:#fdf4ff;color:#7c3aed;border:1px solid rgba(124,58,237,.2);}
+
+/* ─── CLIENT CARDS ──────────────────────────────────────────── */
+.req-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:16px;}
+.req-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.route-text{font-family:'Instrument Serif',serif;font-size:19px;}
+.card-meta{display:flex;gap:16px;font-size:13px;color:var(--ink2);flex-wrap:wrap;margin-bottom:14px;}
+.quote-list{display:flex;flex-direction:column;gap:8px;}
+.quote-row{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;transition:border-color .15s;}
+.quote-row:hover{border-color:#c5bdb2;}
+.quote-row.accepted{border-color:rgba(25,122,69,.4);background:var(--green-bg);}
+.quote-row.rejected{opacity:.5;}
+.q-rate{font-family:'Instrument Serif',serif;font-size:26px;color:var(--blue);}
+.q-broker{font-weight:600;font-size:14px;}
+.q-detail{font-size:12px;color:var(--ink2);margin-top:2px;}
+.q-actions{display:flex;gap:8px;}
+.btn-accept{padding:7px 16px;background:var(--green);color:white;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-accept:hover{opacity:.85;}
+.btn-reject{padding:7px 16px;background:transparent;color:var(--red);border:1.5px solid rgba(192,57,43,.3);border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-reject:hover{background:var(--red-bg);}
+
+/* ─── FORMS ─────────────────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.span-2{grid-column:1/-1;}
+.ff label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);margin-bottom:6px;}
+.ff input,.ff textarea,.ff select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);outline:none;transition:border-color .2s;}
+.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--accent);}
+.ff textarea{resize:vertical;min-height:80px;}
+.ff select{appearance:none;cursor:pointer;}
+.freight-sel{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.ft-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--ink2);font-family:'Outfit',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+.ft-btn:hover{border-color:var(--ink2);color:var(--ink);}
+.ft-btn.sel{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600;}
+.form-submit{display:flex;justify-content:flex-end;margin-top:20px;}
+.btn-submit{padding:12px 28px;background:#0A2540;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-submit:hover{background:#FF6200;}
+.btn-submit:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ─── MODAL ─────────────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:16px;padding:32px;width:100%;max-width:460px;box-shadow:0 24px 60px rgba(0,0,0,.2);}
+.modal.wide{max-width:760px;}
+.modal h3{font-family:'Instrument Serif',serif;font-size:22px;margin-bottom:6px;}
+.modal-sub{color:var(--ink2);font-size:13px;margin-bottom:20px;}
+.modal .ff{margin-bottom:12px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.btn-cancel{padding:10px 20px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;}
+.btn-confirm{padding:10px 20px;background:#0A2540;color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-confirm:hover{background:#FF6200;}
+.btn-danger{padding:10px 20px;background:var(--red);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-danger:hover{opacity:.85;}
+
+/* ─── SETTINGS ──────────────────────────────────────────────── */
+.settings-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;}
+.settings-section-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.settings-section-head h3{font-size:15px;font-weight:600;}
+.settings-section-head p{font-size:12px;color:var(--ink2);margin-top:2px;}
+.settings-section-icon{font-size:20px;flex-shrink:0;}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-row-info{flex:1;}
+.settings-row-label{font-size:14px;font-weight:500;color:var(--ink);}
+.settings-row-desc{font-size:12px;color:var(--ink2);margin-top:3px;max-width:480px;}
+.settings-row-control{margin-left:24px;flex-shrink:0;}
+
+/* ─── TOGGLE ────────────────────────────────────────────────── */
+.toggle{display:inline-flex;align-items:center;cursor:pointer;}
+.toggle-track{width:40px;height:22px;border-radius:11px;background:var(--border);position:relative;transition:background .2s;}
+.toggle-track.on{background:var(--green);}
+.toggle-thumb{width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-track.on .toggle-thumb{left:21px;}
+
+/* ─── EMAIL TEMPLATES ───────────────────────────────────────── */
+.tmpl-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.tmpl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.tmpl-card:hover{border-color:#c5bdb2;}
+.tmpl-info{flex:1;}
+.tmpl-name{font-weight:600;font-size:14px;}
+.tmpl-desc{font-size:12px;color:var(--ink2);margin-top:3px;}
+.tmpl-actions{display:flex;gap:8px;flex-shrink:0;}
+.btn-edit{padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .15s;}
+.btn-edit:hover{border-color:var(--ink);color:var(--ink);}
+
+/* Template editor */
+.tmpl-editor{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.tmpl-editor-head{background:var(--surface2);padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.tmpl-editor-title{font-weight:600;font-size:14px;}
+.tmpl-editor-body{padding:20px;}
+.tmpl-editor .ff{margin-bottom:14px;}
+.tmpl-editor .ff textarea{min-height:280px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;}
+.var-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.var-chip{padding:3px 8px;background:var(--blue-bg);color:var(--blue);border:1px solid rgba(26,79,196,.2);border-radius:4px;font-size:11px;font-family:monospace;cursor:pointer;transition:all .12s;}
+.var-chip:hover{background:var(--blue);color:white;}
+.tmpl-editor-actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:16px;}
+.preview-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:12px;font-size:13px;max-height:300px;overflow-y:auto;}
+
+/* ─── ACTIVITY ──────────────────────────────────────────────── */
+.act-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.act-item:last-child{border-bottom:none;}
+.act-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:4px;flex-shrink:0;}
+.act-time{color:var(--ink3);font-size:11px;margin-top:2px;}
+.act-actor{font-weight:600;}
+
+/* ─── SEARCH DROP ───────────────────────────────────────────── */
+.s-results{position:absolute;top:40px;left:0;width:400px;max-height:320px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.12);display:none;z-index:60;}
+.s-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.s-item:hover{background:var(--bg);} .s-item:last-child{border-bottom:none;}
+.s-main{font-weight:600;font-size:14px;} .s-sub{font-size:12px;color:var(--ink2);}
+
+/* ─── MISC ──────────────────────────────────────────────────── */
+.empty{text-align:center;padding:56px 24px;color:var(--ink2);}
+.empty h3{font-family:'Instrument Serif',serif;font-size:22px;color:var(--ink);margin-bottom:8px;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,0,0,.12);border-top-color:var(--ink);border-radius:50%;animation:spinning .6s linear infinite;vertical-align:middle;margin-right:6px;}
+.spin-white{border-color:rgba(255,255,255,.3);border-top-color:white;}
+@keyframes spinning{to{transform:rotate(360deg);}}
+.page-head{margin-bottom:24px;}
+.page-head h1{font-family:'Instrument Serif',serif;font-size:28px;margin-bottom:4px;}
+.page-head p{color:var(--ink2);font-size:15px;}
+
+@media(max-width:768px){
+  #loginScreen{grid-template-columns:1fr;} .login-brand{display:none;}
+  .main{padding:20px 16px;} .sidebar{display:none;}
+  .form-grid{grid-template-columns:1fr;} .span-2{grid-column:1;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+}
+.pagination{display:flex;align-items:center;justify-content:center;gap:12px;padding:16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink2);}
+.pagination button{padding:6px 14px;border:1.5px solid var(--border);border-radius:7px;background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;color:var(--ink);}
+.pagination button:hover:not(:disabled){border-color:var(--ink2);}
+.pagination button:disabled{opacity:.35;cursor:not-allowed;}
+.profile-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
+.profile-section h3{font-size:15px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.filter-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:14px 16px;background:var(--surface2);border-bottom:1px solid var(--border);}
+.filter-bar input,.filter-bar select{padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;background:var(--surface);outline:none;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--accent);}
+.broker-sel-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:4px;}
+.broker-sel-wrap .bs-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--ink2);margin-bottom:10px;}
+.broker-row{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;gap:10px;}
+.broker-row:last-child{margin-bottom:0;}
+.broker-row-info{flex:1;min-width:0;}
+.broker-row-name{font-size:13px;font-weight:600;color:var(--ink);}
+.broker-row-email{font-size:11px;color:var(--ink3);margin-top:1px;}
+.broker-row-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px;}
+.broker-tag{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--surface2);color:var(--ink2);border:1px solid var(--border);}
+.broker-tag.custom{background:var(--blue-bg);color:var(--blue);border-color:rgba(26,79,196,.2);}
+.broker-exclude-btn{padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);white-space:nowrap;transition:all .15s;}
+.broker-exclude-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-bg);}
+.broker-exclude-btn.excluded{border-color:var(--red);color:var(--red);background:var(--red-bg);}
+.broker-exclude-btn.excluded:hover{border-color:var(--border);color:var(--ink2);background:transparent;}
+.custom-broker-add{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.custom-broker-add input{flex:1;min-width:140px;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;outline:none;}
+.custom-broker-add input:focus{border-color:var(--blue);}
+.btn-add-cb{padding:7px 14px;border-radius:7px;border:none;background:var(--blue);color:white;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.btn-add-cb:hover{opacity:.85;}
+.btn-del-cb{padding:4px 8px;border-radius:5px;border:1px solid rgba(192,57,43,.3);background:transparent;color:var(--red);font-size:11px;cursor:pointer;}
+.btn-del-cb:hover{background:var(--red-bg);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN
+════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="loginScreen" style="background:#f9fafb;min-height:100vh;display:flex;flex-direction:column;">
+
+  <!-- Nav -->
+  <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50;">
+    <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;">
+        <div class="loadro-logo" style="font-size:28px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
+        <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
+      </div>
+      <a href="homepage1.html" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- Card wrapper -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px;">
+    <div style="width:100%;max-width:440px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.12);overflow:hidden;">
+
+      <!-- Card header -->
+      <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:40px 32px;text-align:center;">
+        <div class="loadro-logo" style="font-size:36px;justify-content:center;display:flex;"><span class="load" style="color:white;">LOAD</span><span class="ro">RO</span></div>
+        <p style="color:rgba(255,255,255,.9);font-size:17px;margin-top:8px;font-family:'Outfit',sans-serif;font-weight:500;">Welcome back</p>
+        <p style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px;font-family:'Outfit',sans-serif;">Sign in to access your optimized freight rates</p>
+      </div>
+
+      <!-- ==================== LOGIN FORM START ==================== -->
+      <div style="padding:32px;">
+
+        <!-- Step 1: Email -->
+        <div id="ls1">
+          <div id="loginMsg"></div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;font-family:'Outfit',sans-serif;">Email Address</label>
+            <input type="email" id="loginEmail" placeholder="you@company.com" autocomplete="email"
+              style="width:100%;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:16px;font-family:'Outfit',sans-serif;font-size:15px;color:#111827;outline:none;transition:border-color .2s;box-sizing:border-box;"
+              onfocus="this.style.borderColor='#FF6200'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <button id="sendOtpBtn" onclick="sendOTP()"
+            style="width:100%;background:#FF6200;color:white;border:none;padding:16px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s;">
+            Send Login Code
+          </button>
+          <div id="debugOut" style="margin-top:14px;padding:10px 12px;background:#0A2540;border-radius:8px;font-family:monospace;font-size:11px;color:#a8e6c1;display:none;white-space:pre-wrap;word-break:break-all;"></div>
+          <button type="button" onclick="runDiag()"
+            style="margin-top:10px;padding:6px 12px;background:transparent;border:1px solid #e5e7eb;border-radius:8px;font-size:11px;color:#9ca3af;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;">
+            🔍 Check version
+          </button>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="ls2" style="display:none;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:6px;">Check your email</div>
+            <p style="color:#6b7280;font-size:14px;font-family:'Outfit',sans-serif;">We sent a 6-digit code to <strong id="otpTo" style="color:#0A2540;"></strong></p>
+          </div>
+          <div id="otpMsg"></div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;font-family:'Outfit',sans-serif;">Login Code</label>
+            <input type="text" id="otpCode" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+              style="width:100%;padding:16px;border:1.5px solid #e5e7eb;border-radius:16px;font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;letter-spacing:12px;text-align:center;color:#0A2540;outline:none;transition:border-color .2s;box-sizing:border-box;"
+              onfocus="this.style.borderColor='#FF6200'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <button id="verifyBtn" onclick="verifyOTP()"
+            style="width:100%;background:#FF6200;color:white;border:none;padding:16px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s;margin-bottom:10px;">
+            Sign In
+          </button>
+          <button onclick="backToEmail()"
+            style="width:100%;background:transparent;border:1.5px solid #e5e7eb;color:#6b7280;padding:13px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;transition:all .15s;">
+            ← Use a different email
+          </button>
+        </div>
+
+        <div style="text-align:center;margin-top:24px;font-size:13px;color:#9ca3af;font-family:'Outfit',sans-serif;">
+          We'll send a one-time login code to your email
+        </div>
+
+      </div>
+      <!-- ==================== LOGIN FORM END ==================== -->
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background:white;border-top:1px solid #e5e7eb;padding:24px;">
+    <div style="max-width:1120px;margin:0 auto;text-align:center;font-size:12px;color:#9ca3af;font-family:'Outfit',sans-serif;">
+      © 2026 Loadro.com — Load Rates Optimized.
+      <a href="terms.html" style="color:#9ca3af;text-decoration:none;margin-left:8px;">Terms</a> •
+      <a href="privacy.html" style="color:#9ca3af;text-decoration:none;margin-left:4px;">Privacy</a>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════════════ -->
+<div class="screen" id="appScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="t-logo">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div class="loadro-logo" style="font-size:20px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
+            <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
+      <span class="role-badge" id="roleBadge"></span>
+      <div class="t-search-wrap" id="searchWrap" style="display:none;">
+        <div class="t-search"><span style="color:var(--ink3);">🔍</span><input type="text" placeholder="Search clients, vendors, requests…" id="searchInput" oninput="debounceSearch()" onblur="hideSearch()"></div>
+        <div class="s-results" id="searchResults"></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="t-email" id="topbarEmail"></span>
+      <button class="btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main" id="mainContent"></main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="empModal">
+  <div class="modal">
+    <h3>Add Employee (View Only)</h3>
+    <div class="ff"><label>Full Name</label><input type="text" id="empName" placeholder="Jane Smith"></div>
+    <div class="ff"><label>Email Address</label><input type="email" id="empEmail" placeholder="jane@company.com"></div>
+    <div id="empModalMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('empModal')">Cancel</button>
+      <button class="btn-confirm" id="empConfirmBtn" onclick="addEmployee()">Add & Notify</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="brokerModal">
+  <div class="modal">
+    <h3 id="brokerModalTitle">Add Freight Broker / Vendor</h3>
+    <input type="hidden" id="brokerEditId" value="">
+    <div class="ff"><label>Company Name</label><input type="text" id="brokerCo" placeholder="FastHaul Logistics LLC"></div>
+    <div class="ff"><label>Email Address</label><input type="email" id="brokerEmail" placeholder="quotes@fasthaul.com"></div>
+    <div class="ff">
+      <label>Freight Types Serviced</label>
+      <div id="brokerFtBtns" class="freight-sel" style="margin-top:6px;"></div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:6px;">Leave all unselected to receive all freight types.</div>
+    </div>
+    <div id="brokerModalMsg"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('brokerModal')">Cancel</button>
+      <button class="btn-confirm" id="brokerConfirmBtn" onclick="saveBroker()">Save Broker</button>
+    </div>
+  </div>
+</div>
+
+<!-- Template edit modal -->
+<div class="modal-overlay" id="tmplModal">
+  <div class="modal wide">
+    <h3 id="tmplModalTitle">Edit Template</h3>
+    <p class="modal-sub" id="tmplModalDesc"></p>
+    <div class="ff">
+      <label>Subject Line</label>
+      <input type="text" id="tmplSubject" placeholder="Email subject…">
+    </div>
+    <div class="ff">
+      <label>Available Variables — click to insert at cursor</label>
+      <div class="var-chips" id="varChips"></div>
+    </div>
+    <div class="ff">
+      <label>HTML Body</label>
+      <textarea id="tmplBody" style="min-height:300px;font-family:'Courier New',monospace;font-size:12px;line-height:1.6;"></textarea>
+    </div>
+    <div id="tmplModalMsg"></div>
+    <div class="modal-actions" style="justify-content:space-between;">
+      <button class="btn-danger" id="tmplResetBtn" onclick="resetTemplate()">↺ Reset to Default</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-cancel" onclick="closeModal('tmplModal')">Cancel</button>
+        <button class="btn-confirm" id="tmplSaveBtn" onclick="saveTemplate()">Save Template</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+let S = {email:'', token:'', role:''};
+let userTz = '';
+let selFreight = '';
+let searchTimer;
+let adminCache = {};
+let currentTmplKey = '';
+let appSettings = {};
+
+// ─── AUTH ──────────────────────────────────────────────────────
+
+function runDiag() {
+  const out = document.getElementById('debugOut');
+  out.style.display = 'block';
+  out.textContent = '202603261100';
+}
+
+async function sendOTP() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) return msg('loginMsg','Enter your email.','error');
+  setBtnLoad('sendOtpBtn','Sending…');
+  const r = await api({action:'sendOTP', email});
+  resetBtn('sendOtpBtn','Send Code');
+  if (r.success) { document.getElementById('otpTo').textContent = email; sw('ls1','ls2'); }
+  else msg('loginMsg', r.error,'error');
+}
+
+async function verifyOTP() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const code  = document.getElementById('otpCode').value.trim();
+  if (!code) return msg('otpMsg','Enter the 6-digit code.','error');
+  setBtnLoad('verifyBtn','Verifying…');
+  const r = await api({action:'verifyOTP', email, code});
+  resetBtn('verifyBtn','Sign In');
+  if (r.success) {
+    S = {email: r.email, token: r.token, role: r.role};
+    localStorage.setItem('fq', JSON.stringify(S));
+    launch();
+  } else msg('otpMsg', r.error,'error');
+}
+
+function backToEmail() { sw('ls2','ls1'); document.getElementById('otpCode').value = ''; }
+
+function logout() {
+  localStorage.removeItem('fq'); S = {email:'',token:'',role:''};
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('active');
+  sw('ls2','ls1');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('otpCode').value = '';
+}
+
+// ─── LAUNCH ───────────────────────────────────────────────────
+
+function launch() {
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('topbarEmail').textContent = S.email;
+  const rb = document.getElementById('roleBadge');
+  if (S.role === 'master_admin') { rb.textContent = 'Admin';     rb.className = 'role-badge r-admin'; }
+  else if (S.role === 'employee') { rb.textContent = 'View Only'; rb.className = 'role-badge r-employee'; }
+  else                            { rb.textContent = 'Client';    rb.className = 'role-badge r-client'; }
+
+  if (S.role === 'master_admin') {
+    document.getElementById('searchWrap').style.display = 'block';
+    buildSidebar('admin');
+    loadAdmin();
+  } else if (S.role === 'employee') {
+    buildSidebar('employee');
+    loadEmployee();
+  } else if (S.role === 'broker') {
+    rb.textContent = 'Broker'; rb.className = 'role-badge r-employee';
+    buildSidebar('broker');
+    loadBrokerDashboard();
+  } else {
+    buildSidebar('client');
+    loadClient();
+  }
+}
+
+// ─── SIDEBAR ──────────────────────────────────────────────────
+
+function buildSidebar(role) {
+  const el = document.getElementById('sidebar');
+  if (role === 'admin') {
+    el.innerHTML = `
+      <div class="nav-section"><div class="nav-label">Overview</div>
+        <button class="nav-item active" id="n-adminOverview" onclick="setNav(this,'adminOverview')"><span class="nav-icon">📊</span>Dashboard</button>
+        <button class="nav-item" id="n-adminActivity" onclick="setNav(this,'adminActivity')"><span class="nav-icon">📋</span>Activity Log</button>
+      </div>
+      <div class="nav-section"><div class="nav-label">People</div>
+        <button class="nav-item" id="n-adminClients"   onclick="setNav(this,'adminClients')"><span class="nav-icon">👤</span>Clients</button>
+        <button class="nav-item" id="n-adminEmployees" onclick="setNav(this,'adminEmployees')"><span class="nav-icon">👥</span>Employees</button>
+        <button class="nav-item" id="n-adminBrokers"   onclick="setNav(this,'adminBrokers')"><span class="nav-icon">🏢</span>Vendors / Brokers</button>
+      </div>
+      <div class="nav-section"><div class="nav-label">Operations</div>
+        <button class="nav-item" id="n-adminRequests" onclick="setNav(this,'adminRequests')"><span class="nav-icon">📦</span>All Requests</button>
+        <button class="nav-item" id="n-adminAllQuotes" onclick="setNav(this,'adminAllQuotes')"><span class="nav-icon">💬</span>All Quotes</button>
+      </div>
+      <div class="nav-section"><div class="nav-label">Configuration</div>
+        <button class="nav-item" id="n-adminSettings"   onclick="setNav(this,'adminSettings')"><span class="nav-icon">⚙️</span>Settings</button>
+        <button class="nav-item" id="n-adminTemplates"  onclick="setNav(this,'adminTemplates')"><span class="nav-icon">✉️</span>Email Templates</button>
+      </div>`;
+  } else if (role === 'employee') {
+    el.innerHTML = `
+      <div class="nav-section"><div class="nav-label">Read Only</div>
+        <button class="nav-item active" id="n-empOverview"  onclick="setNav(this,'empOverview')"><span class="nav-icon">📊</span>Overview</button>
+        <button class="nav-item" id="n-empRequests" onclick="setNav(this,'empRequests')"><span class="nav-icon">📦</span>Requests</button>
+      </div>`;
+  } else if (role === 'broker') {
+    el.innerHTML = `
+      <div class="nav-section"><div class="nav-label">My Quotes</div>
+        <button class="nav-item active" id="n-brokerDash"  onclick="setNav(this,'brokerDash')"><span class="nav-icon">📊</span>Dashboard</button>
+        <button class="nav-item" id="n-brokerQuotes" onclick="setNav(this,'brokerQuotes')"><span class="nav-icon">📋</span>All Quotes</button>
+      </div>
+      <div class="nav-section"><div class="nav-label">Account</div>
+        <button class="nav-item" id="n-brokerSettings" onclick="setNav(this,'brokerSettings')"><span class="nav-icon">👤</span>My Profile</button>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="nav-section"><div class="nav-label">Shipments</div>
+        <button class="nav-item active" id="n-clientNew"  onclick="setNav(this,'clientNew')"><span class="nav-icon">➕</span>New Request</button>
+        <button class="nav-item" id="n-clientDash" onclick="setNav(this,'clientDash')"><span class="nav-icon">📋</span>My Requests</button>
+      </div>
+      <div class="nav-section"><div class="nav-label">Account</div>
+        <button class="nav-item" id="n-clientSettings" onclick="setNav(this,'clientSettings')"><span class="nav-icon">👤</span>My Profile</button>
+      </div>`;
+  }
+}
+
+function setNav(el, panelId) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  showPanel(panelId);
+}
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('p-' + id);
+  if (el) el.classList.add('active');
+  // Lazy-load panels on first visit
+  if (id === 'clientDash')      loadClientDash();
+  if (id === 'adminEmployees')  loadEmpPanel();
+  if (id === 'adminActivity')   loadActivityPanel();
+  if (id === 'adminBrokers')    loadBrokerPanel();
+  if (id === 'adminClients')    loadClientsPanel();
+  if (id === 'adminRequests')   loadRequestsPanel();
+  if (id === 'adminAllQuotes')  loadAdminAllQuotes();
+  if (id === 'clientSettings')  loadClientSettings();
+  if (id === 'brokerSettings')  loadBrokerSettings();
+  if (id === 'adminSettings')   loadSettingsPanel();
+  if (id === 'adminTemplates')  loadTemplatesPanel();
+  if (id === 'empRequests')     {} // already rendered
+  if (id === 'brokerDash')      loadBrokerDashboard();
+  if (id === 'brokerQuotes')    loadBrokerQuotesPanel();
+}
+
+// ─── CLIENT ───────────────────────────────────────────────────
+
+async function loadClient() {
+  // Fetch freight types from settings so client form always reflects latest config
+  try {
+    const sr = await api({action:'getFreightTypes'});
+    if (sr.success && sr.freightTypes) appSettings.freightTypes = sr.freightTypes;
+  } catch(e) {}
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel active" id="p-clientNew">
+      <div class="page-head">
+        <h1>Request Freight Quotes</h1>
+        <p>Fill in your shipment details — sent to all active brokers instantly.</p>
+      </div>
+      <div id="reqMsg"></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;">
+        <div class="form-grid">
+          <div class="ff"><label>Origin City / State</label><input type="text" id="fO" placeholder="Los Angeles, CA"></div>
+          <div class="ff"><label>Origin ZIP</label><input type="text" id="fOZ" placeholder="90001" maxlength="10"></div>
+          <div class="span-2" style="display:flex;align-items:center;gap:12px;padding:2px 0;">
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+            <span style="color:var(--ink3);font-size:13px;">to destination</span>
+            <div style="flex:1;height:1px;background:var(--border);"></div>
+          </div>
+          <div class="ff"><label>Destination City / State</label><input type="text" id="fD" placeholder="Chicago, IL"></div>
+          <div class="ff"><label>Destination ZIP</label><input type="text" id="fDZ" placeholder="60601" maxlength="10"></div>
+          <div class="ff span-2">
+            <label>Freight Type</label>
+            <div class="freight-sel">
+              <div id="clientFtBtns" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+          </div>
+          <div class="ff"><label>Weight (lbs)</label><input type="number" id="fW" placeholder="20000"></div>
+          <div class="ff"><label>Pickup Date (optional)</label><input type="date" id="fPD"></div>
+          <div class="ff span-2"><label>Notes (optional)</label><textarea id="fN" placeholder="Special handling, hazmat, temperature requirements…"></textarea></div>
+          <div class="ff span-2">
+            <label>Vendors / Brokers</label>
+            <div class="broker-sel-wrap" id="brokerSelWrap">
+              <div style="font-size:13px;color:var(--ink3);font-style:italic;">Select a freight type to see available vendors.</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-submit"><button class="btn-submit" id="reqBtn" onclick="submitRequest()">Send to Brokers →</button></div>
+      </div>
+    </div>
+    <div class="panel" id="p-clientDash"></div>
+    <div class="panel" id="p-clientSettings"></div>`;
+  // Build freight type buttons AFTER innerHTML is set so the DOM element exists
+  buildClientFtBtns();
+}
+
+function pickFT(btn, type) {
+  document.querySelectorAll('#clientFtBtns .ft-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel'); selFreight = type;
+  loadBrokerSelector(type);
+}
+
+function buildClientFtBtns() {
+  const types = (appSettings && appSettings.freightTypes) ? appSettings.freightTypes : ['FTL','LTL','Drayage','Flatbed'];
+  const wrap = document.getElementById('clientFtBtns');
+  if (!wrap) return;
+  wrap.innerHTML = types.map(ft =>
+    `<button type="button" class="ft-btn" onclick="pickFT(this,'${ft}')">${ft}</button>`
+  ).join('');
+  selFreight = '';
+}
+
+async function submitRequest() {
+  const d = {origin:v('fO'), originZip:v('fOZ'), destination:v('fD'), destZip:v('fDZ'), weight:v('fW')};
+  if (!d.origin||!d.originZip||!d.destination||!d.destZip) return msg('reqMsg','Fill in origin and destination.','error');
+  if (!selFreight) return msg('reqMsg','Select a freight type.','error');
+  if (!d.weight)   return msg('reqMsg','Enter shipment weight.','error');
+  const btn = document.getElementById('reqBtn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Sending…';
+  const excludedBrokers = getExcludedBrokers();
+  const customBrokers   = getSelectedCustomBrokers();
+  const payload = {};
+  payload.action          = 'submitRequest';
+  payload.email           = S.email;
+  payload.token           = S.token;
+  payload.origin          = d.origin;
+  payload.originZip       = d.originZip;
+  payload.destination     = d.destination;
+  payload.destZip         = d.destZip;
+  payload.weight          = d.weight;
+  payload.freightType     = selFreight;
+  payload.notes           = v('fN');
+  payload.excludedBrokers = excludedBrokers;
+  payload.customBrokers   = customBrokers;
+  const r = await api(payload);
+  btn.disabled = false; btn.textContent = 'Send to Brokers →';
+  if (r.success) {
+    msg('reqMsg','✓ Request sent! Brokers have been notified.','success');
+    ['fO','fOZ','fD','fDZ','fW','fN'].forEach(id => document.getElementById(id).value = '');
+    buildClientFtBtns(); selFreight = '';
+  } else msg('reqMsg', r.error,'error');
+}
+
+// ─── BROKER SELECTOR ─────────────────────────────────────────
+let brokerSelectorData = { system: [], custom: [] };
+
+async function loadBrokerSelector(freightType) {
+  const wrap = document.getElementById('brokerSelWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="font-size:12px;color:var(--ink3);">Loading vendors…</div>';
+  try {
+    const r = await api({action:'getAvailableBrokers', email:S.email, token:S.token, freightType});
+    if (!r.success) {
+      wrap.innerHTML = `<div style="font-size:12px;color:var(--red);">Error: ${esc(r.error||'Could not load vendors.')}</div>`;
+      return;
+    }
+    brokerSelectorData.system = r.brokers || [];
+    brokerSelectorData.custom = r.customBrokers || [];
+    if (!brokerSelectorData.system.length && !brokerSelectorData.custom.length) {
+      wrap.innerHTML = '<div style="font-size:12px;color:var(--ink3);">No active vendors found for this freight type. You can add a custom vendor below.</div>' +
+        `<div class="custom-broker-add" style="margin-top:10px;">
+          <input type="email" id="cbEmail" placeholder="broker@example.com">
+          <input type="text"  id="cbCo"    placeholder="Company name (optional)" style="flex:1.5;">
+          <button type="button" class="btn-add-cb" onclick="addCustomBroker()">+ Add Vendor</button>
+        </div><div id="cbMsg" style="font-size:12px;margin-top:6px;"></div>`;
+      return;
+    }
+    renderBrokerSelector();
+  } catch(e) {
+    wrap.innerHTML = `<div style="font-size:12px;color:var(--red);">Could not load vendor list. (${e.message||e})</div>`;
+  }
+}
+
+function renderBrokerSelector() {
+  const wrap = document.getElementById('brokerSelWrap');
+  if (!wrap) return;
+  const excluded = getExcludedBrokers();
+  let h = '<div class="bs-title">System Vendors <span style="font-weight:400;color:var(--ink3);">(click to exclude)</span></div>';
+  if (!brokerSelectorData.system.length) {
+    h += '<div style="font-size:12px;color:var(--ink3);margin-bottom:8px;">No vendors match this freight type.</div>';
+  } else {
+    brokerSelectorData.system.forEach(b => {
+      const isExcluded = excluded.includes(b.email);
+      h += `<div class="broker-row">
+        <div class="broker-row-info">
+          <div class="broker-row-name">${esc(b.company)}</div>
+          <div class="broker-row-email">${esc(b.email)}</div>
+          ${b.freightTypes.length ? '<div class="broker-row-tags">' + b.freightTypes.map(t=>'<span class="broker-tag">'+esc(t)+'</span>').join('') + '</div>' : ''}
+        </div>
+        <button type="button" class="broker-exclude-btn ${isExcluded?'excluded':''}" onclick="toggleBrokerExclude('${esc(b.email)}',this)">
+          ${isExcluded ? '✕ Excluded' : '✓ Include'}
+        </button>
+      </div>`;
+    });
+  }
+  // Custom brokers section
+  h += '<div class="bs-title" style="margin-top:12px;">My Custom Vendors</div>';
+  if (!brokerSelectorData.custom.length) {
+    h += '<div style="font-size:12px;color:var(--ink3);">No custom vendors added yet.</div>';
+  } else {
+    brokerSelectorData.custom.forEach(b => {
+      h += `<div class="broker-row">
+        <div class="broker-row-info">
+          <div class="broker-row-name">${esc(b.company||b.email)}</div>
+          <div class="broker-row-email">${esc(b.email)}</div>
+          <div class="broker-row-tags"><span class="broker-tag custom">Custom</span></div>
+        </div>
+        <button type="button" class="btn-del-cb" onclick="removeCustomBroker('${esc(b.id)}',this)" title="Remove">✕</button>
+      </div>`;
+    });
+  }
+  // Add custom broker row
+  h += `<div class="custom-broker-add">
+    <input type="email" id="cbEmail" placeholder="broker@example.com">
+    <input type="text"  id="cbCo"    placeholder="Company name (optional)" style="flex:1.5;">
+    <button type="button" class="btn-add-cb" onclick="addCustomBroker()">+ Add Vendor</button>
+  </div>
+  <div id="cbMsg" style="font-size:12px;margin-top:6px;"></div>`;
+  wrap.innerHTML = h;
+}
+
+function toggleBrokerExclude(email, btn) {
+  btn.classList.toggle('excluded');
+  btn.textContent = btn.classList.contains('excluded') ? '✕ Excluded' : '✓ Include';
+}
+
+function getExcludedBrokers() {
+  return [...document.querySelectorAll('#brokerSelWrap .broker-exclude-btn.excluded')]
+    .map(b => b.closest('.broker-row').querySelector('.broker-row-email').textContent.trim());
+}
+
+function getSelectedCustomBrokers() {
+  return brokerSelectorData.custom.map(b => ({ email: b.email, company: b.company || b.email }));
+}
+
+async function addCustomBroker() {
+  const email = document.getElementById('cbEmail')?.value.trim();
+  const co    = document.getElementById('cbCo')?.value.trim();
+  const msgEl = document.getElementById('cbMsg');
+  if (!email) { if(msgEl) msgEl.innerHTML = '<span style="color:var(--red);">Enter a broker email.</span>'; return; }
+  const r = await api({action:'saveCustomBroker', email:S.email, token:S.token, brokerEmail:email, brokerCompany:co});
+  if (r.success) {
+    brokerSelectorData.custom.push({ email, company: co, id: r.id });
+    renderBrokerSelector();
+  } else {
+    if(msgEl) msgEl.innerHTML = '<span style="color:var(--red);">' + esc(r.error) + '</span>';
+  }
+}
+
+async function removeCustomBroker(id, btn) {
+  const r = await api({action:'deleteCustomBroker', email:S.email, token:S.token, brokerId:id});
+  if (r.success) {
+    brokerSelectorData.custom = brokerSelectorData.custom.filter(b => b.id !== id);
+    renderBrokerSelector();
+  }
+}
+
+async function loadClientDash() {
+  document.getElementById('p-clientDash').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'getClientData', email:S.email, token:S.token});
+  if (!r.success) { document.getElementById('p-clientDash').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  if (!r.requests.length) { document.getElementById('p-clientDash').innerHTML = '<div class="empty"><h3>No requests yet</h3><p>Submit your first freight request to get started.</p></div>'; return; }
+
+
+  document.getElementById('p-clientDash').innerHTML = '<div id="clientReqWrap"></div>';
+  let cPage = 1;
+  const cPageSize = 10;
+  const allReqs = r.requests;
+  function renderClientPage(p) {
+    cPage = p;
+    const tp = Math.max(1, Math.ceil(allReqs.length/cPageSize));
+    const slice = allReqs.slice((p-1)*cPageSize, p*cPageSize);
+    let ph = '<div class="page-head"><h1>My Requests</h1></div>';
+    slice.forEach(req => {
+      const sc = {Pending:'b-pending',Quoted:'b-quoted',Accepted:'b-accepted'}[req.status]||'b-pending';
+      ph += `<div class="req-card">
+        <div class="req-header">
+          <div class="route-text">${req.origin}, ${req.originZip} → ${req.destination}, ${req.destZip}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${sc}">${req.status||'Pending'}</span>
+            <button onclick="requestAgain(${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,notes:req.notes||''}).replace(/"/g,'&quot;')})" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">↺ Request Again</button>
+          </div>
+        </div>
+        <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span><span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>`;
+      if (req.quotes.length) {
+        ph += '<div class="quote-list">';
+        req.quotes.forEach(q => {
+          ph += `<div class="quote-row ${q.status}">
+            <div><div class="q-broker">${q.brokerCompany}</div><div class="q-detail">Transit: ${q.transitDays} days${q.validUntil?' · Valid until '+q.validUntil:''}${q.notes?' · '+q.notes:''}</div></div>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div style="text-align:right;"><div class="q-rate">$${Number(q.rate).toLocaleString()}</div>
+                ${q.status==='accepted'?'<div style="color:var(--green);font-size:12px;font-weight:600;">✓ Accepted</div>':''}
+                ${q.status==='rejected'?'<div style="color:var(--ink3);font-size:12px;">Declined</div>':''}
+              </div>
+              ${q.status==='pending'?`<div class="q-actions">
+                <button class="btn-accept" onclick="respondQuote('${q.quoteId}','accept',this)">✓ Accept</button>
+                <button class="btn-reject" onclick="respondQuote('${q.quoteId}','reject',this)">✕ Reject</button>
+              </div>`:''}
+            </div>
+          </div>`;
+        });
+        ph += '</div>';
+      } else {
+        ph += '<div style="color:var(--ink3);font-size:13px;font-style:italic;margin-top:8px;">Awaiting broker quotes…</div>';
+      }
+      ph += '</div>';
+    });
+    if (tp>1) ph += paginationBar(p, tp, allReqs.length, 'renderClientPage');
+    document.getElementById('clientReqWrap').innerHTML = ph;
+  }
+  window.renderClientPage = renderClientPage;
+  renderClientPage(1);
+}
+
+async function respondQuote(quoteId, quoteAction, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+  const payload = {};
+  payload.action    = 'respondToQuote';
+  payload.email     = S.email;
+  payload.token     = S.token;
+  payload.quoteId   = quoteId;
+  payload.quoteAction = quoteAction;
+  const r = await api(payload);
+  if (r.success) loadClientDash();
+  else { btn.disabled = false; btn.textContent = orig; alert(r.error); }
+}
+
+function requestAgain(req) {
+  // Switch to New Request panel
+  setNav(document.getElementById('n-clientNew'), 'clientNew');
+
+  // Wait for the panel to render then pre-fill all fields
+  setTimeout(() => {
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+    set('fO',  req.origin);
+    set('fOZ', req.originZip);
+    set('fD',  req.destination);
+    set('fDZ', req.destZip);
+    set('fW',  req.weight);
+    set('fN',  req.notes || '');
+
+    // Select the matching freight type button
+    const btns = document.querySelectorAll('#clientFtBtns .ft-btn');
+    btns.forEach(b => {
+      b.classList.remove('sel');
+      if (b.textContent.trim() === req.freightType) {
+        b.classList.add('sel');
+        selFreight = req.freightType;
+        loadBrokerSelector(req.freightType);
+      }
+    });
+
+    // Scroll to top of form and focus weight field so client can change it
+    document.getElementById('p-clientNew')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('fW')?.focus();
+    document.getElementById('fW')?.select();
+
+    // Show a subtle hint
+    msg('reqMsg', '✎ Pre-filled from previous request — update weight or any details before submitting.', 'info');
+  }, 100);
+}
+
+// ─── EMPLOYEE ─────────────────────────────────────────────────
+
+
+// ─── BROKER DASHBOARD ─────────────────────────────────────────
+
+async function loadBrokerDashboard() {
+  const mc = document.getElementById('mainContent');
+  mc.innerHTML = `
+    <div class="panel" id="p-brokerSettings"></div>
+    <div class="panel active" id="p-brokerDash">
+      <div class="page-head"><h1>Broker Dashboard</h1><p>Overview of your submitted quotes.</p></div>
+      <div id="brokerDashContent"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>
+    </div>
+    <div class="panel" id="p-brokerQuotes"></div>`;
+  await renderBrokerDash();
+}
+
+async function renderBrokerDash() {
+  const r = await api({action:'getBrokerQuotes', brokerEmail: S.email});
+  if (!r.success) { document.getElementById('brokerDashContent').innerHTML = '<div class="alert alert-error">' + r.error + '</div>'; return; }
+  const quotes = r.quotes || [];
+  const total    = quotes.length;
+  const accepted = quotes.filter(q => q.status === 'accepted').length;
+  const pending  = quotes.filter(q => q.status === 'pending').length;
+  const rejected = quotes.filter(q => q.status === 'rejected').length;
+  const winRate  = total ? Math.round(accepted/total*100) : 0;
+
+  let h = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--blue);">${total}</div>
+        <div style="font-size:12px;color:var(--ink2);margin-top:3px;">Total Quotes</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--green);">${accepted}</div>
+        <div style="font-size:12px;color:var(--ink2);margin-top:3px;">Accepted</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;color:var(--amber);">${pending}</div>
+        <div style="font-size:12px;color:var(--ink2);margin-top:3px;">Awaiting Response</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;">${winRate}%</div>
+        <div style="font-size:12px;color:var(--ink2);margin-top:3px;">Win Rate</div>
+      </div>
+    </div>
+    <div class="page-head" style="margin-bottom:14px;"><h2 style="font-family:'Instrument Serif',serif;font-size:20px;">Recent Quotes</h2></div>`;
+
+  if (!quotes.length) {
+    h += '<div class="empty"><h3>No quotes yet</h3><p>Your submitted quotes will appear here.</p></div>';
+  } else {
+    h += '<div class="table-wrap"><table><thead><tr><th>Request ID</th><th>Route</th><th>Type</th><th>Your Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+    quotes.slice(0,5).forEach(q => {
+      const statusMap = {
+        accepted: '<span class="badge b-active">&#x2713; Accepted</span>',
+        rejected: '<span class="badge b-inactive">Rejected</span>',
+        pending:  '<span class="badge b-neutral">Pending</span>'
+      };
+      h += `<tr>
+        <td style="font-family:monospace;font-size:11px;color:var(--ink3);">${q.requestId}</td>
+        <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">&#8595;</span> ${q.destination}</td>
+        <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
+        <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
+        <td style="font-size:13px;">${q.transitDays} days</td>
+        <td style="font-size:12px;color:var(--ink2);">${fd(q.submittedAt)}</td>
+        <td>${statusMap[q.status]||'<span class="badge b-neutral">'+q.status+'</span>'}</td>
+      </tr>`;
+    });
+    h += '</tbody></table></div>';
+    if (quotes.length > 5) h += `<div style="text-align:center;margin-top:12px;"><button class="btn-ghost" onclick="setNav(document.getElementById('n-brokerQuotes'),'brokerQuotes')" style="padding:8px 18px;font-size:13px;">View All ${quotes.length} Quotes →</button></div>`;
+  }
+  document.getElementById('brokerDashContent').innerHTML = h;
+}
+
+async function loadBrokerQuotesPanel() {
+  const el = document.getElementById('p-brokerQuotes');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'getBrokerQuotes', brokerEmail: S.email});
+  if (!r.success) { el.innerHTML = '<div class="alert alert-error">' + r.error + '</div>'; return; }
+  const quotes = r.quotes || [];
+  const bqWrap = document.createElement('div');
+  bqWrap.id = 'brokerQuoteTableWrap';
+  el.innerHTML = '<div class="page-head" style="margin-bottom:20px;"><h1 style="font-family:Instrument Serif,serif;font-size:28px;">All My Quotes</h1></div><div id="brokerQuoteTableWrap"></div>';
+  if (!quotes.length) {
+    document.getElementById('brokerQuoteTableWrap').innerHTML = '<div class="empty"><h3>No quotes submitted yet</h3></div>';
+  } else {
+    let bqPage = 1;
+    const bqSize = 10;
+    function renderBqPage(p) {
+      bqPage = p;
+      const tp = Math.max(1, Math.ceil(quotes.length/bqSize));
+      const slice = quotes.slice((p-1)*bqSize, p*bqSize);
+      let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Route</th><th>Freight</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+      slice.forEach(q => {
+        const bqStatus = {accepted:'<span class="badge b-active">Accepted</span>',rejected:'<span class="badge b-inactive">Rejected</span>',pending:'<span class="badge b-neutral">Pending</span>'};
+        h += `<tr>
+          <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
+          <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
+          <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">↓</span> ${q.destination}</td>
+          <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
+          <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
+          <td>${q.transitDays} days</td>
+          <td style="font-size:12px;color:var(--ink2);">${fdt(q.submittedAt)}</td>
+          <td>${bqStatus[q.status]||q.status}</td>
+        </tr>`;
+      });
+      h += '</tbody></table></div>';
+      if (tp>1) h += paginationBar(p, tp, quotes.length, 'renderBqPage');
+      document.getElementById('brokerQuoteTableWrap').innerHTML = h;
+    }
+    window.renderBqPage = renderBqPage;
+    renderBqPage(1);
+  }
+}
+
+async function loadEmployee() {
+  document.getElementById('mainContent').innerHTML = `<div class="panel active" id="p-empOverview"></div><div class="panel" id="p-empRequests"></div>`;
+  const r = await api({action:'employeeGetData', email:S.email, token:S.token});
+  if (!r.success) { document.getElementById('p-empOverview').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  const s = r.stats;
+  document.getElementById('p-empOverview').innerHTML = `
+    <div class="page-head"><h1>Operations Overview</h1><p>View-only access. Contact your admin to make changes.</p></div>
+    <div class="stats-row">
+      <div class="stat-card s-blue"><div class="stat-label">Total Requests</div><div class="stat-value">${s.totalRequests}</div></div>
+      <div class="stat-card s-accent"><div class="stat-label">Pending</div><div class="stat-value">${s.pendingRequests}</div></div>
+      <div class="stat-card"><div class="stat-label">Clients</div><div class="stat-value">${s.totalClients}</div></div>
+      <div class="stat-card"><div class="stat-label">Quotes</div><div class="stat-value">${s.totalQuotes}</div></div>
+    </div>
+    <div class="section-head"><h2>Recent Requests</h2></div>
+    <div class="table-wrap">${reqTable(r.recentRequests)}</div>`;
+  document.getElementById('p-empRequests').innerHTML = `<div class="page-head"><h1>All Requests</h1></div><div class="table-wrap">${reqTable(r.recentRequests)}</div>`;
+}
+
+function reqTable(rows) {
+  if (!rows||!rows.length) return '<div class="empty" style="padding:32px;"><p>No requests yet.</p></div>';
+  let h = `<table><thead><tr><th>Request ID</th><th>Client</th><th>Route</th><th>Type</th><th>Weight</th><th>Date</th><th>Quotes</th><th>Best Rate</th><th>Status</th></tr></thead><tbody>`;
+  rows.forEach(r => {
+    const sc = {Pending:'b-pending',Quoted:'b-quoted',Accepted:'b-accepted'}[r.status]||'b-pending';
+    h += `<tr>
+      <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${r.requestId}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.clientEmail}</td>
+      <td>${r.origin} → ${r.destination}</td>
+      <td><span class="badge b-neutral">${r.freightType}</span></td>
+      <td>${Number(r.weight).toLocaleString()} lbs</td>
+      <td>${fdt(r.submittedAt)}</td>
+      <td style="text-align:center;font-weight:600;">${r.quoteCount}</td>
+      <td style="font-weight:700;color:var(--blue);">${r.lowestRate?'$'+Number(r.lowestRate).toLocaleString():'—'}</td>
+      <td><span class="badge ${sc}">${r.status||'Pending'}</span></td>
+    </tr>`;
+  });
+  return h + '</tbody></table>';
+}
+
+function paginate(containerId, allRows, pageSize, renderFn) {
+  let page = 1;
+  const totalPages = () => Math.max(1, Math.ceil(allRows.length / pageSize));
+  function render() {
+    const start = (page-1)*pageSize, end = start+pageSize;
+    const slice = allRows.slice(start, end);
+    const total = allRows.length;
+    const tp = totalPages();
+    let h = renderFn(slice);
+    if (tp > 1) {
+      h += `<div class="pagination">
+        <button onclick="this.closest('.pagination').dataset.page=Math.max(1,${page}-1);render_${containerId}(parseInt(this.closest('.pagination').dataset.page))" ${page<=1?'disabled':''}>← Prev</button>
+        <span>Page ${page} of ${tp} &nbsp;·&nbsp; ${total} records</span>
+        <button onclick="this.closest('.pagination').dataset.page=Math.min(${tp},${page}+1);render_${containerId}(parseInt(this.closest('.pagination').dataset.page))" ${page>=tp?'disabled':''}>Next →</button>
+      </div>`;
+    }
+    document.getElementById(containerId).innerHTML = h;
+  }
+  window['render_'+containerId] = function(p) { page=p; render(); };
+  render();
+}
+
+// ─── ADMIN ────────────────────────────────────────────────────
+
+async function loadAdmin() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="panel active" id="p-adminOverview"></div>
+    <div class="panel" id="p-adminActivity"></div>
+    <div class="panel" id="p-adminClients"></div>
+    <div class="panel" id="p-adminEmployees"></div>
+    <div class="panel" id="p-adminBrokers"></div>
+    <div class="panel" id="p-adminRequests"></div>
+    <div class="panel" id="p-adminAllQuotes"></div>
+    <div class="panel" id="p-adminSettings"></div>
+    <div class="panel" id="p-adminTemplates"></div>`;
+
+  const r = await api({action:'adminGetOverview', email:S.email, token:S.token});
+  if (!r.success) { document.getElementById('p-adminOverview').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  adminCache = r;
+  const s = r.stats;
+  document.getElementById('p-adminOverview').innerHTML = `
+    <div class="page-head"><h1>Admin Dashboard</h1><p>Full visibility across all clients, vendors, and quote activity.</p></div>
+    <div class="stats-row">
+      <div class="stat-card s-blue"><div class="stat-label">Total Requests</div><div class="stat-value">${s.totalRequests}</div><div class="stat-sub">${s.pendingRequests} pending</div></div>
+      <div class="stat-card"><div class="stat-label">Total Quotes</div><div class="stat-value">${s.totalQuotes}</div><div class="stat-sub">${s.acceptedQuotes} accepted</div></div>
+      <div class="stat-card"><div class="stat-label">Clients</div><div class="stat-value">${s.totalClients}</div></div>
+      <div class="stat-card s-green"><div class="stat-label">Active Vendors</div><div class="stat-value">${s.activeBrokers}</div></div>
+    </div>
+    <div class="section-head"><h2>Recent Requests</h2></div>
+    <div class="table-wrap">${reqTable(r.recentRequests)}</div>`;
+}
+
+async function loadClientsPanel() {
+  if (!adminCache.allClients) { const r = await api({action:'adminGetOverview',email:S.email,token:S.token}); if(r.success) adminCache=r; }
+  const cl = adminCache.allClients || [];
+  const el = document.getElementById('p-adminClients');
+  el.innerHTML = `<div class="page-head"><h1>Clients</h1><p>${cl.length} registered clients</p></div><div class="table-wrap" id="clTableWrap"></div>`;
+  let clPage = 1;
+  const clSize = 20;
+  function renderClPage(p) {
+    clPage = p;
+    const tp = Math.max(1, Math.ceil(cl.length/clSize));
+    const slice = cl.slice((p-1)*clSize, p*clSize);
+    let h = '<table><thead><tr><th>Email</th><th>Company</th><th>Joined</th><th>Requests</th></tr></thead><tbody>';
+    if (!cl.length) h += '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--ink3);">No clients yet.</td></tr>';
+    slice.forEach(c => { h += `<tr><td>${c.email}</td><td>${c.company||'<span style="color:var(--ink3)">—</span>'}</td><td>${fd(c.createdAt)}</td><td><span class="badge b-quoted">${c.requestCount}</span></td></tr>`; });
+    h += '</tbody></table>';
+    if (tp>1) h += paginationBar(p, tp, cl.length, 'renderClPage');
+    document.getElementById('clTableWrap').innerHTML = h;
+  }
+  window.renderClPage = renderClPage;
+  renderClPage(1);
+}
+
+async function loadBrokerPanel() {
+  const r = await api({action:'adminGetBrokers', email:S.email, token:S.token});
+  const brokers = r.brokers||[];
+  let h = `<div class="section-head" style="margin-bottom:20px;"><h1 style="font-family:'Instrument Serif',serif;font-size:28px;">Vendors / Brokers</h1><button class="btn-submit" style="padding:9px 18px;font-size:13px;" onclick="openAddBrokerModal()">+ Add Broker</button></div>`;
+  h += '<div class="table-wrap"><table><thead><tr><th>Company</th><th>Email</th><th>Freight Types</th><th>Quotes</th><th>Accepted</th><th>Status</th><th>Active</th><th></th></tr></thead><tbody>';
+  if (!brokers.length) h += '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--ink3);">No brokers yet.</td></tr>';
+  brokers.forEach(b => {
+    const rate = b.quoteCount ? Math.round(b.acceptedCount/b.quoteCount*100) : 0;
+    const ftChips = b.freightTypes && b.freightTypes.length
+      ? b.freightTypes.map(t => `<span class="badge b-neutral" style="margin:1px 2px;font-size:10px;">${t}</span>`).join('')
+      : '<span style="color:var(--ink3);font-size:12px;">All types</span>';
+    h += `<tr>
+      <td style="font-weight:600;">${b.company}</td>
+      <td style="font-size:12px;color:var(--ink2);">${b.email}</td>
+      <td style="max-width:180px;">${ftChips}</td>
+      <td>${b.quoteCount}</td>
+      <td>${b.acceptedCount} <span style="color:var(--ink3);font-size:12px;">(${rate}%)</span></td>
+      <td><span class="badge ${b.active?'b-active':'b-inactive'}">${b.active?'Active':'Paused'}</span></td>
+      <td><div class="toggle" onclick="toggleBroker('${b.id}',this)"><div class="toggle-track ${b.active?'on':''}"><div class="toggle-thumb"></div></div></div></td>
+      <td><button class="btn-edit" onclick='openEditBrokerModal(${JSON.stringify(b)})' style="font-size:12px;padding:4px 10px;">Edit</button></td>
+    </tr>`;
+  });
+  // wrap table in paginated container
+  const brAll = brokers;
+  const brEl  = document.getElementById('p-adminBrokers');
+  const headerHtml = h.split('<table>')[0];
+  brEl.innerHTML = headerHtml + '<div id="brTableWrap"></div>';
+  let brPage = 1;
+  const brSize = 20;
+  function renderBrPage(p) {
+    brPage = p;
+    const tp    = Math.max(1, Math.ceil(brAll.length/brSize));
+    const slice = brAll.slice((p-1)*brSize, p*brSize);
+    let th = '<div class="table-wrap"><table><thead><tr><th>Company</th><th>Email</th><th>Freight Types</th><th>Quotes</th><th>Accepted</th><th>Status</th><th>Active</th><th></th></tr></thead><tbody>';
+    if (!slice.length) th += '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--ink3);">No brokers yet.</td></tr>';
+    slice.forEach(b => {
+      const rate = b.quoteCount ? Math.round(b.acceptedCount/b.quoteCount*100) : 0;
+      const ftChips = b.freightTypes && b.freightTypes.length
+        ? b.freightTypes.map(t => `<span class="badge b-neutral" style="margin:1px 2px;font-size:10px;">${t}</span>`).join('')
+        : '<span style="color:var(--ink3);font-size:12px;">All types</span>';
+      th += `<tr>
+        <td style="font-weight:600;">${b.company}</td>
+        <td style="font-size:12px;color:var(--ink2);">${b.email}</td>
+        <td style="max-width:180px;">${ftChips}</td>
+        <td>${b.quoteCount}</td>
+        <td>${b.acceptedCount} <span style="color:var(--ink3);font-size:12px;">(${rate}%)</span></td>
+        <td><span class="badge ${b.active?'b-active':'b-inactive'}">${b.active?'Active':'Paused'}</span></td>
+        <td><div class="toggle" onclick="toggleBroker('${b.id}',this)"><div class="toggle-track ${b.active?'on':''}"><div class="toggle-thumb"></div></div></div></td>
+        <td><button class="btn-edit" onclick='openEditBrokerModal(${JSON.stringify(b)})' style="font-size:12px;padding:4px 10px;">Edit</button></td>
+      </tr>`;
+    });
+    th += '</tbody></table></div>';
+    if (tp>1) th += paginationBar(p, tp, brAll.length, 'renderBrPage');
+    document.getElementById('brTableWrap').innerHTML = th;
+  }
+  window.renderBrPage = renderBrPage;
+  renderBrPage(1);
+}
+
+function openAddBrokerModal() {
+  document.getElementById('brokerModalTitle').textContent = 'Add Freight Broker / Vendor';
+  document.getElementById('brokerEditId').value = '';
+  document.getElementById('brokerCo').value = '';
+  document.getElementById('brokerEmail').value = '';
+  document.getElementById('brokerConfirmBtn').textContent = 'Add Broker';
+  buildBrokerFtBtns([]);
+  openModal('brokerModal');
+}
+
+function openEditBrokerModal(b) {
+  document.getElementById('brokerModalTitle').textContent = 'Edit Broker';
+  document.getElementById('brokerEditId').value = b.id;
+  document.getElementById('brokerCo').value = b.company || '';
+  document.getElementById('brokerEmail').value = b.email || '';
+  document.getElementById('brokerConfirmBtn').textContent = 'Save Changes';
+  buildBrokerFtBtns(b.freightTypes || []);
+  openModal('brokerModal');
+}
+
+function buildBrokerFtBtns(selected) {
+  const settings = appSettings.freightTypes || ['FTL','LTL','Drayage','Flatbed'];
+  const wrap = document.getElementById('brokerFtBtns');
+  wrap.innerHTML = settings.map(ft =>
+    `<button type="button" class="ft-btn ${selected.includes(ft)?'sel':''}" onclick="toggleBrokerFt(this,'${ft}')">${ft}</button>`
+  ).join('');
+}
+
+function toggleBrokerFt(btn) {
+  btn.classList.toggle('sel');
+}
+
+function getSelectedBrokerFts() {
+  return [...document.querySelectorAll('#brokerFtBtns .ft-btn.sel')].map(b => b.textContent);
+}
+
+async function loadEmpPanel() {
+  const r = await api({action:'adminGetEmployees', email:S.email, token:S.token});
+  const emps = r.employees||[];
+  let h = `<div class="section-head" style="margin-bottom:20px;"><h1 style="font-family:'Instrument Serif',serif;font-size:28px;">Employees</h1><button class="btn-submit" style="padding:9px 18px;font-size:13px;" onclick="openModal('empModal')">+ Add Employee</button></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Added</th><th>Access Level</th><th>Active</th></tr></thead><tbody>`;
+  if (!emps.length) h += '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--ink3);">No employees yet.</td></tr>';
+  emps.forEach(e => {
+    h += `<tr>
+      <td style="font-weight:600;">${e.name||'—'}</td><td>${e.email}</td><td>${fd(e.addedAt)}</td>
+      <td><span class="badge b-quoted">View Only</span></td>
+      <td><div class="toggle" onclick="toggleEmp('${e.email}',this)"><div class="toggle-track ${e.active?'on':''}"><div class="toggle-thumb"></div></div></div></td>
+    </tr>`;
+  });
+  document.getElementById('p-adminEmployees').innerHTML = h + '</tbody></table></div>';
+}
+
+async function loadActivityPanel() {
+  const el = document.getElementById('p-adminActivity');
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetActivity', email:S.email, token:S.token});
+  if (!r.activities||!r.activities.length) { el.innerHTML = '<div class="empty"><h3>No activity yet</h3><p>Actions will appear here as users interact with the system.</p></div>'; return; }
+  const allActs = r.activities;
+  const cm = {LOGIN:'var(--blue)',REQUEST_SUBMITTED:'var(--green)',QUOTE_SUBMITTED:'var(--accent)',QUOTE_ACCEPT:'var(--green)',QUOTE_REJECT:'var(--red)',EMPLOYEE_ADDED:'var(--blue)',BROKER_ADDED:'var(--accent)',SETTINGS_SAVED:'var(--amber)',TEMPLATE_SAVED:'#7c3aed',TEMPLATE_RESET:'var(--ink3)',OTP_LOCKOUT:'var(--red)',PROFILE_UPDATED:'var(--blue)',CUSTOM_BROKER_ADDED:'var(--accent)'};
+  const acSize = 20;
+  let acPage = 1;
+  // Build unique user list for filter
+  const acUsers = ['', ...new Set(allActs.map(a => a.actor))].sort();
+
+  function getFilteredActs() {
+    const user = document.getElementById('acUser')?.value || '';
+    return allActs.filter(a => !user || a.actor === user);
+  }
+
+  function renderAcPage(p) {
+    acPage = p;
+    const filtered = getFilteredActs();
+    const tp    = Math.max(1, Math.ceil(filtered.length/acSize));
+    const slice = filtered.slice((p-1)*acSize, p*acSize);
+    let h = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:4px 20px;" id="actListWrap">';
+    if (!slice.length) h += '<div style="padding:32px;text-align:center;color:var(--ink3);">No activity for this user.</div>';
+    slice.forEach(a => {
+      h += `<div class="act-item"><div class="act-dot" style="background:${cm[a.action]||'var(--ink3)'};"></div><div style="flex:1;">
+        <div><span class="act-actor">${a.actor}</span> <span style="color:var(--ink2);">${fmtAction(a.action)}</span></div>
+        <div style="color:var(--ink2);font-size:13px;margin-top:2px;">${a.detail}</div>
+        <div class="act-time">${fdt(a.timestamp)}</div>
+      </div></div>`;
+    });
+    h += '</div>';
+    if (tp>1) h += paginationBar(p, tp, filtered.length, 'applyAcFilter');
+    document.getElementById('acListArea').innerHTML = h;
+  }
+
+  window.applyAcFilter = function(p) { acPage = p||1; renderAcPage(acPage); };
+
+  el.innerHTML = `
+    <div class="page-head"><h1>Activity Log</h1><p>${allActs.length} total entries</p></div>
+    <div class="filter-bar">
+      <div class="ff" style="margin:0;">
+        <label style="font-size:11px;">Filter by User</label>
+        <select id="acUser" onchange="applyAcFilter(1)" style="min-width:240px;">
+          <option value="">All Users</option>
+          ${acUsers.filter(u=>u).map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn-ghost" onclick="document.getElementById('acUser').value='';applyAcFilter(1);" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+    </div>
+    <div id="acListArea"></div>`;
+  renderAcPage(1);
+}
+
+async function loadRequestsPanel() {
+  if (!adminCache.recentRequests) { const r = await api({action:'adminGetOverview',email:S.email,token:S.token}); if(r.success) adminCache=r; }
+  const allRows = adminCache.recentRequests || [];
+  const pageSize = 20;
+  let reqPage = 1;
+
+  const clientOptions = [...new Set(allRows.map(r => r.clientEmail).filter(Boolean))].sort()
+    .map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+
+  function getFilteredReqs() {
+    const client = document.getElementById('reqClientFilter')?.value || '';
+    const status = document.getElementById('reqStatusFilter')?.value || '';
+    return allRows.filter(r => {
+      if (client && r.clientEmail !== client) return false;
+      if (status && (r.status||'').toLowerCase() !== status.toLowerCase()) return false;
+      return true;
+    });
+  }
+
+  function renderReqPage(p) {
+    reqPage = p;
+    const rows  = getFilteredReqs();
+    const tp    = Math.max(1, Math.ceil(rows.length / pageSize));
+    const slice = rows.slice((p-1)*pageSize, p*pageSize);
+    let h = slice.length ? reqTable(slice) : '<div style="padding:32px;text-align:center;color:var(--ink3);">No requests match the current filter.</div>';
+    if (tp > 1) h += paginationBar(p, tp, rows.length, 'renderReqPage');
+    document.getElementById('reqTableWrap').innerHTML = h;
+  }
+  window.renderReqPage = renderReqPage;
+  window.applyReqFilter = function() { renderReqPage(1); };
+
+  document.getElementById('p-adminRequests').innerHTML = `
+    <div class="page-head"><h1>All Requests</h1><p>${allRows.length} total requests</p></div>
+    <div class="filter-bar">
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">Client</label>
+        <select id="reqClientFilter" onchange="applyReqFilter()">
+          <option value="">All Clients</option>
+          ${clientOptions}
+        </select>
+      </div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">Status</label>
+        <select id="reqStatusFilter" onchange="applyReqFilter()">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Quoted">Quoted</option>
+          <option value="Accepted">Accepted</option>
+        </select>
+      </div>
+      <button class="btn-ghost" onclick="document.getElementById('reqClientFilter').value='';document.getElementById('reqStatusFilter').value='';applyReqFilter();" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+    </div>
+    <div class="table-wrap" id="reqTableWrap"></div>`;
+  renderReqPage(1);
+}
+
+// ─── SETTINGS PANEL ───────────────────────────────────────────
+
+async function loadSettingsPanel() {
+  document.getElementById('p-adminSettings').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetSettings', email:S.email, token:S.token});
+  if (!r.success) { document.getElementById('p-adminSettings').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  appSettings = r.settings;
+  const s = appSettings;
+  const fts = s.freightTypes || ['FTL','LTL','Drayage','Flatbed'];
+
+  document.getElementById('p-adminSettings').innerHTML = `
+    <div class="page-head"><h1>Settings</h1><p>Configure system-wide behaviour and notification preferences.</p></div>
+    <div id="settingsMsg"></div>
+
+    <div class="settings-section">
+      <div class="settings-section-head">
+        <span class="settings-section-icon">📦</span>
+        <div><h3>Freight Types</h3><p>Define the freight types available in the system. These appear in the client request form and broker type assignment.</p></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info" style="width:100%;">
+          <div class="settings-row-label" style="margin-bottom:10px;">Active Freight Types</div>
+          <div id="ftTagList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+            ${fts.map(ft => `<div class="ft-tag" data-ft="${esc(ft)}">${esc(ft)}<button type="button" onclick="removeFtTag('${esc(ft)}')" style="margin-left:6px;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:14px;line-height:1;">×</button></div>`).join('')}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="newFtInput" placeholder="e.g. Reefer, Intermodal…" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;width:220px;outline:none;" onkeydown="if(event.key==='Enter'){addFtTag();event.preventDefault();}">
+            <button type="button" class="btn-submit" onclick="addFtTag()" style="padding:8px 16px;font-size:13px;">+ Add</button>
+          </div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:6px;">Click × to remove a type. Changes saved when you click Save Settings.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-head">
+        <span class="settings-section-icon">📄</span>
+        <div><h3>PDF Confirmation</h3><p>Control whether a PDF is generated and attached when a quote is accepted.</p></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Generate PDF on Quote Acceptance</div>
+          <div class="settings-row-desc">When enabled, a branded PDF booking confirmation is created and attached to the client confirmation email.</div>
+        </div>
+        <div class="settings-row-control">
+          <div class="toggle" onclick="toggleSetting('pdfEnabled', this)">
+            <div class="toggle-track ${s.pdfEnabled?'on':''}" id="tog-pdfEnabled"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row" id="row-pdfAdmin" style="${s.pdfEnabled?'':'opacity:.4;pointer-events:none;'}">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Also Attach PDF to Admin Notification</div>
+          <div class="settings-row-desc">When enabled, the same PDF is also attached to the admin alert email.</div>
+        </div>
+        <div class="settings-row-control">
+          <div class="toggle" onclick="toggleSetting('pdfSendToAdmin', this)">
+            <div class="toggle-track ${s.pdfSendToAdmin?'on':''}" id="tog-pdfSendToAdmin"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-head">
+        <span class="settings-section-icon">🏢</span>
+        <div><h3>Company Information</h3><p>Used in outgoing emails and PDF documents.</p></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info" style="display:flex;flex-direction:column;gap:10px;width:100%;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="ff"><label>Company / Portal Name</label><input type="text" id="set-companyName" value="${esc(s.companyName||'')}" placeholder="Loadro"></div>
+            <div class="ff"><label>Support Email (optional)</label><input type="email" id="set-supportEmail" value="${esc(s.supportEmail||'')}" placeholder="support@yourcompany.com"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+      <button class="btn-submit" id="saveSettingsBtn" onclick="saveSettings()">Save Settings</button>
+    </div>`;
+}
+
+function addFtTag() {
+  const input = document.getElementById('newFtInput');
+  const val = input.value.trim();
+  if (!val) return;
+  const existing = [...document.querySelectorAll('#ftTagList .ft-tag')].map(t => t.dataset.ft.toLowerCase());
+  if (existing.includes(val.toLowerCase())) { input.value=''; return; }
+  const tag = document.createElement('div');
+  tag.className = 'ft-tag';
+  tag.dataset.ft = val;
+  tag.innerHTML = `${esc(val)}<button type="button" onclick="removeFtTag('${esc(val)}')" style="margin-left:6px;background:none;border:none;cursor:pointer;color:var(--ink3);font-size:14px;line-height:1;">×</button>`;
+  document.getElementById('ftTagList').appendChild(tag);
+  input.value = '';
+}
+
+function removeFtTag(ft) {
+  document.querySelectorAll('#ftTagList .ft-tag').forEach(el => {
+    if (el.dataset.ft === ft) el.remove();
+  });
+}
+
+function getFreightTypes() {
+  return [...document.querySelectorAll('#ftTagList .ft-tag')].map(t => t.dataset.ft).filter(Boolean);
+}
+
+async function toggleSetting(key, el) {
+  const track = el.querySelector('.toggle-track');
+  const newVal = !track.classList.contains('on');
+  track.classList.toggle('on');
+  appSettings[key] = newVal;
+
+  // Dim the "PDF to admin" row when PDF is off
+  if (key === 'pdfEnabled') {
+    const row = document.getElementById('row-pdfAdmin');
+    if (row) row.style.cssText = newVal ? '' : 'opacity:.4;pointer-events:none;';
+  }
+}
+
+async function saveSettings() {
+  setBtnLoad('saveSettingsBtn','Saving…');
+  const payload = {
+    ...appSettings,
+    companyName:   document.getElementById('set-companyName')?.value.trim()  || appSettings.companyName,
+    supportEmail:  document.getElementById('set-supportEmail')?.value.trim() || '',
+    freightTypes:  getFreightTypes()
+  };
+  const r = await api({action:'adminSaveSettings', email:S.email, token:S.token, settings:payload});
+  resetBtn('saveSettingsBtn','Save Settings');
+  if (r.success) { appSettings = r.settings; msg('settingsMsg','✓ Settings saved.','success'); }
+  else msg('settingsMsg', r.error,'error');
+}
+
+// ─── EMAIL TEMPLATES ──────────────────────────────────────────
+
+const TEMPLATE_META = {
+  quoteReceived:    { name:'Quote Received (Client)',       desc:'Sent to client when a broker submits a new quote. Includes accept/reject links.',    vars:['brokerCompany','rate','transit','validUntil','origin','originZip','destination','destZip','freightType','weight','brokerNotes','acceptLink','rejectLink','quoteId','requestId'] },
+  bookingConfirmed: { name:'Booking Confirmed (Client)',    desc:'Sent to client after they accept a quote. PDF may be attached depending on settings.', vars:['brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
+  brokerAccepted:   { name:'Quote Accepted (Broker)',       desc:'Sent to the broker when the client accepts their quote.',                              vars:['brokerCompany','rate','requestId','quoteId','acceptedDate'] },
+  brokerRejected:   { name:'Quote Not Selected (Broker)',   desc:'Sent to the broker when the client rejects their quote.',                              vars:['requestId','quoteId'] },
+  adminNotification:{ name:'Admin Alert — Quote Accepted',  desc:'Sent to all active admins when any quote is accepted. PDF may be attached.',           vars:['requestId','quoteId','clientEmail','brokerCompany','brokerEmail','rate','transit','origin','originZip','destination','destZip','freightType','weight','acceptedDate','appUrl'] },
+  brokerNewRequest: { name:'New Request (Broker)',          desc:'Sent to all active brokers when a client submits a new freight request.',              vars:['freightType','origin','originZip','destination','destZip','weight','clientNotes','quoteLink','requestId'] }
+};
+
+async function loadTemplatesPanel() {
+  document.getElementById('p-adminTemplates').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
+  if (!r.success) { document.getElementById('p-adminTemplates').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+
+  let h = `
+    <div class="page-head"><h1>Email Templates</h1><p>Customise every outgoing email. Variables in <code style="background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px;font-size:12px;">{{double braces}}</code> are replaced automatically at send time.</p></div>
+    <div class="alert alert-info" style="margin-bottom:20px;">📌 <strong>Note:</strong> Emails always contain all booking information regardless of PDF settings. Templates only control the email formatting and wording.</div>
+    <div class="tmpl-list">`;
+
+  Object.keys(TEMPLATE_META).forEach(key => {
+    const meta = TEMPLATE_META[key];
+    const tmpl = r.templates[key];
+    const isCustom = tmpl && tmpl.isCustom;
+    h += `<div class="tmpl-card">
+      <div class="tmpl-info">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="tmpl-name">${meta.name}</div>
+          ${isCustom ? '<span class="badge b-custom">Custom</span>' : '<span class="badge b-neutral">Default</span>'}
+        </div>
+        <div class="tmpl-desc">${meta.desc}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:6px;font-style:italic;">Subject: ${esc(tmpl?.subject||'')}</div>
+      </div>
+      <div class="tmpl-actions">
+        <button class="btn-edit" onclick="openTemplateEditor('${key}')">✏️ Edit</button>
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+  document.getElementById('p-adminTemplates').innerHTML = h;
+}
+
+async function openTemplateEditor(key) {
+  currentTmplKey = key;
+  const meta = TEMPLATE_META[key];
+  const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
+  if (!r.success) { alert('Failed to load templates.'); return; }
+
+  const tmpl = r.templates[key];
+  document.getElementById('tmplModalTitle').textContent = 'Edit: ' + meta.name;
+  document.getElementById('tmplModalDesc').textContent  = meta.desc;
+  document.getElementById('tmplSubject').value = tmpl?.subject || '';
+  document.getElementById('tmplBody').value    = tmpl?.body    || '';
+  document.getElementById('tmplModalMsg').innerHTML = '';
+
+  // Build variable chips
+  const chips = document.getElementById('varChips');
+  chips.innerHTML = meta.vars.map(v =>
+    `<span class="var-chip" onclick="insertVar('{{${v}}}')" title="Click to insert">{{${v}}}</span>`
+  ).join('');
+
+  openModal('tmplModal');
+}
+
+function insertVar(varStr) {
+  const ta = document.getElementById('tmplBody');
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + varStr + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + varStr.length;
+  ta.focus();
+}
+
+async function saveTemplate() {
+  const subject = document.getElementById('tmplSubject').value.trim();
+  const body    = document.getElementById('tmplBody').value.trim();
+  if (!subject || !body) return msg('tmplModalMsg','Subject and body are required.','error');
+  setBtnLoad('tmplSaveBtn','Saving…');
+  const r = await api({action:'adminSaveTemplate', email:S.email, token:S.token, key:currentTmplKey, subject, body});
+  resetBtn('tmplSaveBtn','Save Template');
+  if (r.success) { closeModal('tmplModal'); loadTemplatesPanel(); }
+  else msg('tmplModalMsg', r.error,'error');
+}
+
+async function resetTemplate() {
+  if (!confirm('Reset this template to the system default? Your customisations will be lost.')) return;
+  setBtnLoad('tmplSaveBtn','Resetting…');
+  const r = await api({action:'adminResetTemplate', email:S.email, token:S.token, key:currentTmplKey});
+  resetBtn('tmplSaveBtn','Save Template');
+  if (r.success) {
+    document.getElementById('tmplSubject').value = r.template.subject;
+    document.getElementById('tmplBody').value    = r.template.body;
+    msg('tmplModalMsg','Template reset to default.','success');
+    loadTemplatesPanel();
+  } else msg('tmplModalMsg', r.error,'error');
+}
+
+// ─── ADMIN PEOPLE ACTIONS ─────────────────────────────────────
+
+async function addEmployee() {
+  const name  = document.getElementById('empName').value.trim();
+  const email = document.getElementById('empEmail').value.trim();
+  if (!email) return msg('empModalMsg','Enter an email address.','error');
+  setBtnLoad('empConfirmBtn','Adding…');
+  const r = await api({action:'adminAddEmployee', email:S.email, token:S.token, newEmail:email, newName:name});
+  resetBtn('empConfirmBtn','Add & Notify');
+  if (r.success) { closeModal('empModal'); document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; loadEmpPanel(); }
+  else msg('empModalMsg', r.error,'error');
+}
+
+async function saveBroker() {
+  const co  = document.getElementById('brokerCo').value.trim();
+  const em  = document.getElementById('brokerEmail').value.trim();
+  const bid = document.getElementById('brokerEditId').value.trim();
+  const fts = getSelectedBrokerFts();
+  if (!co||!em) return msg('brokerModalMsg','Fill in company name and email.','error');
+  setBtnLoad('brokerConfirmBtn','Saving…');
+  const payload = {action:'adminSaveBroker', email:S.email, token:S.token, brokerEmail:em, brokerCompany:co, freightTypes:fts};
+  if (bid) payload.brokerId = bid;
+  const r = await api(payload);
+  resetBtn('brokerConfirmBtn', bid ? 'Save Changes' : 'Add Broker');
+  if (r.success) { closeModal('brokerModal'); loadBrokerPanel(); }
+  else msg('brokerModalMsg', r.error,'error');
+}
+
+async function toggleBroker(brokerId, el) {
+  const r = await api({action:'adminToggleBroker', email:S.email, token:S.token, brokerId});
+  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadBrokerPanel(); }
+}
+
+async function toggleEmp(targetEmail, el) {
+  const r = await api({action:'adminToggleEmployee', email:S.email, token:S.token, targetEmail});
+  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadEmpPanel(); }
+}
+
+// ─── SEARCH ───────────────────────────────────────────────────
+
+function debounceSearch() { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 300); }
+
+async function runSearch() {
+  const q   = document.getElementById('searchInput').value.trim();
+  const box = document.getElementById('searchResults');
+  if (!q||q.length<2) { box.style.display='none'; return; }
+  const r = await api({action:'adminSearch', email:S.email, token:S.token, query:q});
+  if (!r.results||!r.results.length) { box.style.display='none'; return; }
+  const icons = {client:'👤', vendor:'🏢', request:'📦'};
+  box.innerHTML = r.results.map(res => {
+    const main = res.type==='request' ? res.requestId : res.company;
+    const sub  = res.type==='request' ? `${res.clientEmail} · ${res.origin} → ${res.destination}` : res.email;
+    return `<div class="s-item"><span>${icons[res.type]}</span><div><div class="s-main">${main}</div><div class="s-sub">${sub}</div></div><span class="badge b-neutral" style="margin-left:auto;">${res.type}</span></div>`;
+  }).join('');
+  box.style.display = 'block';
+}
+
+function hideSearch() { setTimeout(() => { document.getElementById('searchResults').style.display='none'; }, 200); }
+
+// ─── MODAL ────────────────────────────────────────────────────
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open'); });
+
+// ─── UTILS ────────────────────────────────────────────────────
+
+async function api(d) {
+  try { const r = await fetch(API, {method:'POST', body:JSON.stringify(d)}); return await r.json(); }
+  catch(e) { return {success:false, error:'Network error.'}; }
+}
+
+function msg(id, text, type) {
+  const el = document.getElementById(id); if (!el) return;
+  el.innerHTML = `<div class="alert alert-${type}">${text}</div>`;
+  if (type==='success') setTimeout(() => el.innerHTML='', 5000);
+}
+
+function v(id)  { return document.getElementById(id)?.value?.trim()||''; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function sw(h,s){ document.getElementById(h).style.display='none'; document.getElementById(s).style.display='block'; }
+
+function setBtnLoad(id, text) {
+  const b = document.getElementById(id); if(!b) return;
+  b.disabled=true; b.innerHTML=`<span class="spin spin-white"></span>${text}`;
+}
+function resetBtn(id, text) {
+  const b = document.getElementById(id); if(!b) return;
+  b.disabled=false; b.textContent=text;
+}
+
+function fd(ts) {
+  if (!ts) return '—';
+  try {
+    const tz = (typeof userTz !== 'undefined' && userTz) ? userTz : undefined;
+    const opts = {month:'short',day:'numeric',year:'numeric'};
+    if (tz) opts.timeZone = tz;
+    return new Date(ts).toLocaleDateString('en-US', opts);
+  } catch(e) { return ts; }
+}
+function fdt(ts) {
+  if (!ts) return '—';
+  try {
+    const tz = (typeof userTz !== 'undefined' && userTz) ? userTz : undefined;
+    const opts = {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'};
+    if (tz) opts.timeZone = tz;
+    return new Date(ts).toLocaleString('en-US', opts);
+  } catch(e) { return ts; }
+}
+function fmtAction(a) {
+  return ({LOGIN:'signed in',REQUEST_SUBMITTED:'submitted a request',QUOTE_SUBMITTED:'submitted a quote',QUOTE_ACCEPT:'accepted a quote',QUOTE_REJECT:'rejected a quote',EMPLOYEE_ADDED:'added an employee',EMPLOYEE_TOGGLED:'toggled employee access',BROKER_ADDED:'added a broker',BROKER_TOGGLED:'toggled broker status',BROKER_UPDATED:'updated a broker',SETTINGS_SAVED:'updated system settings',TEMPLATE_SAVED:'edited an email template',TEMPLATE_RESET:'reset an email template'})[a]||(a||'').toLowerCase().replace(/_/g,' ');
+}
+
+// ─── PAGINATION BAR ──────────────────────────────────────────
+function paginationBar(page, totalPages, totalRecords, callbackName) {
+  return `<div class="pagination">
+    <button onclick="${callbackName}(${page-1})" ${page<=1?'disabled':''}>← Prev</button>
+    <span>Page ${page} of ${totalPages} · ${totalRecords} records</span>
+    <button onclick="${callbackName}(${page+1})" ${page>=totalPages?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+// ─── CLIENT PROFILE ───────────────────────────────────────────
+async function loadClientSettings() {
+  const el = document.getElementById('p-clientSettings');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'getUserProfile', email:S.email, token:S.token});
+  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  const p = r.profile || {};
+  const tzOptions = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['America/Los_Angeles','America/Chicago','America/New_York','America/Denver','Europe/London','Asia/Singapore','Australia/Sydney'];
+  const tzOpts = tzOptions.map(tz => `<option value="${tz}" ${p.timezone===tz?'selected':''}>${tz}</option>`).join('');
+  el.innerHTML = `
+    <div class="page-head"><h1>My Profile</h1><p>Update your contact information and preferences.</p></div>
+    <div id="profileMsg"></div>
+    <div class="profile-section">
+      <h3>Contact Information</h3>
+      <div class="profile-grid">
+        <div class="ff"><label>First Name</label><input type="text" id="pFirst" value="${esc(p.firstName||'')}" placeholder="Jane"></div>
+        <div class="ff"><label>Last Name</label><input type="text" id="pLast" value="${esc(p.lastName||'')}" placeholder="Smith"></div>
+        <div class="ff"><label>Company Name</label><input type="text" id="pCo" value="${esc(p.company||'')}" placeholder="Acme Corp"></div>
+        <div class="ff"><label>Phone Number</label><input type="tel" id="pPhone" value="${esc(p.phone||'')}" placeholder="+1 (555) 000-0000"></div>
+        <div class="ff span-2"><label>Email Address</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h3>Timezone Preference</h3>
+      <div class="ff" style="max-width:360px;">
+        <label>Your Timezone</label>
+        <select id="pTz" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+          <option value="">— Use browser default —</option>
+          ${tzOpts}
+        </select>
+        <div style="font-size:11px;color:var(--ink3);margin-top:4px;">All dates and times in the dashboard will display in this timezone.</div>
+      </div>
+    </div>
+    <div style="margin-top:4px;">
+      <button class="btn-submit" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
+    </div>`;
+}
+
+async function saveProfile() {
+  const profile = {
+    firstName: document.getElementById('pFirst').value.trim(),
+    lastName:  document.getElementById('pLast').value.trim(),
+    company:   document.getElementById('pCo').value.trim(),
+    phone:     document.getElementById('pPhone').value.trim(),
+    timezone:  document.getElementById('pTz').value
+  };
+  setBtnLoad('saveProfileBtn','Saving…');
+  const r = await api({action:'saveUserProfile', email:S.email, token:S.token, profile});
+  resetBtn('saveProfileBtn','Save Profile');
+  if (r.success) {
+    userTz = profile.timezone || '';
+    msg('profileMsg','✓ Profile saved successfully.','success');
+  } else {
+    msg('profileMsg', r.error, 'error');
+  }
+}
+
+// ─── BROKER PROFILE ───────────────────────────────────────────
+async function loadBrokerSettings() {
+  const el = document.getElementById('p-brokerSettings');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'getUserProfile', email:S.email, token:S.token});
+  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  const p = r.profile || {};
+  const tzOptions = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['America/Los_Angeles','America/Chicago','America/New_York','America/Denver','Europe/London','Asia/Singapore','Australia/Sydney'];
+  const tzOpts = tzOptions.map(tz => `<option value="${tz}" ${p.timezone===tz?'selected':''}>${tz}</option>`).join('');
+  el.innerHTML = `
+    <div class="page-head"><h1>My Profile</h1><p>Update your contact information and preferences.</p></div>
+    <div id="profileMsg"></div>
+    <div class="profile-section">
+      <h3>Contact Information</h3>
+      <div class="profile-grid">
+        <div class="ff"><label>First Name</label><input type="text" id="pFirst" value="${esc(p.firstName||'')}" placeholder="John"></div>
+        <div class="ff"><label>Last Name</label><input type="text" id="pLast" value="${esc(p.lastName||'')}" placeholder="Doe"></div>
+        <div class="ff"><label>Company Name</label><input type="text" id="pCo" value="${esc(p.company||'')}" placeholder="FastHaul Logistics"></div>
+        <div class="ff"><label>Phone Number</label><input type="tel" id="pPhone" value="${esc(p.phone||'')}" placeholder="+1 (555) 000-0000"></div>
+        <div class="ff span-2"><label>Email Address</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h3>Timezone Preference</h3>
+      <div class="ff" style="max-width:360px;">
+        <label>Your Timezone</label>
+        <select id="pTz" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+          <option value="">— Use browser default —</option>
+          ${tzOpts}
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:4px;">
+      <button class="btn-submit" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
+    </div>`;
+}
+
+// ─── ADMIN ALL QUOTES ─────────────────────────────────────────
+async function loadAdminAllQuotes() {
+  const el = document.getElementById('p-adminAllQuotes');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetAllQuotes', email:S.email, token:S.token});
+  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+  let allQuotes = r.quotes || [];
+  let aqPage = 1;
+  const aqSize = 20;
+
+  function renderAqPage(p, filtered) {
+    aqPage = p;
+    const rows = filtered !== undefined ? filtered : getFilteredQuotes();
+    const tp = Math.max(1, Math.ceil(rows.length/aqSize));
+    const slice = rows.slice((p-1)*aqSize, p*aqSize);
+    const statusMap = {accepted:'<span class="badge b-active">Accepted</span>',rejected:'<span class="badge b-inactive">Rejected</span>',pending:'<span class="badge b-neutral">Pending</span>'};
+    let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Broker</th><th>Client</th><th>Route</th><th>Type</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+    if (!slice.length) {
+      h += '<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--ink3);">No quotes match the current filter.</td></tr>';
+    } else {
+      slice.forEach(q => {
+        h += `<tr>
+          <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
+          <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
+          <td style="font-size:12px;">${q.brokerCompany}<br><span style="color:var(--ink3);font-size:11px;">${q.brokerEmail}</span></td>
+          <td style="font-size:12px;color:var(--ink2);">${q.clientEmail}</td>
+          <td style="font-size:12px;">${q.origin} → ${q.destination}</td>
+          <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
+          <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
+          <td>${q.transitDays} days</td>
+          <td style="font-size:12px;color:var(--ink2);">${fdt(q.submittedAt)}</td>
+          <td>${statusMap[q.status]||q.status}</td>
+        </tr>`;
+      });
+    }
+    h += '</tbody></table></div>';
+    if (tp>1) h += paginationBar(p, tp, rows.length, 'applyAqFilter');
+    document.getElementById('aqTableWrap').innerHTML = h;
+  }
+
+  // Build unique broker list for filter
+  const aqBrokers = ['', ...new Set(allQuotes.map(q => q.brokerCompany||q.brokerEmail))].sort();
+
+  function getFilteredQuotes() {
+    const broker   = document.getElementById('aqBroker')?.value  || '';
+    const status   = document.getElementById('aqStatus')?.value  || '';
+    const dateFrom = document.getElementById('aqFrom')?.value    || '';
+    const dateTo   = document.getElementById('aqTo')?.value      || '';
+    return allQuotes.filter(q => {
+      if (broker && (q.brokerCompany||q.brokerEmail) !== broker) return false;
+      if (status && q.status !== status) return false;
+      if (dateFrom && q.submittedAt < dateFrom) return false;
+      if (dateTo   && q.submittedAt.slice(0,10) > dateTo) return false;
+      return true;
+    });
+  }
+
+  window.applyAqFilter = function(p) { aqPage = p||1; renderAqPage(aqPage, getFilteredQuotes()); };
+
+  el.innerHTML = `
+    <div class="page-head"><h1>All Quotes</h1><p>${allQuotes.length} total quotes submitted by brokers.</p></div>
+    <div class="filter-bar">
+      <div class="ff" style="margin:0;">
+        <label style="font-size:11px;">Broker</label>
+        <select id="aqBroker" onchange="applyAqFilter(1)" style="min-width:200px;">
+          <option value="">All Brokers</option>
+          ${aqBrokers.filter(b=>b).map(b => `<option value="${esc(b)}">${esc(b)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">Status</label>
+        <select id="aqStatus" onchange="applyAqFilter(1)">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">From Date</label><input type="date" id="aqFrom" onchange="applyAqFilter(1)"></div>
+      <div class="ff" style="margin:0;"><label style="font-size:11px;">To Date</label><input type="date" id="aqTo" onchange="applyAqFilter(1)"></div>
+      <button class="btn-ghost" onclick="['aqBroker','aqStatus','aqFrom','aqTo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});applyAqFilter(1);" style="padding:7px 14px;font-size:13px;margin-top:14px;">Clear</button>
+    </div>
+    <div id="aqTableWrap"></div>`;
+  renderAqPage(1, allQuotes);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────
+
+(function(){
+  // ── Check for email-link URL params first ──────────────────
+  const params = new URLSearchParams(window.location.search);
+  const page   = params.get('page');
+
+  if (page === 'broker') {
+    const requestId   = params.get('requestId')   || '';
+    const brokerEmail = params.get('brokerEmail')  || '';
+    const brokerId    = params.get('brokerId')     || '';
+    const sig         = params.get('sig')          || '';
+    if (requestId && brokerEmail && sig) {
+      showBrokerQuotePage(requestId, brokerEmail, brokerId, sig);
+      return;
+    }
+  }
+
+  if (page === 'accept') {
+    const quoteId = params.get('quoteId') || '';
+    const action  = params.get('action')  || '';
+    const sig     = params.get('sig')     || '';
+    if (quoteId && action && sig) {
+      showAcceptRejectPage(quoteId, action, sig);
+      return;
+    }
+  }
+
+  // ── Normal portal load ────────────────────────────────────
+  const stored = localStorage.getItem('fq');
+  if (stored) { try { S=JSON.parse(stored); if(S.email&&S.token){ launch(); return; } }catch(e){} }
+  document.getElementById('loginEmail').addEventListener('keydown', e => e.key==='Enter' && sendOTP());
+  document.getElementById('otpCode').addEventListener('keydown',   e => e.key==='Enter' && verifyOTP());
+})();
+
+// ─── BROKER QUOTE PAGE (from email link) ──────────────────────
+
+async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
+  document.body.innerHTML = `
+    <div id="bqPage" style="min-height:100vh;background:#f9fafb;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;">
+
+      <!-- Nav -->
+      <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50;">
+        <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;">
+              <span style="color:#0A2540;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A2540;opacity:.55;margin-top:-1px;">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Card -->
+      <div style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;">
+        <div style="width:100%;max-width:560px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.1);overflow:hidden;">
+
+          <!-- Card header -->
+          <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:32px;text-align:center;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;">
+              <span style="color:white;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <p style="color:rgba(255,255,255,.9);font-size:16px;font-weight:500;margin:0;">Carrier Quote Submission</p>
+            <p style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px;">Review shipment details and submit your rate</p>
+          </div>
+
+          <!-- Card body -->
+          <div id="bqContent" style="padding:32px;">
+            <div style="text-align:center;padding:32px 0;">
+              <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
+              <p style="color:#6b7280;margin-top:12px;font-size:14px;">Loading request details…</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer style="background:white;border-top:1px solid #e5e7eb;padding:20px;">
+        <div style="text-align:center;font-size:12px;color:#9ca3af;">
+          © 2026 Loadro.com — Load Rates Optimized
+        </div>
+      </footer>
+
+    </div>`;
+
+  const r = await api({ action: 'getRequest', requestId, brokerEmail, brokerId, sig });
+  const el = document.getElementById('bqContent');
+
+  if (!r.success) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Link Invalid</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;">${esc(r.error || 'This link is invalid or has expired. Please use the original link from your email.')}</p>
+      </div>`;
+    return;
+  }
+
+  if (r.alreadyQuoted) {
+    el.innerHTML = `
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:52px;margin-bottom:16px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Already Submitted</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;">You have already submitted a quote for this request.</p>
+      </div>`;
+    return;
+  }
+
+  const req = r.request;
+  const bCo = r.brokerCompany || '';
+  el.innerHTML = `
+    <h2 style="font-family:Instrument Serif,serif;font-size:26px;color:#111827;margin-bottom:4px;">Submit Your Quote</h2>
+    <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
+    <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:14px;padding:18px 20px;margin-bottom:24px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0A2540;opacity:.6;margin-bottom:12px;">Shipment Details</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Origin</div><strong>${esc(req.origin)} ${esc(req.originZip)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Destination</div><strong>${esc(req.destination)} ${esc(req.destZip)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Freight Type</div><strong>${esc(req.freightType)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Weight</div><strong>${Number(req.weight).toLocaleString()} lbs</strong></div>
+        ${req.notes ? '<div style="grid-column:1/-1;"><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Notes</div><strong>' + esc(req.notes) + '</strong></div>' : ''}
+      </div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px solid #c7d7fe;">Request ID: ${esc(req.requestId)}</div>
+    </div>
+    <div id="bqMsg"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Your Company ${bCo ? '' : '*'}</label>
+        <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;box-sizing:border-box;"' : 'placeholder="Your company name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;"'}>
+        ${bCo ? '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">All-In Rate ($) *</label>
+        <input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Transit Days *</label>
+        <input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Valid Until (optional)</label>
+        <input type="date" id="bqValid" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Notes (optional)</label>
+        <textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;resize:vertical;min-height:80px;box-sizing:border-box;"></textarea>
+      </div>
+    </div>
+    <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}','${esc(bCo)}')"
+      style="width:100%;padding:16px;background:#FF6200;color:white;border:none;border-radius:16px;font-size:16px;font-weight:600;cursor:pointer;">
+      Submit Quote →
+    </button>`;
+}
+
+async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) {
+  const rate    = document.getElementById('bqRate')?.value.trim();
+  const transit = document.getElementById('bqTransit')?.value.trim();
+  const co      = brokerCompany || document.getElementById('bqCo')?.value.trim();
+  const valid   = document.getElementById('bqValid')?.value || '';
+  const notes   = document.getElementById('bqNotes')?.value.trim() || '';
+
+  if (!rate || isNaN(rate) || Number(rate) < 1) return msg('bqMsg','Enter a valid rate.','error');
+  if (!transit || isNaN(transit))                return msg('bqMsg','Enter transit days.','error');
+  if (!co)                                       return msg('bqMsg','Enter your company name.','error');
+
+  const btn = document.getElementById('bqBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const r = await api({ action:'submitQuote', requestId, brokerEmail,
+    brokerCompany: co, rate: Number(rate), transitDays: Number(transit),
+    validUntil: valid, notes });
+
+  if (r.success) {
+    document.getElementById('bqContent').innerHTML = `
+      <div style="text-align:center;padding:40px 0;">
+        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Submitted!</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:340px;margin:0 auto;">Your quote has been sent to the client. You will be notified by email if it is accepted.</p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:16px;">Quote ID: ${esc(r.quoteId)}</p>
+      </div>`;
+  } else {
+    btn.disabled = false; btn.textContent = 'Submit Quote →';
+    msg('bqMsg', r.error || 'Submission failed. Please try again.', 'error');
+  }
+}
+
+// ─── ACCEPT / REJECT PAGE (from email link) ───────────────────
+
+async function showAcceptRejectPage(quoteId, action, sig) {
+  const isAccept = action === 'accept';
+  document.body.innerHTML = `
+    <div style="min-height:100vh;background:#f9fafb;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;">
+
+      <!-- Nav -->
+      <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+        <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;">
+              <span style="color:#0A2540;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A2540;opacity:.55;margin-top:-1px;">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Card -->
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 20px;">
+        <div style="width:100%;max-width:460px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.1);overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:28px 32px;text-align:center;">
+            <p style="color:rgba(255,255,255,.8);font-size:14px;font-weight:500;">${isAccept ? 'Confirming your booking…' : 'Processing your decision…'}</p>
+          </div>
+          <div id="arContent" style="padding:40px 32px;text-align:center;">
+            <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
+            <p style="color:#6b7280;margin-top:12px;font-size:14px;">${isAccept ? 'Accepting' : 'Declining'} quote…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer style="background:white;border-top:1px solid #e5e7eb;padding:20px;">
+        <div style="text-align:center;font-size:12px;color:#9ca3af;">
+          © 2026 Loadro.com — Load Rates Optimized
+        </div>
+      </footer>
+
+    </div>`;
+
+  const r = await api({ action: 'processQuoteAction', quoteId, action, sig });
+  const el = document.getElementById('arContent');
+
+  if (r.success) {
+    if (action === 'accept') {
+      el.innerHTML = `
+        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Accepted!</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">Your booking is confirmed. The carrier has been notified and a confirmation email is on its way.</p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:16px;">You can manage all your shipments in the portal.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#FF6200;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
+    } else {
+      el.innerHTML = `
+        <div style="width:72px;height:72px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">❌</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Declined</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">You have declined this quote. The carrier has been notified. Other quotes may still be available in your dashboard.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#0A2540;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
+    }
+  } else {
+    el.innerHTML = `
+      <div style="width:72px;height:72px;background:#fffbeb;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">⚠️</div>
+      <h2 style="font-family:'Instrument Serif',serif;font-size:26px;color:#111827;margin-bottom:10px;">Unable to Process</h2>
+      <p style="color:#6b7280;font-size:14px;line-height:1.6;max-width:320px;margin:0 auto;">${esc(r.error || 'This link is invalid or has already been used.')}</p>
+      <a href="${APP_URL_JS}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#0A2540;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
+  }
+}
+</script>
+</body>
+</html>
