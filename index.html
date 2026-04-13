@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- version: 2.0.0 | build: 202604091200 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -233,6 +234,24 @@ tbody tr:hover td{background:var(--bg);}
 .s-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
 .s-item:hover{background:var(--bg);} .s-item:last-child{border-bottom:none;}
 .s-main{font-weight:600;font-size:14px;} .s-sub{font-size:12px;color:var(--ink2);}
+
+/* ─── ORG / TEAM ────────────────────────────────────────────── */
+.profile-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;}
+.profile-tab{padding:10px 20px;border:none;background:transparent;font-family:'Outfit',sans-serif;font-size:14px;font-weight:500;color:var(--ink2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
+.profile-tab:hover{color:var(--ink);}
+.profile-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+.team-member-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);}
+.team-member-row:last-child{border-bottom:none;}
+.team-member-info{display:flex;align-items:center;gap:12px;}
+.team-avatar{width:36px;height:36px;border-radius:50%;background:#0A2540;color:white;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;}
+.team-member-name{font-weight:600;font-size:14px;}
+.team-member-email{font-size:12px;color:var(--ink2);margin-top:1px;}
+.org-create-box{background:var(--surface2);border:2px dashed var(--border);border-radius:14px;padding:36px;text-align:center;margin-top:8px;}
+.org-create-box h3{font-family:'Instrument Serif',serif;font-size:20px;margin-bottom:8px;}
+.org-create-box p{color:var(--ink2);font-size:14px;margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;}
+.invite-badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-bg);border:1px solid rgba(26,79,196,.2);color:var(--blue);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.pending-invite-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--amber-bg);border:1px solid rgba(180,83,9,.15);border-radius:8px;font-size:13px;margin-bottom:8px;}
+.submitter-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);background:var(--surface2);border:1px solid var(--border);padding:2px 7px;border-radius:10px;margin-left:6px;}
 
 /* ─── MISC ──────────────────────────────────────────────────── */
 .empty{text-align:center;padding:56px 24px;color:var(--ink2);}
@@ -487,7 +506,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = '202603261100';
+  out.textContent = 'v2.0.0 — 202604091200';
 }
 
 async function sendOTP() {
@@ -510,6 +529,7 @@ async function verifyOTP() {
   if (r.success) {
     S = {email: r.email, token: r.token, role: r.role};
     localStorage.setItem('fq', JSON.stringify(S));
+    if (r.pendingInvite) window._pendingInviteData = r.pendingInvite;
     launch();
   } else msg('otpMsg', r.error,'error');
 }
@@ -550,7 +570,29 @@ function launch() {
   } else {
     buildSidebar('client');
     loadClient();
+    if (window._pendingInviteData) {
+      setTimeout(() => showInviteBanner(window._pendingInviteData), 800);
+      window._pendingInviteData = null;
+    }
   }
+}
+
+function showInviteBanner(invite) {
+  const mc = document.getElementById('mainContent');
+  if (!mc) return;
+  const banner = document.createElement('div');
+  banner.id = 'inviteBanner';
+  banner.style.cssText = 'background:var(--blue-bg);border:1px solid rgba(26,79,196,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;';
+  banner.innerHTML = `
+    <div>
+      <div style="font-weight:600;font-size:14px;color:var(--blue);">🏢 Organisation Invite</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:2px;">You've been invited to join <strong>${esc(invite.orgName)}</strong> by ${esc(invite.invitedBy)}. Go to <strong>My Profile → My Team</strong> to accept.</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button onclick="setNav(document.getElementById('n-clientSettings'),'clientSettings');setTimeout(()=>switchProfileTab('team'),200)" style="padding:8px 16px;background:var(--blue);color:white;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">View Invite</button>
+      <button onclick="document.getElementById('inviteBanner').remove()" style="padding:8px 12px;background:transparent;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;">✕</button>
+    </div>`;
+  mc.insertBefore(banner, mc.firstChild);
 }
 
 // ─── SIDEBAR ──────────────────────────────────────────────────
@@ -599,6 +641,7 @@ function buildSidebar(role) {
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
         <button class="nav-item" id="n-clientSettings" onclick="setNav(this,'clientSettings')"><span class="nav-icon">👤</span>My Profile</button>
+        <button class="nav-item" id="n-clientTeam" onclick="setNav(document.getElementById('n-clientSettings'),'clientSettings');setTimeout(()=>switchProfileTab('team'),150)"><span class="nav-icon">🏢</span>My Team</button>
       </div>`;
   }
 }
@@ -868,25 +911,69 @@ async function loadClientDash() {
             <button onclick="requestAgain(${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,notes:req.notes||''}).replace(/"/g,'&quot;')})" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">↺ Request Again</button>
           </div>
         </div>
-        <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span><span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>`;
+        <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span>${req.submittedBy && req.submittedBy !== S.email ? `<span class="submitter-badge">👤 ${esc(req.submittedBy)}</span>` : ''}<span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>`;
       if (req.quotes.length) {
-        ph += '<div class="quote-list">';
+        // Group quotes by brokerEmail so all carriers from same vendor show together
+        const vendorMap = {};
         req.quotes.forEach(q => {
-          ph += `<div class="quote-row ${q.status}">
-            <div><div class="q-broker">${q.brokerCompany}</div><div class="q-detail">Transit: ${q.transitDays} days${q.validUntil?' · Valid until '+q.validUntil:''}${q.notes?' · '+q.notes:''}</div></div>
-            <div style="display:flex;align-items:center;gap:16px;">
-              <div style="text-align:right;"><div class="q-rate">$${Number(q.rate).toLocaleString()}</div>
-                ${q.status==='accepted'?'<div style="color:var(--green);font-size:12px;font-weight:600;">✓ Accepted</div>':''}
-                ${q.status==='rejected'?'<div style="color:var(--ink3);font-size:12px;">Declined</div>':''}
-              </div>
-              ${q.status==='pending'?`<div class="q-actions">
-                <button class="btn-accept" onclick="respondQuote('${q.quoteId}','accept',this)">✓ Accept</button>
-                <button class="btn-reject" onclick="respondQuote('${q.quoteId}','reject',this)">✕ Reject</button>
-              </div>`:''}
-            </div>
-          </div>`;
+          if (!vendorMap[q.brokerEmail]) {
+            vendorMap[q.brokerEmail] = { brokerEmail: q.brokerEmail, brokerCompany: q.brokerCompany, carriers: [] };
+          }
+          vendorMap[q.brokerEmail].carriers.push(q);
         });
-        ph += '</div>';
+        const vendors = Object.values(vendorMap);
+        // Sort vendors: accepted first, then by lowest carrier rate
+        vendors.sort((a, b) => {
+          const aAcc = a.carriers.some(c => c.status === 'accepted');
+          const bAcc = b.carriers.some(c => c.status === 'accepted');
+          if (aAcc && !bAcc) return -1;
+          if (!aAcc && bAcc) return 1;
+          return Math.min(...a.carriers.map(c=>Number(c.rate))) - Math.min(...b.carriers.map(c=>Number(c.rate)));
+        });
+
+        ph += '<div class="quote-list">';
+        vendors.forEach(vendor => {
+          const vendorAccepted = vendor.carriers.some(c => c.status === 'accepted');
+          const vendorRejected = vendor.carriers.every(c => c.status === 'rejected');
+          const multiCarrier   = vendor.carriers.length > 1;
+
+          ph += `<div class="quote-row ${vendorAccepted?'accepted':vendorRejected?'rejected':''}" style="flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;">
+            <!-- Vendor header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:${multiCarrier?'1px solid var(--border)':'none'};">
+              <div>
+                <div class="q-broker">${esc(vendor.brokerCompany)}</div>
+                <div class="q-detail">${vendor.carriers.length} carrier option${vendor.carriers.length>1?'s':''}</div>
+              </div>
+              <div style="font-size:12px;color:var(--ink2);">
+                From <strong style="color:var(--blue);">$${Number(Math.min(...vendor.carriers.map(c=>Number(c.rate)))).toLocaleString()}</strong>
+              </div>
+            </div>`;
+
+          // Each carrier row inside the vendor card
+          vendor.carriers.forEach((q, idx) => {
+            const isLast = idx === vendor.carriers.length - 1;
+            ph += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;${!isLast?'border-bottom:1px solid var(--border);':''}${q.status==='accepted'?'background:rgba(25,122,69,.04);':''}${q.status==='rejected'?'opacity:.5;':''}gap:12px;flex-wrap:wrap;">
+              <div style="flex:1;">
+                <div style="font-weight:600;font-size:13px;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">Carrier not specified</span>'}</div>
+                <div class="q-detail">Transit: ${q.transitDays} day${q.transitDays!=1?'s':''}${q.validUntil?' · Valid until '+q.validUntil:''}${q.notes?' · '+esc(q.notes):''}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="text-align:right;">
+                  <div class="q-rate" style="font-size:22px;">$${Number(q.rate).toLocaleString()}</div>
+                  ${q.status==='accepted'?'<div style="color:var(--green);font-size:11px;font-weight:600;">✓ Accepted</div>':''}
+                  ${q.status==='rejected'?'<div style="color:var(--ink3);font-size:11px;">Declined</div>':''}
+                </div>
+                ${q.status==='pending'?`<div class="q-actions">
+                  <button class="btn-accept" onclick="respondQuote('${q.quoteId}','accept',this)">✓ Accept</button>
+                  <button class="btn-reject" onclick="respondQuote('${q.quoteId}','reject',this)">✕ Reject</button>
+                </div>`:''}
+              </div>
+            </div>`;
+          });
+
+          ph += '</div>'; // end vendor quote-row
+        });
+        ph += '</div>'; // end quote-list
       } else {
         ph += '<div style="color:var(--ink3);font-size:13px;font-style:italic;margin-top:8px;">Awaiting broker quotes…</div>';
       }
@@ -999,7 +1086,7 @@ async function renderBrokerDash() {
   if (!quotes.length) {
     h += '<div class="empty"><h3>No quotes yet</h3><p>Your submitted quotes will appear here.</p></div>';
   } else {
-    h += '<div class="table-wrap"><table><thead><tr><th>Request ID</th><th>Route</th><th>Type</th><th>Your Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+    h += '<div class="table-wrap"><table><thead><tr><th>Request ID</th><th>Carrier</th><th>Route</th><th>Type</th><th>Your Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
     quotes.slice(0,5).forEach(q => {
       const statusMap = {
         accepted: '<span class="badge b-active">&#x2713; Accepted</span>',
@@ -1008,6 +1095,7 @@ async function renderBrokerDash() {
       };
       h += `<tr>
         <td style="font-family:monospace;font-size:11px;color:var(--ink3);">${q.requestId}</td>
+        <td style="font-size:12px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">—</span>'}</td>
         <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">&#8595;</span> ${q.destination}</td>
         <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
         <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
@@ -1041,12 +1129,13 @@ async function loadBrokerQuotesPanel() {
       bqPage = p;
       const tp = Math.max(1, Math.ceil(quotes.length/bqSize));
       const slice = quotes.slice((p-1)*bqSize, p*bqSize);
-      let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Route</th><th>Freight</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+      let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Carrier</th><th>Route</th><th>Freight</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
       slice.forEach(q => {
         const bqStatus = {accepted:'<span class="badge b-active">Accepted</span>',rejected:'<span class="badge b-inactive">Rejected</span>',pending:'<span class="badge b-neutral">Pending</span>'};
         h += `<tr>
           <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
           <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
+          <td style="font-size:13px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">—</span>'}</td>
           <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">↓</span> ${q.destination}</td>
           <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
           <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
@@ -1147,31 +1236,103 @@ async function loadAdmin() {
     <div class="stats-row">
       <div class="stat-card s-blue"><div class="stat-label">Total Requests</div><div class="stat-value">${s.totalRequests}</div><div class="stat-sub">${s.pendingRequests} pending</div></div>
       <div class="stat-card"><div class="stat-label">Total Quotes</div><div class="stat-value">${s.totalQuotes}</div><div class="stat-sub">${s.acceptedQuotes} accepted</div></div>
-      <div class="stat-card"><div class="stat-label">Clients</div><div class="stat-value">${s.totalClients}</div></div>
+      <div class="stat-card"><div class="stat-label">Clients</div><div class="stat-value">${s.totalClients}</div><div class="stat-sub">${s.totalOrgs||0} organisations</div></div>
       <div class="stat-card s-green"><div class="stat-label">Active Vendors</div><div class="stat-value">${s.activeBrokers}</div></div>
     </div>
     <div class="section-head"><h2>Recent Requests</h2></div>
-    <div class="table-wrap">${reqTable(r.recentRequests)}</div>`;
+    <div class="table-wrap">${adminReqTable(r.recentRequests)}</div>`;
+}
+
+function adminReqTable(rows) {
+  if (!rows||!rows.length) return '<div class="empty" style="padding:32px;"><p>No requests yet.</p></div>';
+  let h = `<table><thead><tr><th>Request ID</th><th>Submitted By</th><th>Route</th><th>Type</th><th>Weight</th><th>Date</th><th>Quotes</th><th>Best Rate</th><th>Status</th></tr></thead><tbody>`;
+  rows.forEach(r => {
+    const sc = {Pending:'b-pending',Quoted:'b-quoted',Accepted:'b-accepted'}[r.status]||'b-pending';
+    const submitter = r.submittedBy || r.clientEmail;
+    const orgLabel  = r.orgId ? `<div style="font-size:10px;color:var(--ink3);font-family:monospace;">${r.orgId}</div>` : '';
+    h += `<tr>
+      <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${r.requestId}</td>
+      <td style="max-width:160px;"><div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;">${esc(submitter)}</div>${orgLabel}</td>
+      <td>${r.origin} → ${r.destination}</td>
+      <td><span class="badge b-neutral">${r.freightType}</span></td>
+      <td>${Number(r.weight).toLocaleString()} lbs</td>
+      <td>${fdt(r.submittedAt)}</td>
+      <td style="text-align:center;font-weight:600;">${r.quoteCount}</td>
+      <td style="font-weight:700;color:var(--blue);">${r.lowestRate?'$'+Number(r.lowestRate).toLocaleString():'—'}</td>
+      <td><span class="badge ${sc}">${r.status||'Pending'}</span></td>
+    </tr>`;
+  });
+  return h + '</tbody></table>';
 }
 
 async function loadClientsPanel() {
   if (!adminCache.allClients) { const r = await api({action:'adminGetOverview',email:S.email,token:S.token}); if(r.success) adminCache=r; }
-  const cl = adminCache.allClients || [];
-  const el = document.getElementById('p-adminClients');
-  el.innerHTML = `<div class="page-head"><h1>Clients</h1><p>${cl.length} registered clients</p></div><div class="table-wrap" id="clTableWrap"></div>`;
+  const cl   = adminCache.allClients || [];
+  const orgs = adminCache.allOrgs    || [];
+  const el   = document.getElementById('p-adminClients');
+
+  const orgMap = {};
+  orgs.forEach(o => { orgMap[o.orgId] = o; });
+
+  el.innerHTML = `
+    <div class="page-head"><h1>Clients</h1><p>${cl.length} registered clients · ${orgs.length} organisations</p></div>
+    <div class="profile-tabs" style="margin-bottom:16px;">
+      <button class="profile-tab active" id="clTab-clients" onclick="setClView('clients')">Individual Clients</button>
+      <button class="profile-tab" id="clTab-orgs" onclick="setClView('orgs')">Organisations (${orgs.length})</button>
+    </div>
+    <div id="clTableWrap"></div>`;
+
+  window.setClView = function(mode) {
+    document.getElementById('clTab-clients').classList.toggle('active', mode === 'clients');
+    document.getElementById('clTab-orgs').classList.toggle('active',   mode === 'orgs');
+    if (mode === 'clients') renderClPage(1);
+    else renderOrgsView();
+  };
+
   let clPage = 1;
   const clSize = 20;
+
   function renderClPage(p) {
     clPage = p;
-    const tp = Math.max(1, Math.ceil(cl.length/clSize));
+    const tp    = Math.max(1, Math.ceil(cl.length/clSize));
     const slice = cl.slice((p-1)*clSize, p*clSize);
-    let h = '<table><thead><tr><th>Email</th><th>Company</th><th>Joined</th><th>Requests</th></tr></thead><tbody>';
-    if (!cl.length) h += '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--ink3);">No clients yet.</td></tr>';
-    slice.forEach(c => { h += `<tr><td>${c.email}</td><td>${c.company||'<span style="color:var(--ink3)">—</span>'}</td><td>${fd(c.createdAt)}</td><td><span class="badge b-quoted">${c.requestCount}</span></td></tr>`; });
-    h += '</tbody></table>';
+    let h = '<div class="table-wrap"><table><thead><tr><th>Email</th><th>Company</th><th>Organisation</th><th>Role</th><th>Joined</th><th>Requests</th></tr></thead><tbody>';
+    if (!cl.length) h += '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--ink3);">No clients yet.</td></tr>';
+    slice.forEach(c => {
+      const org = c.orgId ? orgMap[c.orgId] : null;
+      h += `<tr>
+        <td style="font-size:12px;">${esc(c.email)}</td>
+        <td>${c.company||'<span style="color:var(--ink3)">—</span>'}</td>
+        <td>${org ? `<span style="font-size:12px;">${esc(org.orgName)}</span><br><span style="font-family:monospace;font-size:10px;color:var(--ink3);">${c.orgId}</span>` : '<span style="color:var(--ink3);font-size:12px;">—</span>'}</td>
+        <td>${c.orgRole ? `<span class="badge" style="${c.orgRole==='owner'?'background:var(--accent-bg);color:var(--accent);border:1px solid rgba(200,75,26,.2);':'background:var(--surface2);color:var(--ink2);border:1px solid var(--border);'}">${c.orgRole==='owner'?'👑 Owner':'Member'}</span>` : '<span style="color:var(--ink3);font-size:12px;">Solo</span>'}</td>
+        <td style="font-size:12px;">${fd(c.createdAt)}</td>
+        <td><span class="badge b-quoted">${c.requestCount}</span></td>
+      </tr>`;
+    });
+    h += '</tbody></table></div>';
     if (tp>1) h += paginationBar(p, tp, cl.length, 'renderClPage');
     document.getElementById('clTableWrap').innerHTML = h;
   }
+
+  function renderOrgsView() {
+    if (!orgs.length) {
+      document.getElementById('clTableWrap').innerHTML = '<div class="empty"><h3>No organisations yet</h3><p>Clients create organisations from their My Team page.</p></div>';
+      return;
+    }
+    let h = '<div class="table-wrap"><table><thead><tr><th>Organisation</th><th>Owner</th><th>Members</th><th>Requests</th><th>Org ID</th></tr></thead><tbody>';
+    orgs.forEach(o => {
+      h += `<tr>
+        <td style="font-weight:600;">${esc(o.orgName)}</td>
+        <td style="font-size:12px;">${esc(o.ownerEmail)}</td>
+        <td style="text-align:center;font-weight:600;">${(o.members||[]).length}</td>
+        <td><span class="badge b-quoted">${o.requestCount||0}</span></td>
+        <td style="font-family:monospace;font-size:11px;color:var(--ink3);">${o.orgId}</td>
+      </tr>`;
+    });
+    h += '</tbody></table></div>';
+    document.getElementById('clTableWrap').innerHTML = h;
+  }
+
   window.renderClPage = renderClPage;
   renderClPage(1);
 }
@@ -1736,7 +1897,7 @@ function fdt(ts) {
   } catch(e) { return ts; }
 }
 function fmtAction(a) {
-  return ({LOGIN:'signed in',REQUEST_SUBMITTED:'submitted a request',QUOTE_SUBMITTED:'submitted a quote',QUOTE_ACCEPT:'accepted a quote',QUOTE_REJECT:'rejected a quote',EMPLOYEE_ADDED:'added an employee',EMPLOYEE_TOGGLED:'toggled employee access',BROKER_ADDED:'added a broker',BROKER_TOGGLED:'toggled broker status',BROKER_UPDATED:'updated a broker',SETTINGS_SAVED:'updated system settings',TEMPLATE_SAVED:'edited an email template',TEMPLATE_RESET:'reset an email template'})[a]||(a||'').toLowerCase().replace(/_/g,' ');
+  return ({LOGIN:'signed in',REQUEST_SUBMITTED:'submitted a request',QUOTE_SUBMITTED:'submitted a quote',QUOTE_ACCEPT:'accepted a quote',QUOTE_REJECT:'rejected a quote',EMPLOYEE_ADDED:'added an employee',EMPLOYEE_TOGGLED:'toggled employee access',BROKER_ADDED:'added a broker',BROKER_TOGGLED:'toggled broker status',BROKER_UPDATED:'updated a broker',SETTINGS_SAVED:'updated system settings',TEMPLATE_SAVED:'edited an email template',TEMPLATE_RESET:'reset an email template',ORG_CREATED:'created an organisation',ORG_INVITE_SENT:'invited a team member',ORG_INVITE_ACCEPTED:'joined an organisation',ORG_MEMBER_REMOVED:'removed a team member',PROFILE_UPDATED:'updated their profile',CUSTOM_BROKER_ADDED:'added a custom broker',CUSTOM_BROKER_REMOVED:'removed a custom broker'})[a]||(a||'').toLowerCase().replace(/_/g,' ');
 }
 
 // ─── PAGINATION BAR ──────────────────────────────────────────
@@ -1759,32 +1920,191 @@ async function loadClientSettings() {
   const tzOptions = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : ['America/Los_Angeles','America/Chicago','America/New_York','America/Denver','Europe/London','Asia/Singapore','Australia/Sydney'];
   const tzOpts = tzOptions.map(tz => `<option value="${tz}" ${p.timezone===tz?'selected':''}>${tz}</option>`).join('');
   el.innerHTML = `
-    <div class="page-head"><h1>My Profile</h1><p>Update your contact information and preferences.</p></div>
-    <div id="profileMsg"></div>
-    <div class="profile-section">
-      <h3>Contact Information</h3>
-      <div class="profile-grid">
-        <div class="ff"><label>First Name</label><input type="text" id="pFirst" value="${esc(p.firstName||'')}" placeholder="Jane"></div>
-        <div class="ff"><label>Last Name</label><input type="text" id="pLast" value="${esc(p.lastName||'')}" placeholder="Smith"></div>
-        <div class="ff"><label>Company Name</label><input type="text" id="pCo" value="${esc(p.company||'')}" placeholder="Acme Corp"></div>
-        <div class="ff"><label>Phone Number</label><input type="tel" id="pPhone" value="${esc(p.phone||'')}" placeholder="+1 (555) 000-0000"></div>
-        <div class="ff span-2"><label>Email Address</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+    <div class="page-head"><h1>My Account</h1><p>Manage your profile and organisation settings.</p></div>
+    <div class="profile-tabs">
+      <button class="profile-tab active" id="ptab-profile" onclick="switchProfileTab('profile')">My Profile</button>
+      <button class="profile-tab" id="ptab-team" onclick="switchProfileTab('team')">🏢 My Team</button>
+    </div>
+    <div id="profileTabContent">
+      <div id="profileMsg"></div>
+      <div class="profile-section">
+        <h3>Contact Information</h3>
+        <div class="profile-grid">
+          <div class="ff"><label>First Name</label><input type="text" id="pFirst" value="${esc(p.firstName||'')}" placeholder="Jane"></div>
+          <div class="ff"><label>Last Name</label><input type="text" id="pLast" value="${esc(p.lastName||'')}" placeholder="Smith"></div>
+          <div class="ff"><label>Company Name</label><input type="text" id="pCo" value="${esc(p.company||'')}" placeholder="Acme Corp"></div>
+          <div class="ff"><label>Phone Number</label><input type="tel" id="pPhone" value="${esc(p.phone||'')}" placeholder="+1 (555) 000-0000"></div>
+          <div class="ff span-2"><label>Email Address</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+        </div>
+      </div>
+      <div class="profile-section">
+        <h3>Timezone Preference</h3>
+        <div class="ff" style="max-width:360px;">
+          <label>Your Timezone</label>
+          <select id="pTz" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+            <option value="">— Use browser default —</option>
+            ${tzOpts}
+          </select>
+          <div style="font-size:11px;color:var(--ink3);margin-top:4px;">All dates and times in the dashboard will display in this timezone.</div>
+        </div>
+      </div>
+      <div style="margin-top:4px;">
+        <button class="btn-submit" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
       </div>
     </div>
-    <div class="profile-section">
-      <h3>Timezone Preference</h3>
-      <div class="ff" style="max-width:360px;">
-        <label>Your Timezone</label>
-        <select id="pTz" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
-          <option value="">— Use browser default —</option>
-          ${tzOpts}
-        </select>
-        <div style="font-size:11px;color:var(--ink3);margin-top:4px;">All dates and times in the dashboard will display in this timezone.</div>
-      </div>
-    </div>
-    <div style="margin-top:4px;">
-      <button class="btn-submit" id="saveProfileBtn" onclick="saveProfile()">Save Profile</button>
+    <div id="teamTabContent" style="display:none;">
+      <div id="teamMsg"></div>
+      <div id="teamPanelInner"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>
     </div>`;
+  loadTeamPanel(p);
+}
+
+function switchProfileTab(tab) {
+  const pt = document.getElementById('ptab-profile');
+  const tt = document.getElementById('ptab-team');
+  const pc = document.getElementById('profileTabContent');
+  const tc = document.getElementById('teamTabContent');
+  if (!pt||!tt||!pc||!tc) return;
+  pt.classList.toggle('active', tab === 'profile');
+  tt.classList.toggle('active', tab === 'team');
+  pc.style.display = tab === 'profile' ? '' : 'none';
+  tc.style.display = tab === 'team'    ? '' : 'none';
+}
+
+async function loadTeamPanel() {
+  const inner = document.getElementById('teamPanelInner');
+  if (!inner) return;
+  const r = await api({action:'getOrgMembers', email:S.email, token:S.token});
+  if (!r.success) { inner.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+
+  const hasOrg = !!r.orgId;
+
+  if (!hasOrg) {
+    const pi = window._pendingInviteData;
+    inner.innerHTML = `
+      <div id="teamMsg2"></div>
+      ${pi ? `
+        <div style="background:var(--blue-bg);border:1px solid rgba(26,79,196,.2);border-radius:12px;padding:20px;margin-bottom:20px;">
+          <div style="font-weight:600;font-size:15px;color:var(--blue);margin-bottom:4px;">📬 Pending Organisation Invite</div>
+          <div style="font-size:14px;color:var(--ink2);margin-bottom:14px;">You've been invited to join <strong>${esc(pi.orgName)}</strong> by ${esc(pi.invitedBy)}.</div>
+          <button onclick="acceptOrgInvite()" style="padding:9px 20px;background:var(--blue);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;" id="acceptInviteBtn">✓ Accept Invite</button>
+        </div>` : ''}
+      <div class="org-create-box">
+        <h3>Create Your Organisation</h3>
+        <p>Group your team under one organisation so everyone can view and manage freight requests together.</p>
+        <div class="ff" style="max-width:360px;margin:0 auto 16px;text-align:left;">
+          <label>Organisation Name</label>
+          <input type="text" id="orgNameInput" placeholder="e.g. Acme Corp Logistics">
+        </div>
+        <button onclick="createOrg()" style="padding:11px 28px;background:#0A2540;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;" id="createOrgBtn">Create Organisation →</button>
+      </div>`;
+    return;
+  }
+
+  const members = r.members        || [];
+  const pending = r.pendingInvites || [];
+  const isOwner = members.find(m => m.email.toLowerCase() === S.email.toLowerCase())?.orgRole === 'owner';
+
+  let h = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="font-weight:700;font-size:16px;">${esc(r.orgName)}</div>
+        <div style="font-size:12px;color:var(--ink2);margin-top:2px;">Org ID: <code style="font-family:monospace;font-size:11px;">${esc(r.orgId)}</code> · ${members.length} member${members.length!==1?'s':''}</div>
+      </div>
+      ${isOwner ? `<button onclick="openInviteModal()" style="padding:9px 18px;background:#0A2540;color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">+ Invite Member</button>` : ''}
+    </div>`;
+
+  if (isOwner && pending.length) {
+    h += `<div style="margin-bottom:16px;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:8px;">Pending Invites</div>`;
+    pending.forEach(inv => {
+      h += `<div class="pending-invite-row">
+        <div><span style="font-weight:600;">${esc(inv.email)}</span> <span style="color:var(--ink3);font-size:12px;">invited by ${esc(inv.invitedBy)} · ${fd(inv.createdAt)}</span></div>
+        <span class="invite-badge">⏳ Pending</span>
+      </div>`;
+    });
+    h += '</div>';
+  }
+
+  h += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;">`;
+  members.forEach(m => {
+    const initial = (m.firstName || m.email || '?')[0].toUpperCase();
+    const name    = ((m.firstName||'') + ' ' + (m.lastName||'')).trim() || m.email;
+    const isSelf  = m.email.toLowerCase() === S.email.toLowerCase();
+    const isOwnerRow = m.orgRole === 'owner';
+    h += `<div class="team-member-row">
+      <div class="team-member-info">
+        <div class="team-avatar">${esc(initial)}</div>
+        <div>
+          <div class="team-member-name">${esc(name)} ${isSelf?'<span style="font-size:11px;color:var(--ink3);font-weight:400;">(you)</span>':''}</div>
+          <div class="team-member-email">${esc(m.email)}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="badge" style="${isOwnerRow?'background:var(--accent-bg);color:var(--accent);border:1px solid rgba(200,75,26,.2);':'background:var(--surface2);color:var(--ink2);border:1px solid var(--border);'}">${isOwnerRow?'👑 Owner':'Member'}</span>
+        ${isOwner && !isSelf ? `<button onclick="removeMember('${esc(m.email)}')" style="padding:5px 12px;background:transparent;color:var(--red);border:1.5px solid rgba(192,57,43,.3);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer;">Remove</button>` : ''}
+      </div>
+    </div>`;
+  });
+  h += '</div>';
+  inner.innerHTML = h;
+}
+
+async function createOrg() {
+  const name = document.getElementById('orgNameInput')?.value.trim();
+  if (!name) { msg('teamMsg2','Enter an organisation name.','error'); return; }
+  const btn = document.getElementById('createOrgBtn');
+  if (btn) { btn.disabled=true; btn.textContent='Creating…'; }
+  const r = await api({action:'createOrg', email:S.email, token:S.token, orgName:name});
+  if (r.success) {
+    msg('teamMsg','✓ Organisation created!','success');
+    await loadTeamPanel();
+    switchProfileTab('team');
+  } else {
+    if (btn) { btn.disabled=false; btn.textContent='Create Organisation →'; }
+    msg('teamMsg2', r.error, 'error');
+  }
+}
+
+async function acceptOrgInvite() {
+  const btn = document.getElementById('acceptInviteBtn');
+  if (btn) { btn.disabled=true; btn.textContent='Joining…'; }
+  const r = await api({action:'acceptOrgInvite', email:S.email, token:S.token});
+  if (r.success) {
+    window._pendingInviteData = null;
+    msg('teamMsg','✓ You have joined the organisation!','success');
+    await loadTeamPanel();
+    switchProfileTab('team');
+  } else {
+    if (btn) { btn.disabled=false; btn.textContent='✓ Accept Invite'; }
+    msg('teamMsg', r.error, 'error');
+  }
+}
+
+function openInviteModal() {
+  const email = prompt('Enter the email address to invite to your organisation:');
+  if (!email || !email.includes('@')) return;
+  sendOrgInvite(email.trim().toLowerCase());
+}
+
+async function sendOrgInvite(inviteeEmail) {
+  const r = await api({action:'inviteOrgMember', email:S.email, token:S.token, inviteeEmail});
+  if (r.success) {
+    msg('teamMsg','✓ Invite sent to ' + inviteeEmail + '.','success');
+    loadTeamPanel();
+  } else {
+    msg('teamMsg', r.error, 'error');
+  }
+}
+
+async function removeMember(targetEmail) {
+  if (!confirm('Remove ' + targetEmail + ' from your organisation? They will lose access to shared requests.')) return;
+  const r = await api({action:'removeOrgMember', email:S.email, token:S.token, targetEmail});
+  if (r.success) {
+    msg('teamMsg','Member removed.','success');
+    loadTeamPanel();
+  } else {
+    msg('teamMsg', r.error, 'error');
+  }
 }
 
 async function saveProfile() {
@@ -1861,17 +2181,18 @@ async function loadAdminAllQuotes() {
     const tp = Math.max(1, Math.ceil(rows.length/aqSize));
     const slice = rows.slice((p-1)*aqSize, p*aqSize);
     const statusMap = {accepted:'<span class="badge b-active">Accepted</span>',rejected:'<span class="badge b-inactive">Rejected</span>',pending:'<span class="badge b-neutral">Pending</span>'};
-    let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Broker</th><th>Client</th><th>Route</th><th>Type</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+    let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Broker</th><th>Carrier</th><th>Client</th><th>Route</th><th>Type</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
     if (!slice.length) {
-      h += '<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--ink3);">No quotes match the current filter.</td></tr>';
+      h += '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--ink3);">No quotes match the current filter.</td></tr>';
     } else {
       slice.forEach(q => {
         h += `<tr>
           <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
           <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
-          <td style="font-size:12px;">${q.brokerCompany}<br><span style="color:var(--ink3);font-size:11px;">${q.brokerEmail}</span></td>
-          <td style="font-size:12px;color:var(--ink2);">${q.clientEmail}</td>
-          <td style="font-size:12px;">${q.origin} → ${q.destination}</td>
+          <td style="font-size:12px;">${esc(q.brokerCompany)}<br><span style="color:var(--ink3);font-size:11px;">${esc(q.brokerEmail)}</span></td>
+          <td style="font-size:12px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);">—</span>'}</td>
+          <td style="font-size:12px;color:var(--ink2);">${esc(q.clientEmail)}</td>
+          <td style="font-size:12px;">${esc(q.origin)} → ${esc(q.destination)}</td>
           <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
           <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
           <td>${q.transitDays} days</td>
@@ -2033,17 +2354,21 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
     el.innerHTML = `
       <div style="text-align:center;padding:32px 0;">
         <div style="font-size:52px;margin-bottom:16px;">✅</div>
-        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Already Submitted</h2>
-        <p style="color:#6b7280;font-size:14px;line-height:1.6;">You have already submitted a quote for this request.</p>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Maximum Carriers Submitted</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;">You have submitted the maximum 3 carriers for this request.</p>
       </div>`;
     return;
   }
 
   const req = r.request;
   const bCo = r.brokerCompany || '';
+  // Build carrier count state — if broker already submitted some, limit remaining slots
+  window._bqCarrierCount = 1;
+  window._bqMaxCarriers  = r.slotsRemaining !== undefined ? r.slotsRemaining : 3;
+
   el.innerHTML = `
     <h2 style="font-family:Instrument Serif,serif;font-size:26px;color:#111827;margin-bottom:4px;">Submit Your Quote</h2>
-    <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
+    <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rates below. You can add up to 3 carriers.</p>
     <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:14px;padding:18px 20px;margin-bottom:24px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0A2540;opacity:.6;margin-bottom:12px;">Shipment Details</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
@@ -2055,66 +2380,151 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
       </div>
       <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px solid #c7d7fe;">Request ID: ${esc(req.requestId)}</div>
     </div>
-    <div id="bqMsg"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
-      <div style="grid-column:1/-1;">
-        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Your Company ${bCo ? '' : '*'}</label>
-        <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;box-sizing:border-box;"' : 'placeholder="Your company name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;"'}>
-        ${bCo ? '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
-      </div>
-      <div>
-        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">All-In Rate ($) *</label>
-        <input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
-      </div>
-      <div>
-        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Transit Days *</label>
-        <input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
-      </div>
-      <div style="grid-column:1/-1;">
-        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Valid Until (optional)</label>
-        <input type="date" id="bqValid" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
-      </div>
-      <div style="grid-column:1/-1;">
-        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Notes (optional)</label>
-        <textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;resize:vertical;min-height:80px;box-sizing:border-box;"></textarea>
-      </div>
+
+    <div style="grid-column:1/-1;margin-bottom:20px;">
+      <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Your Company ${bCo ? '' : '*'}</label>
+      <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;box-sizing:border-box;"' : 'placeholder="Your company name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;"'}>
+      ${bCo ? '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
     </div>
+
+    <div id="bqMsg" style="margin-bottom:8px;"></div>
+    <div id="bqCarriersWrap"></div>
+
+    <div id="bqAddWrap" style="margin-bottom:20px;">
+      <button id="bqAddBtn" onclick="bqAddCarrier()" style="width:100%;padding:11px;background:transparent;border:2px dashed #e5e7eb;border-radius:12px;font-family:'Outfit',sans-serif;font-size:14px;color:#6b7280;cursor:pointer;transition:all .15s;" onmouseover="this.style.borderColor='#FF6200';this.style.color='#FF6200'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#6b7280'">
+        + Add Another Carrier (up to 3)
+      </button>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Valid Until (optional — applies to all carriers)</label>
+      <input type="date" id="bqValid" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+    </div>
+
     <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}','${esc(bCo)}')"
       style="width:100%;padding:16px;background:#FF6200;color:white;border:none;border-radius:16px;font-size:16px;font-weight:600;cursor:pointer;">
       Submit Quote →
     </button>`;
+
+  // Render first carrier row
+  bqRenderCarriers();
+}
+
+function bqRenderCarriers() {
+  const wrap = document.getElementById('bqCarriersWrap');
+  const addBtn = document.getElementById('bqAddBtn');
+  const addWrap = document.getElementById('bqAddWrap');
+  if (!wrap) return;
+  const count = window._bqCarrierCount || 1;
+  const max   = window._bqMaxCarriers  || 3;
+  let h = '';
+  for (let i = 0; i < count; i++) {
+    const num = i + 1;
+    const isFirst = i === 0;
+    h += `
+      <div style="background:#f9fafb;border:1.5px solid #e5e7eb;border-radius:14px;padding:18px;margin-bottom:12px;position:relative;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#0A2540;">Carrier ${num}</div>
+          ${!isFirst ? `<button onclick="bqRemoveCarrier(${i})" style="background:none;border:none;color:#9ca3af;font-size:18px;cursor:pointer;line-height:1;padding:0;" title="Remove carrier">×</button>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:5px;">Carrier Name *</label>
+            <input type="text" id="bqCarrier_${i}" placeholder="e.g. FedEx Freight, XPO Logistics" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:5px;">All-In Rate ($) *</label>
+            <input type="number" id="bqRate_${i}" placeholder="e.g. 2500" min="1" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:5px;">Transit Days *</label>
+            <input type="number" id="bqTransit_${i}" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+          </div>
+          <div style="grid-column:1/-1;">
+            <label style="display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:5px;">Notes (optional)</label>
+            <input type="text" id="bqNotes_${i}" placeholder="Service level, equipment type…" style="width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:10px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+      </div>`;
+  }
+  wrap.innerHTML = h;
+  if (addWrap) addWrap.style.display = count >= max ? 'none' : 'block';
+}
+
+function bqAddCarrier() {
+  if ((window._bqCarrierCount||1) >= (window._bqMaxCarriers||3)) return;
+  window._bqCarrierCount = (window._bqCarrierCount||1) + 1;
+  bqRenderCarriers();
+}
+
+function bqRemoveCarrier(idx) {
+  // Collect current values, remove the one at idx, re-render and restore
+  const count = window._bqCarrierCount || 1;
+  const saved = [];
+  for (let i = 0; i < count; i++) {
+    if (i === idx) continue;
+    saved.push({
+      carrier:  document.getElementById('bqCarrier_' +i)?.value || '',
+      rate:     document.getElementById('bqRate_'   +i)?.value || '',
+      transit:  document.getElementById('bqTransit_'+i)?.value || '',
+      notes:    document.getElementById('bqNotes_'  +i)?.value || ''
+    });
+  }
+  window._bqCarrierCount = saved.length || 1;
+  bqRenderCarriers();
+  saved.forEach((s, i) => {
+    const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+    set('bqCarrier_'+i, s.carrier);
+    set('bqRate_'   +i, s.rate);
+    set('bqTransit_'+i, s.transit);
+    set('bqNotes_'  +i, s.notes);
+  });
 }
 
 async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) {
-  const rate    = document.getElementById('bqRate')?.value.trim();
-  const transit = document.getElementById('bqTransit')?.value.trim();
   const co      = brokerCompany || document.getElementById('bqCo')?.value.trim();
   const valid   = document.getElementById('bqValid')?.value || '';
-  const notes   = document.getElementById('bqNotes')?.value.trim() || '';
+  const count   = window._bqCarrierCount || 1;
 
-  if (!rate || isNaN(rate) || Number(rate) < 1) return msg('bqMsg','Enter a valid rate.','error');
-  if (!transit || isNaN(transit))                return msg('bqMsg','Enter transit days.','error');
-  if (!co)                                       return msg('bqMsg','Enter your company name.','error');
+  if (!co) return bqMsg('Enter your company name.');
+
+  // Collect all carrier rows
+  const carriers = [];
+  for (let i = 0; i < count; i++) {
+    const carrierName = document.getElementById('bqCarrier_' +i)?.value.trim() || '';
+    const rate        = document.getElementById('bqRate_'    +i)?.value.trim();
+    const transit     = document.getElementById('bqTransit_' +i)?.value.trim();
+    const notes       = document.getElementById('bqNotes_'   +i)?.value.trim() || '';
+    if (!rate && !carrierName && count > 1) continue; // skip blank extra rows
+    if (!rate || isNaN(rate) || Number(rate) < 1) return bqMsg(`Carrier ${i+1}: enter a valid rate.`);
+    if (!transit || isNaN(transit))               return bqMsg(`Carrier ${i+1}: enter transit days.`);
+    carriers.push({ carrierName, rate: Number(rate), transitDays: Number(transit), validUntil: valid, notes });
+  }
+  if (!carriers.length) return bqMsg('Enter at least one carrier with a rate and transit days.');
 
   const btn = document.getElementById('bqBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
 
-  const r = await api({ action:'submitQuote', requestId, brokerEmail,
-    brokerCompany: co, rate: Number(rate), transitDays: Number(transit),
-    validUntil: valid, notes });
+  const r = await api({ action:'submitMultipleCarriers', requestId, brokerEmail,
+    brokerCompany: co, carriers });
 
   if (r.success) {
     document.getElementById('bqContent').innerHTML = `
       <div style="text-align:center;padding:40px 0;">
         <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
-        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Submitted!</h2>
-        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:340px;margin:0 auto;">Your quote has been sent to the client. You will be notified by email if it is accepted.</p>
-        <p style="font-size:12px;color:#9ca3af;margin-top:16px;">Quote ID: ${esc(r.quoteId)}</p>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote${carriers.length > 1 ? 's' : ''} Submitted!</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:340px;margin:0 auto;">${carriers.length} carrier option${carriers.length>1?'s':''} submitted. The client has been notified and will be in touch if they select your quote.</p>
+        ${r.slotsRemaining > 0 ? `<p style="color:#9ca3af;font-size:13px;margin-top:12px;">You can still add ${r.slotsRemaining} more carrier${r.slotsRemaining>1?'s':''} using this link.</p>` : ''}
       </div>`;
   } else {
     btn.disabled = false; btn.textContent = 'Submit Quote →';
-    msg('bqMsg', r.error || 'Submission failed. Please try again.', 'error');
+    bqMsg(r.error || 'Submission failed. Please try again.');
   }
+}
+
+function bqMsg(text) {
+  const el = document.getElementById('bqMsg');
+  if (el) el.innerHTML = `<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;color:#dc2626;font-size:13px;margin-bottom:12px;">${esc(text)}</div>`;
 }
 
 // ─── ACCEPT / REJECT PAGE (from email link) ───────────────────
@@ -2158,7 +2568,7 @@ async function showAcceptRejectPage(quoteId, action, sig) {
 
     </div>`;
 
-  const r = await api({ action: 'processQuoteAction', quoteAction: action, quoteId, sig });
+  const r = await api({ action: 'processQuoteAction', quoteId, action, sig });
   const el = document.getElementById('arContent');
 
   if (r.success) {
