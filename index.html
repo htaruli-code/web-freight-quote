@@ -3,14 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FreightQuote Portal</title>
+<title>Loadro — Load Rates Optimized</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+.loadro-logo { font-family: system-ui, -apple-system, sans-serif; line-height: 1; }
+.loadro-logo .load { color: #0A2540; font-weight: 800; letter-spacing: -1px; }
+.loadro-logo .ro { color: #FF6200; font-weight: 800; letter-spacing: -1px; }
+.loadro-tagline { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #0A2540; margin-top: -1px; opacity: 0.55; }
 
 :root {
   --bg:#f9f7f4; --surface:#fff; --surface2:#f2efe9; --border:#e5e1d8;
   --ink:#1c1a17; --ink2:#6b6560; --ink3:#a8a39c;
-  --accent:#c84b1a; --accent-bg:#fdf0eb;
+  --accent:#FF6200; --accent-bg:#fff3eb;
   --blue:#1a4fc4; --blue-bg:#eef2fc;
   --green:#197a45; --green-bg:#eaf5ef;
   --amber:#b45309; --amber-bg:#fef9ee;
@@ -22,11 +28,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 
 /* ─── LOGIN ─────────────────────────────────────────────────── */
 #loginScreen{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
-.login-brand{background:var(--ink);padding:60px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+.login-brand{background:#0A2540;padding:60px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
 .login-brand::before{content:'';position:absolute;bottom:-80px;right:-80px;width:360px;height:360px;border-radius:50%;border:60px solid rgba(255,255,255,0.04);}
 .login-brand::after{content:'';position:absolute;top:-40px;left:-40px;width:200px;height:200px;border-radius:50%;border:40px solid rgba(255,255,255,0.03);}
 .brand-logo{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
-.brand-icon{width:42px;height:42px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.brand-icon{width:42px;height:42px;background:#FF6200;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
 .brand-name{font-size:22px;font-weight:700;color:white;}
 .brand-hero{position:relative;z-index:1;}
 .brand-hero h1{font-family:'Instrument Serif',serif;font-size:48px;color:white;line-height:1.15;margin-bottom:20px;}
@@ -44,8 +50,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 .field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;color:var(--ink);background:var(--surface);outline:none;transition:border-color .2s,box-shadow .2s;}
 .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,75,26,.1);}
 .otp-input{text-align:center!important;letter-spacing:10px!important;font-size:26px!important;font-weight:700!important;}
-.btn-primary{width:100%;padding:13px;background:var(--ink);color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
-.btn-primary:hover{background:#2d2b27;} .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.btn-primary{width:100%;padding:13px;background:#0A2540;color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-primary:hover{background:#0d2f52;} .btn-primary:disabled{opacity:.4;cursor:not-allowed;}
 .btn-ghost{width:100%;padding:11px;background:transparent;color:var(--ink2);border:1.5px solid var(--border);border-radius:10px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;margin-top:8px;transition:all .15s;}
 .btn-ghost:hover{border-color:var(--ink2);color:var(--ink);}
 .alert{padding:11px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;}
@@ -58,7 +64,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:50;}
 .topbar-left{display:flex;align-items:center;gap:20px;}
 .t-logo{display:flex;align-items:center;gap:8px;}
-.t-logo-icon{width:30px;height:30px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.t-logo-icon{width:30px;height:30px;background:#0A2540;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;}
 .t-logo-text{font-weight:700;font-size:16px;}
 .role-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
 .r-admin{background:var(--accent-bg);color:var(--accent);border:1px solid rgba(200,75,26,.2);}
@@ -80,7 +86,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--ink);min-h
 .nav-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--ink3);padding:0 8px;margin-bottom:4px;}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;color:var(--ink2);transition:all .12s;border:none;background:transparent;width:100%;text-align:left;}
 .nav-item:hover{background:var(--surface2);color:var(--ink);}
-.nav-item.active{background:var(--ink);color:white;}
+.nav-item.active{background:#0A2540;color:white;}
 .nav-icon{font-size:15px;flex-shrink:0;}
 .main{flex:1;padding:32px 36px;overflow-x:hidden;}
 
@@ -152,8 +158,8 @@ tbody tr:hover td{background:var(--bg);}
 .ft-btn:hover{border-color:var(--ink2);color:var(--ink);}
 .ft-btn.sel{border-color:var(--accent);background:var(--accent-bg);color:var(--accent);font-weight:600;}
 .form-submit{display:flex;justify-content:flex-end;margin-top:20px;}
-.btn-submit{padding:12px 28px;background:var(--ink);color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
-.btn-submit:hover{background:var(--accent);}
+.btn-submit{padding:12px 28px;background:#0A2540;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-submit:hover{background:#FF6200;}
 .btn-submit:disabled{opacity:.4;cursor:not-allowed;}
 
 /* ─── MODAL ─────────────────────────────────────────────────── */
@@ -166,8 +172,8 @@ tbody tr:hover td{background:var(--bg);}
 .modal .ff{margin-bottom:12px;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 .btn-cancel{padding:10px 20px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;}
-.btn-confirm{padding:10px 20px;background:var(--ink);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
-.btn-confirm:hover{background:var(--accent);}
+.btn-confirm{padding:10px 20px;background:#0A2540;color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
+.btn-confirm:hover{background:#FF6200;}
 .btn-danger{padding:10px 20px;background:var(--red);color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;}
 .btn-danger:hover{opacity:.85;}
 
@@ -282,41 +288,95 @@ tbody tr:hover td{background:var(--bg);}
 <!-- ═══════════════════════════════════════════════════════════
      LOGIN
 ════════════════════════════════════════════════════════════ -->
-<div class="screen active" id="loginScreen">
-  <div class="login-brand">
-    <div class="brand-logo"><div class="brand-icon">🚛</div><span class="brand-name">FreightQuote</span></div>
-    <div class="brand-hero">
-      <h1>Move freight smarter, <em>faster</em>.</h1>
-      <p>Competitive quotes from multiple brokers. One portal for your whole team.</p>
+<div class="screen active" id="loginScreen" style="background:#f9fafb;min-height:100vh;display:flex;flex-direction:column;">
+
+  <!-- Nav -->
+  <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50;">
+    <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;flex-direction:column;align-items:flex-start;">
+        <div class="loadro-logo" style="font-size:28px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
+        <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
+      </div>
+      <a href="homepage1.html" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
     </div>
-    <div class="brand-features">
-      <div class="brand-feature"><div class="bf-dot"></div>Instant multi-broker quote requests</div>
-      <div class="brand-feature"><div class="bf-dot"></div>Accept or reject quotes in one click</div>
-      <div class="brand-feature"><div class="bf-dot"></div>Customisable email notification templates</div>
-      <div class="brand-feature"><div class="bf-dot"></div>Role-based access: Admin · Employee · Client</div>
+  </nav>
+
+  <!-- Card wrapper -->
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:48px 24px;">
+    <div style="width:100%;max-width:440px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.12);overflow:hidden;">
+
+      <!-- Card header -->
+      <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:40px 32px;text-align:center;">
+        <div class="loadro-logo" style="font-size:36px;justify-content:center;display:flex;"><span class="load" style="color:white;">LOAD</span><span class="ro">RO</span></div>
+        <p style="color:rgba(255,255,255,.9);font-size:17px;margin-top:8px;font-family:'Outfit',sans-serif;font-weight:500;">Welcome back</p>
+        <p style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px;font-family:'Outfit',sans-serif;">Sign in to access your optimized freight rates</p>
+      </div>
+
+      <!-- ==================== LOGIN FORM START ==================== -->
+      <div style="padding:32px;">
+
+        <!-- Step 1: Email -->
+        <div id="ls1">
+          <div id="loginMsg"></div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;font-family:'Outfit',sans-serif;">Email Address</label>
+            <input type="email" id="loginEmail" placeholder="you@company.com" autocomplete="email"
+              style="width:100%;padding:14px 16px;border:1.5px solid #e5e7eb;border-radius:16px;font-family:'Outfit',sans-serif;font-size:15px;color:#111827;outline:none;transition:border-color .2s;box-sizing:border-box;"
+              onfocus="this.style.borderColor='#FF6200'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <button id="sendOtpBtn" onclick="sendOTP()"
+            style="width:100%;background:#FF6200;color:white;border:none;padding:16px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s;">
+            Send Login Code
+          </button>
+          <div id="debugOut" style="margin-top:14px;padding:10px 12px;background:#0A2540;border-radius:8px;font-family:monospace;font-size:11px;color:#a8e6c1;display:none;white-space:pre-wrap;word-break:break-all;"></div>
+          <button type="button" onclick="runDiag()"
+            style="margin-top:10px;padding:6px 12px;background:transparent;border:1px solid #e5e7eb;border-radius:8px;font-size:11px;color:#9ca3af;cursor:pointer;font-family:'Outfit',sans-serif;width:100%;">
+            🔍 Check version
+          </button>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="ls2" style="display:none;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <div style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:6px;">Check your email</div>
+            <p style="color:#6b7280;font-size:14px;font-family:'Outfit',sans-serif;">We sent a 6-digit code to <strong id="otpTo" style="color:#0A2540;"></strong></p>
+          </div>
+          <div id="otpMsg"></div>
+          <div style="margin-bottom:20px;">
+            <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;font-family:'Outfit',sans-serif;">Login Code</label>
+            <input type="text" id="otpCode" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+              style="width:100%;padding:16px;border:1.5px solid #e5e7eb;border-radius:16px;font-family:'Outfit',sans-serif;font-size:28px;font-weight:700;letter-spacing:12px;text-align:center;color:#0A2540;outline:none;transition:border-color .2s;box-sizing:border-box;"
+              onfocus="this.style.borderColor='#FF6200'" onblur="this.style.borderColor='#e5e7eb'">
+          </div>
+          <button id="verifyBtn" onclick="verifyOTP()"
+            style="width:100%;background:#FF6200;color:white;border:none;padding:16px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:16px;font-weight:600;cursor:pointer;transition:background .15s;margin-bottom:10px;">
+            Sign In
+          </button>
+          <button onclick="backToEmail()"
+            style="width:100%;background:transparent;border:1.5px solid #e5e7eb;color:#6b7280;padding:13px;border-radius:16px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;transition:all .15s;">
+            ← Use a different email
+          </button>
+        </div>
+
+        <div style="text-align:center;margin-top:24px;font-size:13px;color:#9ca3af;font-family:'Outfit',sans-serif;">
+          We'll send a one-time login code to your email
+        </div>
+
+      </div>
+      <!-- ==================== LOGIN FORM END ==================== -->
+
     </div>
   </div>
-  <div class="login-form-side">
-    <div class="login-box">
-      <div id="ls1">
-        <h2>Sign in</h2>
-        <p>Enter your email to receive a secure one-time code.</p>
-        <div id="loginMsg"></div>
-        <div class="field"><label>Email Address</label><input type="email" id="loginEmail" placeholder="you@company.com" autocomplete="email"></div>
-        <button class="btn-primary" id="sendOtpBtn" onclick="sendOTP()">Send Code</button>
-        <div id="debugOut" style="margin-top:14px;padding:10px 12px;background:#1c1a17;border-radius:8px;font-family:monospace;font-size:11px;color:#a8e6c1;display:none;white-space:pre-wrap;word-break:break-all;"></div>
-        <button type="button" onclick="runDiag()" style="margin-top:10px;padding:6px 12px;background:transparent;border:1px solid #e5e1d8;border-radius:6px;font-size:11px;color:#6b6560;cursor:pointer;font-family:'Outfit',sans-serif;">🔍 Check version</button>
-      </div>
-      <div id="ls2" style="display:none;">
-        <h2>Check your email</h2>
-        <p>We sent a 6-digit code to <strong id="otpTo"></strong></p>
-        <div id="otpMsg"></div>
-        <div class="field"><label>Login Code</label><input type="text" id="otpCode" class="otp-input" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="one-time-code"></div>
-        <button class="btn-primary" id="verifyBtn" onclick="verifyOTP()">Sign In</button>
-        <button class="btn-ghost" onclick="backToEmail()">← Use a different email</button>
-      </div>
+
+  <!-- Footer -->
+  <footer style="background:white;border-top:1px solid #e5e7eb;padding:24px;">
+    <div style="max-width:1120px;margin:0 auto;text-align:center;font-size:12px;color:#9ca3af;font-family:'Outfit',sans-serif;">
+      © 2026 Loadro.com — Load Rates Optimized.
+      <a href="terms.html" style="color:#9ca3af;text-decoration:none;margin-left:8px;">Terms</a> •
+      <a href="privacy.html" style="color:#9ca3af;text-decoration:none;margin-left:4px;">Privacy</a>
     </div>
-  </div>
+  </footer>
+
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════
@@ -325,7 +385,12 @@ tbody tr:hover td{background:var(--bg);}
 <div class="screen" id="appScreen">
   <div class="topbar">
     <div class="topbar-left">
-      <div class="t-logo"><div class="t-logo-icon">🚛</div><span class="t-logo-text">FreightQuote</span></div>
+      <div class="t-logo">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div class="loadro-logo" style="font-size:20px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
+            <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
       <span class="role-badge" id="roleBadge"></span>
       <div class="t-search-wrap" id="searchWrap" style="display:none;">
         <div class="t-search"><span style="color:var(--ink3);">🔍</span><input type="text" placeholder="Search clients, vendors, requests…" id="searchInput" oninput="debounceSearch()" onblur="hideSearch()"></div>
@@ -416,8 +481,6 @@ let searchTimer;
 let adminCache = {};
 let currentTmplKey = '';
 let appSettings = {};
-let templatesCache = null;   // cached result of adminGetTemplates
-const panelLoaded = new Set(); // tracks which panels have already fetched data this session
 
 // ─── AUTH ──────────────────────────────────────────────────────
 
@@ -455,7 +518,6 @@ function backToEmail() { sw('ls2','ls1'); document.getElementById('otpCode').val
 
 function logout() {
   localStorage.removeItem('fq'); S = {email:'',token:'',role:''};
-  panelLoaded.clear(); templatesCache = null; adminCache = {}; appSettings = {};
   document.getElementById('appScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   sw('ls2','ls1');
@@ -551,22 +613,21 @@ function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   const el = document.getElementById('p-' + id);
   if (el) el.classList.add('active');
-  // Lazy-load panels on first visit only (use panelLoaded to avoid duplicate API calls)
-  const once = (key, fn) => { if (!panelLoaded.has(key)) { panelLoaded.add(key); fn(); } };
-  if (id === 'clientDash')      loadClientDash();          // always refresh — quote state changes
-  if (id === 'adminEmployees')  once('adminEmployees',  loadEmpPanel);
-  if (id === 'adminActivity')   once('adminActivity',   loadActivityPanel);
-  if (id === 'adminBrokers')    once('adminBrokers',    loadBrokerPanel);
-  if (id === 'adminClients')    once('adminClients',    loadClientsPanel);
-  if (id === 'adminRequests')   once('adminRequests',   loadRequestsPanel);
-  if (id === 'adminAllQuotes')  once('adminAllQuotes',  loadAdminAllQuotes);
-  if (id === 'clientSettings')  once('clientSettings',  loadClientSettings);
-  if (id === 'brokerSettings')  once('brokerSettings',  loadBrokerSettings);
-  if (id === 'adminSettings')   once('adminSettings',   loadSettingsPanel);
-  if (id === 'adminTemplates')  once('adminTemplates',  loadTemplatesPanel);
-  if (id === 'empRequests')     {} // already rendered inline with employeeGetData
-  if (id === 'brokerDash')      once('brokerDash',      renderBrokerDash); // renders into existing shell
-  if (id === 'brokerQuotes')    once('brokerQuotes',    loadBrokerQuotesPanel);
+  // Lazy-load panels on first visit
+  if (id === 'clientDash')      loadClientDash();
+  if (id === 'adminEmployees')  loadEmpPanel();
+  if (id === 'adminActivity')   loadActivityPanel();
+  if (id === 'adminBrokers')    loadBrokerPanel();
+  if (id === 'adminClients')    loadClientsPanel();
+  if (id === 'adminRequests')   loadRequestsPanel();
+  if (id === 'adminAllQuotes')  loadAdminAllQuotes();
+  if (id === 'clientSettings')  loadClientSettings();
+  if (id === 'brokerSettings')  loadBrokerSettings();
+  if (id === 'adminSettings')   loadSettingsPanel();
+  if (id === 'adminTemplates')  loadTemplatesPanel();
+  if (id === 'empRequests')     {} // already rendered
+  if (id === 'brokerDash')      loadBrokerDashboard();
+  if (id === 'brokerQuotes')    loadBrokerQuotesPanel();
 }
 
 // ─── CLIENT ───────────────────────────────────────────────────
@@ -901,9 +962,6 @@ async function loadBrokerDashboard() {
       <div id="brokerDashContent"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>
     </div>
     <div class="panel" id="p-brokerQuotes"></div>`;
-  // Mark brokerDash as loaded so showPanel won't fire renderBrokerDash again,
-  // then fetch immediately — this is the initial load triggered by launch().
-  panelLoaded.add('brokerDash');
   await renderBrokerDash();
 }
 
@@ -1407,7 +1465,7 @@ async function loadSettingsPanel() {
       <div class="settings-row">
         <div class="settings-row-info" style="display:flex;flex-direction:column;gap:10px;width:100%;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-            <div class="ff"><label>Company / Portal Name</label><input type="text" id="set-companyName" value="${esc(s.companyName||'')}" placeholder="FreightQuote"></div>
+            <div class="ff"><label>Company / Portal Name</label><input type="text" id="set-companyName" value="${esc(s.companyName||'')}" placeholder="Loadro"></div>
             <div class="ff"><label>Support Email (optional)</label><input type="email" id="set-supportEmail" value="${esc(s.supportEmail||'')}" placeholder="support@yourcompany.com"></div>
           </div>
         </div>
@@ -1485,7 +1543,6 @@ async function loadTemplatesPanel() {
   document.getElementById('p-adminTemplates').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
   const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
   if (!r.success) { document.getElementById('p-adminTemplates').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
-  templatesCache = r.templates; // cache for openTemplateEditor
 
   let h = `
     <div class="page-head"><h1>Email Templates</h1><p>Customise every outgoing email. Variables in <code style="background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px;font-size:12px;">{{double braces}}</code> are replaced automatically at send time.</p></div>
@@ -1517,13 +1574,10 @@ async function loadTemplatesPanel() {
 async function openTemplateEditor(key) {
   currentTmplKey = key;
   const meta = TEMPLATE_META[key];
-  // Use cached templates if available, otherwise fetch once
-  if (!templatesCache) {
-    const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
-    if (!r.success) { alert('Failed to load templates.'); return; }
-    templatesCache = r.templates;
-  }
-  const tmpl = templatesCache[key];
+  const r = await api({action:'adminGetTemplates', email:S.email, token:S.token});
+  if (!r.success) { alert('Failed to load templates.'); return; }
+
+  const tmpl = r.templates[key];
   document.getElementById('tmplModalTitle').textContent = 'Edit: ' + meta.name;
   document.getElementById('tmplModalDesc').textContent  = meta.desc;
   document.getElementById('tmplSubject').value = tmpl?.subject || '';
@@ -1555,7 +1609,7 @@ async function saveTemplate() {
   setBtnLoad('tmplSaveBtn','Saving…');
   const r = await api({action:'adminSaveTemplate', email:S.email, token:S.token, key:currentTmplKey, subject, body});
   resetBtn('tmplSaveBtn','Save Template');
-  if (r.success) { templatesCache = null; panelLoaded.delete('adminTemplates'); closeModal('tmplModal'); loadTemplatesPanel(); }
+  if (r.success) { closeModal('tmplModal'); loadTemplatesPanel(); }
   else msg('tmplModalMsg', r.error,'error');
 }
 
@@ -1565,7 +1619,6 @@ async function resetTemplate() {
   const r = await api({action:'adminResetTemplate', email:S.email, token:S.token, key:currentTmplKey});
   resetBtn('tmplSaveBtn','Save Template');
   if (r.success) {
-    templatesCache = null; panelLoaded.delete('adminTemplates');
     document.getElementById('tmplSubject').value = r.template.subject;
     document.getElementById('tmplBody').value    = r.template.body;
     msg('tmplModalMsg','Template reset to default.','success');
@@ -1582,7 +1635,7 @@ async function addEmployee() {
   setBtnLoad('empConfirmBtn','Adding…');
   const r = await api({action:'adminAddEmployee', email:S.email, token:S.token, newEmail:email, newName:name});
   resetBtn('empConfirmBtn','Add & Notify');
-  if (r.success) { closeModal('empModal'); document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; panelLoaded.delete('adminEmployees'); loadEmpPanel(); }
+  if (r.success) { closeModal('empModal'); document.getElementById('empName').value=''; document.getElementById('empEmail').value=''; loadEmpPanel(); }
   else msg('empModalMsg', r.error,'error');
 }
 
@@ -1597,37 +1650,18 @@ async function saveBroker() {
   if (bid) payload.brokerId = bid;
   const r = await api(payload);
   resetBtn('brokerConfirmBtn', bid ? 'Save Changes' : 'Add Broker');
-  if (r.success) { closeModal('brokerModal'); panelLoaded.delete('adminBrokers'); loadBrokerPanel(); }
+  if (r.success) { closeModal('brokerModal'); loadBrokerPanel(); }
   else msg('brokerModalMsg', r.error,'error');
 }
 
 async function toggleBroker(brokerId, el) {
   const r = await api({action:'adminToggleBroker', email:S.email, token:S.token, brokerId});
-  if (r.success) {
-    const track = el.querySelector('.toggle-track');
-    track.classList.toggle('on');
-    const isNowOn = track.classList.contains('on');
-    // Update the status badge in the same row without a full panel reload
-    const row = el.closest('tr');
-    if (row) {
-      const badge = row.querySelector('td:nth-child(6) .badge');
-      if (badge) {
-        badge.textContent = isNowOn ? 'Active' : 'Paused';
-        badge.className   = 'badge ' + (isNowOn ? 'b-active' : 'b-inactive');
-      }
-    }
-    // Evict cache so next explicit visit to Brokers panel re-fetches fresh data
-    panelLoaded.delete('adminBrokers');
-  }
+  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadBrokerPanel(); }
 }
 
 async function toggleEmp(targetEmail, el) {
   const r = await api({action:'adminToggleEmployee', email:S.email, token:S.token, targetEmail});
-  if (r.success) {
-    el.querySelector('.toggle-track').classList.toggle('on');
-    // Evict cache so next visit to Employees panel re-fetches fresh data
-    panelLoaded.delete('adminEmployees');
-  }
+  if (r.success) { el.querySelector('.toggle-track').classList.toggle('on'); loadEmpPanel(); }
 }
 
 // ─── SEARCH ───────────────────────────────────────────────────
@@ -1934,18 +1968,52 @@ async function loadAdminAllQuotes() {
 // ─── BROKER QUOTE PAGE (from email link) ──────────────────────
 
 async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
-  // Show a clean full-screen page — no login required, sig is verified server-side
   document.body.innerHTML = `
-    <div id="bqPage" style="min-height:100vh;background:var(--bg);font-family:'Outfit',sans-serif;">
-      <div style="background:var(--ink);padding:16px 28px;display:flex;align-items:center;gap:10px;">
-        <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚛</div>
-        <span style="font-weight:700;font-size:16px;color:white;">FreightQuote</span>
-      </div>
-      <div style="max-width:600px;margin:40px auto;padding:0 20px;">
-        <div id="bqContent" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;">
-          <div style="text-align:center;padding:32px 0;"><div class="spin" style="width:24px;height:24px;margin:0 auto;"></div><p style="color:var(--ink2);margin-top:12px;font-size:14px;">Loading request details…</p></div>
+    <div id="bqPage" style="min-height:100vh;background:#f9fafb;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;">
+
+      <!-- Nav -->
+      <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);position:sticky;top:0;z-index:50;">
+        <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;">
+              <span style="color:#0A2540;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A2540;opacity:.55;margin-top:-1px;">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Card -->
+      <div style="flex:1;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px 60px;">
+        <div style="width:100%;max-width:560px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.1);overflow:hidden;">
+
+          <!-- Card header -->
+          <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:32px;text-align:center;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:6px;">
+              <span style="color:white;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <p style="color:rgba(255,255,255,.9);font-size:16px;font-weight:500;margin:0;">Carrier Quote Submission</p>
+            <p style="color:rgba(255,255,255,.6);font-size:13px;margin-top:4px;">Review shipment details and submit your rate</p>
+          </div>
+
+          <!-- Card body -->
+          <div id="bqContent" style="padding:32px;">
+            <div style="text-align:center;padding:32px 0;">
+              <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
+              <p style="color:#6b7280;margin-top:12px;font-size:14px;">Loading request details…</p>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      <!-- Footer -->
+      <footer style="background:white;border-top:1px solid #e5e7eb;padding:20px;">
+        <div style="text-align:center;font-size:12px;color:#9ca3af;">
+          © 2026 Loadro.com — Load Rates Optimized
+        </div>
+      </footer>
+
     </div>`;
 
   const r = await api({ action: 'getRequest', requestId, brokerEmail, brokerId, sig });
@@ -1953,20 +2021,20 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
 
   if (!r.success) {
     el.innerHTML = `
-      <div style="text-align:center;padding:24px 0;">
-        <div style="font-size:40px;margin-bottom:16px;">⚠️</div>
-        <h2 style="font-size:20px;margin-bottom:8px;">Link Invalid</h2>
-        <p style="color:var(--ink2);font-size:14px;">${esc(r.error || 'This link is invalid or has expired. Please use the original link from your email.')}</p>
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Link Invalid</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;">${esc(r.error || 'This link is invalid or has expired. Please use the original link from your email.')}</p>
       </div>`;
     return;
   }
 
   if (r.alreadyQuoted) {
     el.innerHTML = `
-      <div style="text-align:center;padding:24px 0;">
-        <div style="font-size:40px;margin-bottom:16px;">✅</div>
-        <h2 style="font-size:20px;margin-bottom:8px;">Already Submitted</h2>
-        <p style="color:var(--ink2);font-size:14px;">You have already submitted a quote for this request.</p>
+      <div style="text-align:center;padding:32px 0;">
+        <div style="font-size:52px;margin-bottom:16px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;color:#111827;margin-bottom:8px;">Already Submitted</h2>
+        <p style="color:#6b7280;font-size:14px;line-height:1.6;">You have already submitted a quote for this request.</p>
       </div>`;
     return;
   }
@@ -1974,36 +2042,45 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
   const req = r.request;
   const bCo = r.brokerCompany || '';
   el.innerHTML = `
-    <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:4px;">Submit Your Quote</h2>
-    <p style="color:var(--ink2);font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
-
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px 20px;margin-bottom:24px;">
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink3);margin-bottom:10px;">Shipment Details</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
-        <div><span style="color:var(--ink3);">Origin</span><br><strong>${esc(req.origin)} ${esc(req.originZip)}</strong></div>
-        <div><span style="color:var(--ink3);">Destination</span><br><strong>${esc(req.destination)} ${esc(req.destZip)}</strong></div>
-        <div><span style="color:var(--ink3);">Freight Type</span><br><strong>${esc(req.freightType)}</strong></div>
-        <div><span style="color:var(--ink3);">Weight</span><br><strong>${Number(req.weight).toLocaleString()} lbs</strong></div>
-        ${req.notes ? `<div style="grid-column:1/-1;"><span style="color:var(--ink3);">Notes</span><br><strong>${esc(req.notes)}</strong></div>` : ''}
+    <h2 style="font-family:Instrument Serif,serif;font-size:26px;color:#111827;margin-bottom:4px;">Submit Your Quote</h2>
+    <p style="color:#6b7280;font-size:14px;margin-bottom:24px;">Review the shipment details and enter your rate below.</p>
+    <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:14px;padding:18px 20px;margin-bottom:24px;">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0A2540;opacity:.6;margin-bottom:12px;">Shipment Details</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Origin</div><strong>${esc(req.origin)} ${esc(req.originZip)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Destination</div><strong>${esc(req.destination)} ${esc(req.destZip)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Freight Type</div><strong>${esc(req.freightType)}</strong></div>
+        <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Weight</div><strong>${Number(req.weight).toLocaleString()} lbs</strong></div>
+        ${req.notes ? '<div style="grid-column:1/-1;"><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Notes</div><strong>' + esc(req.notes) + '</strong></div>' : ''}
       </div>
-      <div style="font-size:11px;color:var(--ink3);margin-top:10px;">Request ID: ${esc(req.requestId)}</div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px solid #c7d7fe;">Request ID: ${esc(req.requestId)}</div>
     </div>
-
     <div id="bqMsg"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-      <div class="ff" style="grid-column:1/-1;">
-        <label>Your Company ${bCo ? '' : '*'}</label>
-        <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled' : 'placeholder="Your company name"'}
-          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;${bCo ? 'background:var(--surface2);color:var(--ink2);cursor:not-allowed;' : 'outline:none;'}">
-        ${bCo ? '<div style="font-size:11px;color:var(--ink3);margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Your Company ${bCo ? '' : '*'}</label>
+        <input type="text" id="bqCo" value="${esc(bCo)}" ${bCo ? 'disabled style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#9ca3af;background:#f9fafb;cursor:not-allowed;box-sizing:border-box;"' : 'placeholder="Your company name" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;"'}>
+        ${bCo ? '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Loaded from your vendor profile.</div>' : ''}
       </div>
-      <div class="ff"><label>All-In Rate ($) *</label><input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
-      <div class="ff"><label>Transit Days *</label><input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
-      <div class="ff" style="grid-column:1/-1;"><label>Valid Until (optional)</label><input type="date" id="bqValid" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;"></div>
-      <div class="ff" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;outline:none;resize:vertical;min-height:70px;"></textarea></div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">All-In Rate ($) *</label>
+        <input type="number" id="bqRate" placeholder="e.g. 2500" min="1" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Transit Days *</label>
+        <input type="number" id="bqTransit" placeholder="e.g. 3" min="1" max="30" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Valid Until (optional)</label>
+        <input type="date" id="bqValid" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="grid-column:1/-1;">
+        <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Notes (optional)</label>
+        <textarea id="bqNotes" placeholder="Any special conditions, equipment details…" style="width:100%;padding:12px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:14px;color:#111827;outline:none;resize:vertical;min-height:80px;box-sizing:border-box;"></textarea>
+      </div>
     </div>
     <button id="bqBtn" onclick="submitBrokerQuoteFromPage('${esc(requestId)}','${esc(brokerEmail)}','${esc(bCo)}')"
-      style="width:100%;padding:13px;background:var(--ink);color:white;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;">
+      style="width:100%;padding:16px;background:#FF6200;color:white;border:none;border-radius:16px;font-size:16px;font-weight:600;cursor:pointer;">
       Submit Quote →
     </button>`;
 }
@@ -2028,11 +2105,11 @@ async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) 
 
   if (r.success) {
     document.getElementById('bqContent').innerHTML = `
-      <div style="text-align:center;padding:32px 0;">
-        <div style="font-size:48px;margin-bottom:16px;">✅</div>
-        <h2 style="font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:8px;">Quote Submitted!</h2>
-        <p style="color:var(--ink2);font-size:14px;">Your quote has been sent to the client. You will be notified by email if it is accepted.</p>
-        <p style="font-size:12px;color:var(--ink3);margin-top:12px;">Quote ID: ${esc(r.quoteId)}</p>
+      <div style="text-align:center;padding:40px 0;">
+        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Submitted!</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:340px;margin:0 auto;">Your quote has been sent to the client. You will be notified by email if it is accepted.</p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:16px;">Quote ID: ${esc(r.quoteId)}</p>
       </div>`;
   } else {
     btn.disabled = false; btn.textContent = 'Submit Quote →';
@@ -2045,43 +2122,66 @@ async function submitBrokerQuoteFromPage(requestId, brokerEmail, brokerCompany) 
 async function showAcceptRejectPage(quoteId, action, sig) {
   const isAccept = action === 'accept';
   document.body.innerHTML = `
-    <div style="min-height:100vh;background:var(--bg);font-family:'Outfit',sans-serif;">
-      <div style="background:var(--ink);padding:16px 28px;display:flex;align-items:center;gap:10px;">
-        <div style="width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">🚛</div>
-        <span style="font-weight:700;font-size:16px;color:white;">FreightQuote</span>
-      </div>
-      <div style="max-width:480px;margin:60px auto;padding:0 20px;text-align:center;">
-        <div id="arContent" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px 32px;">
-          <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
-          <p style="color:var(--ink2);margin-top:12px;font-size:14px;">${isAccept ? 'Accepting' : 'Declining'} quote…</p>
+    <div style="min-height:100vh;background:#f9fafb;font-family:'Outfit',sans-serif;display:flex;flex-direction:column;">
+
+      <!-- Nav -->
+      <nav style="background:white;box-shadow:0 1px 3px rgba(0,0,0,.08);">
+        <div style="max-width:1120px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1;">
+            <div style="font-family:system-ui,-apple-system,sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;">
+              <span style="color:#0A2540;">LOAD</span><span style="color:#FF6200;">RO</span>
+            </div>
+            <div style="font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#0A2540;opacity:.55;margin-top:-1px;">LOAD RATES OPTIMIZED</div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Card -->
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 20px;">
+        <div style="width:100%;max-width:460px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.1);overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:28px 32px;text-align:center;">
+            <p style="color:rgba(255,255,255,.8);font-size:14px;font-weight:500;">${isAccept ? 'Confirming your booking…' : 'Processing your decision…'}</p>
+          </div>
+          <div id="arContent" style="padding:40px 32px;text-align:center;">
+            <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
+            <p style="color:#6b7280;margin-top:12px;font-size:14px;">${isAccept ? 'Accepting' : 'Declining'} quote…</p>
+          </div>
         </div>
       </div>
+
+      <!-- Footer -->
+      <footer style="background:white;border-top:1px solid #e5e7eb;padding:20px;">
+        <div style="text-align:center;font-size:12px;color:#9ca3af;">
+          © 2026 Loadro.com — Load Rates Optimized
+        </div>
+      </footer>
+
     </div>`;
 
-  const r = await api({ action: 'processQuoteAction', quoteId, action, sig });
+  const r = await api({ action: 'processQuoteAction', quoteAction: action, quoteId, sig });
   const el = document.getElementById('arContent');
 
   if (r.success) {
     if (action === 'accept') {
       el.innerHTML = `
-        <div style="font-size:52px;margin-bottom:16px;">✅</div>
-        <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:10px;">Quote Accepted!</h2>
-        <p style="color:var(--ink2);font-size:15px;line-height:1.6;">Your booking is confirmed. The broker has been notified and a confirmation email is on its way.</p>
-        <p style="font-size:12px;color:var(--ink3);margin-top:20px;">You can manage all your shipments in the portal.</p>
-        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:16px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+        <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Accepted!</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">Your booking is confirmed. The carrier has been notified and a confirmation email is on its way.</p>
+        <p style="font-size:12px;color:#9ca3af;margin-top:16px;">You can manage all your shipments in the portal.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#FF6200;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
     } else {
       el.innerHTML = `
-        <div style="font-size:52px;margin-bottom:16px;">❌</div>
-        <h2 style="font-family:'Instrument Serif',serif;font-size:26px;margin-bottom:10px;">Quote Declined</h2>
-        <p style="color:var(--ink2);font-size:15px;line-height:1.6;">You have declined this quote. The broker has been notified. Other quotes may still be available in your dashboard.</p>
-        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+        <div style="width:72px;height:72px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">❌</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Declined</h2>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">You have declined this quote. The carrier has been notified. Other quotes may still be available in your dashboard.</p>
+        <a href="${APP_URL_JS}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#0A2540;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
     }
   } else {
     el.innerHTML = `
-      <div style="font-size:52px;margin-bottom:16px;">⚠️</div>
-      <h2 style="font-family:'Instrument Serif',serif;font-size:22px;margin-bottom:10px;">Unable to Process</h2>
-      <p style="color:var(--ink2);font-size:14px;line-height:1.6;">${esc(r.error || 'This link is invalid or has already been used.')}</p>
-      <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:11px 24px;background:var(--ink);color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">Go to Dashboard →</a>`;
+      <div style="width:72px;height:72px;background:#fffbeb;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">⚠️</div>
+      <h2 style="font-family:'Instrument Serif',serif;font-size:26px;color:#111827;margin-bottom:10px;">Unable to Process</h2>
+      <p style="color:#6b7280;font-size:14px;line-height:1.6;max-width:320px;margin:0 auto;">${esc(r.error || 'This link is invalid or has already been used.')}</p>
+      <a href="${APP_URL_JS}" style="display:inline-block;margin-top:24px;padding:14px 28px;background:#0A2540;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
   }
 }
 </script>
