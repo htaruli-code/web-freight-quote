@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.0.0 | build: 202604091200 -->
+<!-- version: 2.2.3 | build: 202604131830 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -506,7 +506,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.0.0 — 202604091200';
+  out.textContent = 'v2.2.3 — 202604131830';
 }
 
 async function sendOTP() {
@@ -572,7 +572,6 @@ function launch() {
     loadClient();
     if (window._pendingInviteData) {
       setTimeout(() => showInviteBanner(window._pendingInviteData), 800);
-      window._pendingInviteData = null;
     }
   }
 }
@@ -589,7 +588,7 @@ function showInviteBanner(invite) {
       <div style="font-size:13px;color:var(--ink2);margin-top:2px;">You've been invited to join <strong>${esc(invite.orgName)}</strong> by ${esc(invite.invitedBy)}. Go to <strong>My Profile → My Team</strong> to accept.</div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;">
-      <button onclick="setNav(document.getElementById('n-clientSettings'),'clientSettings');setTimeout(()=>switchProfileTab('team'),200)" style="padding:8px 16px;background:var(--blue);color:white;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">View Invite</button>
+      <button onclick="setNav(document.getElementById('n-clientTeam'),'clientSettings');setTimeout(()=>switchProfileTab('team'),200)" style="padding:8px 16px;background:var(--blue);color:white;border:none;border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">View Invite</button>
       <button onclick="document.getElementById('inviteBanner').remove()" style="padding:8px 12px;background:transparent;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;">✕</button>
     </div>`;
   mc.insertBefore(banner, mc.firstChild);
