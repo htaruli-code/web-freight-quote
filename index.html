@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.2.4 | build: 202604141000 -->
+<!-- version: 2.3.2 | build: 202604141600 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -506,7 +506,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.2.4 — 202604141000';
+  out.textContent = 'v2.3.2 — 202604141600';
 }
 
 async function sendOTP() {
@@ -538,6 +538,7 @@ function backToEmail() { sw('ls2','ls1'); document.getElementById('otpCode').val
 
 function logout() {
   localStorage.removeItem('fq'); S = {email:'',token:'',role:''};
+  _abEntries = []; _abLoaded = false;
   document.getElementById('appScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   sw('ls2','ls1');
@@ -637,10 +638,11 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Shipments</div>
         <button class="nav-item active" id="n-clientNew"  onclick="setNav(this,'clientNew')"><span class="nav-icon">➕</span>New Request</button>
         <button class="nav-item" id="n-clientDash" onclick="setNav(this,'clientDash')"><span class="nav-icon">📋</span>My Requests</button>
+        <button class="nav-item" id="n-clientAddrBook" onclick="setNav(this,'clientAddrBook')"><span class="nav-icon">📒</span>Address Book</button>
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
         <button class="nav-item" id="n-clientSettings" onclick="setNav(this,'clientSettings')"><span class="nav-icon">👤</span>My Profile</button>
-        <button class="nav-item" id="n-clientTeam" onclick="setNav(this,'clientSettings');setTimeout(()=>switchProfileTab('team'),150)"><span class="nav-icon">🏢</span>My Team</button>
+        <button class="nav-item" id="n-clientTeam" onclick="setNav(this,'clientSettings');loadClientSettings().then(()=>switchProfileTab('team'))"><span class="nav-icon">🏢</span>My Team</button>
       </div>`;
   }
 }
@@ -657,6 +659,7 @@ function showPanel(id) {
   if (el) el.classList.add('active');
   // Lazy-load panels on first visit
   if (id === 'clientDash')      loadClientDash();
+  if (id === 'clientAddrBook')  loadAddressBook();
   if (id === 'adminEmployees')  loadEmpPanel();
   if (id === 'adminActivity')   loadActivityPanel();
   if (id === 'adminBrokers')    loadBrokerPanel();
@@ -708,6 +711,27 @@ async function loadClient() {
           <div class="ff"><label>Pickup Date (optional)</label><input type="date" id="fPD"></div>
           <div class="ff span-2"><label>Notes (optional)</label><textarea id="fN" placeholder="Special handling, hazmat, temperature requirements…"></textarea></div>
           <div class="ff span-2">
+            <label>Pickup &amp; Delivery Accessories <span style="font-weight:400;color:var(--ink3);">(select all that apply)</span></label>
+            <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;">
+              <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);transition:all .15s;" id="acc-lbl-pu-appt">
+                <input type="checkbox" id="accPickupAppt" onchange="toggleAccLabel(this,'acc-lbl-pu-appt')" style="width:15px;height:15px;accent-color:#0A2540;cursor:pointer;">
+                📅 Pickup appointment required
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);transition:all .15s;" id="acc-lbl-del-appt">
+                <input type="checkbox" id="accDeliveryAppt" onchange="toggleAccLabel(this,'acc-lbl-del-appt')" style="width:15px;height:15px;accent-color:#0A2540;cursor:pointer;">
+                📅 Delivery appointment required
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);transition:all .15s;" id="acc-lbl-lg-pu">
+                <input type="checkbox" id="accLiftgatePickup" onchange="toggleAccLabel(this,'acc-lbl-lg-pu')" style="width:15px;height:15px;accent-color:#0A2540;cursor:pointer;">
+                🏗️ Liftgate upon pickup
+              </label>
+              <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);transition:all .15s;" id="acc-lbl-lg-del">
+                <input type="checkbox" id="accLiftgateDelivery" onchange="toggleAccLabel(this,'acc-lbl-lg-del')" style="width:15px;height:15px;accent-color:#0A2540;cursor:pointer;">
+                🏗️ Liftgate upon delivery
+              </label>
+            </div>
+          </div>
+          <div class="ff span-2">
             <label>Vendors / Brokers</label>
             <div class="broker-sel-wrap" id="brokerSelWrap">
               <div style="font-size:13px;color:var(--ink3);font-style:italic;">Select a freight type to see available vendors.</div>
@@ -715,9 +739,11 @@ async function loadClient() {
           </div>
         </div>
         <div class="form-submit"><button class="btn-submit" id="reqBtn" onclick="submitRequest()">Send to Brokers →</button></div>
+        <div id="reqMsgBottom" style="margin-top:10px;"></div>
       </div>
     </div>
     <div class="panel" id="p-clientDash"></div>
+    <div class="panel" id="p-clientAddrBook"></div>
     <div class="panel" id="p-clientSettings"></div>`;
   // Build freight type buttons AFTER innerHTML is set so the DOM element exists
   buildClientFtBtns();
@@ -737,6 +763,32 @@ function buildClientFtBtns() {
     `<button type="button" class="ft-btn" onclick="pickFT(this,'${ft}')">${ft}</button>`
   ).join('');
   selFreight = '';
+}
+
+function toggleAccLabel(cb, lblId) {
+  const lbl = document.getElementById(lblId);
+  if (!lbl) return;
+  lbl.style.borderColor = cb.checked ? '#0A2540' : 'var(--border)';
+  lbl.style.background  = cb.checked ? '#e8edf5' : 'var(--surface)';
+}
+
+function getAccessories() {
+  const acc = [];
+  if (document.getElementById('accPickupAppt')?.checked)     acc.push('Pick-up appointment required');
+  if (document.getElementById('accDeliveryAppt')?.checked)   acc.push('Delivery appointment required');
+  if (document.getElementById('accLiftgatePickup')?.checked)  acc.push('Liftgate upon pickup');
+  if (document.getElementById('accLiftgateDelivery')?.checked) acc.push('Liftgate upon delivery');
+  return acc;
+}
+
+function resetAccessories() {
+  ['accPickupAppt','accDeliveryAppt','accLiftgatePickup','accLiftgateDelivery'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.checked = false;
+  });
+  ['acc-lbl-pu-appt','acc-lbl-del-appt','acc-lbl-lg-pu','acc-lbl-lg-del'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.borderColor='var(--border)'; el.style.background='var(--surface)'; }
+  });
 }
 
 async function submitRequest() {
@@ -759,15 +811,173 @@ async function submitRequest() {
   payload.weight          = d.weight;
   payload.freightType     = selFreight;
   payload.notes           = v('fN');
+  payload.accessories     = getAccessories();
   payload.excludedBrokers = excludedBrokers;
   payload.customBrokers   = customBrokers;
   const r = await api(payload);
   btn.disabled = false; btn.textContent = 'Send to Brokers →';
   if (r.success) {
     msg('reqMsg','✓ Request sent! Brokers have been notified.','success');
+    msg('reqMsgBottom','✓ Request sent! Brokers have been notified.','success');
     ['fO','fOZ','fD','fDZ','fW','fN'].forEach(id => document.getElementById(id).value = '');
+    resetAccessories();
     buildClientFtBtns(); selFreight = '';
-  } else msg('reqMsg', r.error,'error');
+  } else {
+    msg('reqMsg', r.error,'error');
+    msg('reqMsgBottom', r.error,'error');
+  }
+}
+
+// ─── ADDRESS BOOK ─────────────────────────────────────────────
+let _abEntries = [];
+let _abLoaded  = false;
+
+async function loadAddressBook() {
+  const el = document.getElementById('p-clientAddrBook');
+  if (!el) return;
+  // Only rebuild the shell if not already loaded
+  if (!_abLoaded) {
+    el.innerHTML = `
+    <div class="page-head">
+      <h1>Address Book</h1>
+      <p>Save frequently used pickup and delivery addresses for quick access when booking.</p>
+    </div>
+    <div id="abMsg"></div>
+    <div style="margin-bottom:20px;">
+      <button class="btn-confirm" onclick="abShowForm()">+ Add New Address</button>
+    </div>
+    <div id="abFormWrap"></div>
+    <div id="abListWrap"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>`;
+    const r = await api({ action:'getAddressBook', email:S.email, token:S.token });
+    if (!r.success) { document.getElementById('abListWrap').innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`; return; }
+    _abEntries = r.entries || [];
+    _abLoaded  = true;
+  }
+  abRenderList();
+}
+
+function abRenderList() {
+  const el = document.getElementById('abListWrap');
+  if (!el) return;
+  if (!_abEntries.length) {
+    el.innerHTML = `<div class="empty"><h3>No addresses saved yet</h3><p>Add your first address using the button above.</p></div>`;
+    return;
+  }
+  let h = `<div style="display:grid;gap:12px;">`;
+  _abEntries.forEach(e => {
+    const addr = [e.addressLine1, e.addressLine2, e.city, e.state, e.zipCode].filter(Boolean).join(', ');
+    h += `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:4px;">${esc(e.companyName||'—')}</div>
+        ${e.contactPerson ? `<div style="font-size:13px;color:var(--ink2);margin-bottom:2px;">👤 ${esc(e.contactPerson)}</div>` : ''}
+        ${e.email        ? `<div style="font-size:13px;color:var(--ink2);margin-bottom:2px;">✉️ ${esc(e.email)}</div>` : ''}
+        ${e.phone        ? `<div style="font-size:13px;color:var(--ink2);margin-bottom:2px;">📞 ${esc(e.phone)}</div>` : ''}
+        ${addr           ? `<div style="font-size:13px;color:var(--ink2);margin-top:4px;">📍 ${esc(addr)}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button onclick="abShowForm(${JSON.stringify(e).replace(/"/g,'&quot;')})" style="padding:6px 12px;border:1.5px solid var(--border);background:transparent;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;">Edit</button>
+        <button onclick="abDelete('${esc(e.entryId)}')" style="padding:6px 12px;border:1.5px solid rgba(192,57,43,.3);background:transparent;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--red);cursor:pointer;">Delete</button>
+      </div>
+    </div>`;
+  });
+  h += `</div>`;
+  el.innerHTML = h;
+}
+
+function abShowForm(entry) {
+  const e    = entry || {};
+  const wrap = document.getElementById('abFormWrap');
+  if (!wrap) return;
+  wrap.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);margin-bottom:16px;">${e.entryId ? 'Edit Address' : 'New Address'}</div>
+      <div class="form-grid">
+        <div class="ff"><label>Company Name *</label><input type="text" id="ab_company" value="${esc(e.companyName||'')}" placeholder="ABC Warehouse"></div>
+        <div class="ff"><label>Contact Person</label><input type="text" id="ab_contact" value="${esc(e.contactPerson||'')}" placeholder="John Smith"></div>
+        <div class="ff"><label>Email</label><input type="email" id="ab_email" value="${esc(e.email||'')}" placeholder="john@example.com"></div>
+        <div class="ff"><label>Phone</label><input type="text" id="ab_phone" value="${esc(e.phone||'')}" placeholder="(555) 123-4567"></div>
+        <div class="ff span-2"><label>Address Line 1</label><input type="text" id="ab_addr1" value="${esc(e.addressLine1||'')}" placeholder="123 Main Street"></div>
+        <div class="ff span-2"><label>Address Line 2 (optional)</label><input type="text" id="ab_addr2" value="${esc(e.addressLine2||'')}" placeholder="Suite 100"></div>
+        <div class="ff"><label>City</label><input type="text" id="ab_city" value="${esc(e.city||'')}" placeholder="Chicago"></div>
+        <div class="ff"><label>State</label><input type="text" id="ab_state" value="${esc(e.state||'')}" placeholder="IL" maxlength="2"></div>
+        <div class="ff"><label>ZIP Code</label><input type="text" id="ab_zip" value="${esc(e.zipCode||'')}" placeholder="60601" maxlength="10"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn-confirm" onclick="abSave('${esc(e.entryId||'')}')">Save Address</button>
+        <button onclick="abCancelForm()" style="padding:10px 20px;border:1.5px solid var(--border);background:transparent;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink2);">Cancel</button>
+      </div>
+      <div id="abFormMsg" style="margin-top:10px;"></div>
+    </div>`;
+  wrap.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function abCancelForm() {
+  const wrap = document.getElementById('abFormWrap');
+  if (wrap) wrap.innerHTML = '';
+}
+
+async function abSave(entryId) {
+  const v = id => document.getElementById(id)?.value.trim() || '';
+  const company = v('ab_company');
+  if (!company) {
+    const m = document.getElementById('abFormMsg');
+    if (m) m.innerHTML = `<div class="alert alert-error">Company name is required.</div>`;
+    return;
+  }
+  const payload = {
+    action:'saveAddressBookEntry', email:S.email, token:S.token,
+    entryId:       entryId || '',
+    companyName:   company,
+    contactPerson: v('ab_contact'),
+    email2:        v('ab_email'),
+    phone:         v('ab_phone'),
+    addressLine1:  v('ab_addr1'),
+    addressLine2:  v('ab_addr2'),
+    city:          v('ab_city'),
+    state:         v('ab_state'),
+    zipCode:       v('ab_zip')
+  };
+  const r = await api(payload);
+  if (r.success) {
+    const newEntry = {
+      entryId:       r.entryId,
+      companyName:   payload.companyName,
+      contactPerson: payload.contactPerson,
+      email:         payload.email2,
+      phone:         payload.phone,
+      addressLine1:  payload.addressLine1,
+      addressLine2:  payload.addressLine2,
+      city:          payload.city,
+      state:         payload.state,
+      zipCode:       payload.zipCode
+    };
+    if (entryId) {
+      // Update existing entry in local array
+      const idx = _abEntries.findIndex(e => e.entryId === entryId);
+      if (idx !== -1) _abEntries[idx] = newEntry;
+    } else {
+      // Add new entry to local array
+      _abEntries.push(newEntry);
+    }
+    abCancelForm();
+    abRenderList();
+  } else {
+    const m = document.getElementById('abFormMsg');
+    if (m) m.innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`;
+  }
+}
+
+async function abDelete(entryId) {
+  if (!confirm('Delete this address entry?')) return;
+  const r = await api({ action:'deleteAddressBookEntry', email:S.email, token:S.token, entryId });
+  if (r.success) {
+    _abEntries = _abEntries.filter(e => e.entryId !== entryId);
+    abRenderList();
+  } else {
+    const m = document.getElementById('abMsg');
+    if (m) m.innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`;
+  }
 }
 
 // ─── BROKER SELECTOR ─────────────────────────────────────────
@@ -1695,11 +1905,11 @@ async function saveSettings() {
 
 const TEMPLATE_META = {
   quoteReceived:    { name:'Quote Received (Client)',       desc:'Sent to client when a broker submits a new quote. Includes accept/reject links.',    vars:['brokerCompany','rate','transit','validUntil','origin','originZip','destination','destZip','freightType','weight','brokerNotes','acceptLink','rejectLink','quoteId','requestId'] },
-  bookingConfirmed: { name:'Booking Confirmed (Client)',    desc:'Sent to client after they accept a quote. PDF may be attached depending on settings.', vars:['brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
+  bookingConfirmed: { name:'Booking Confirmed (Client)',    desc:'Sent to client after they accept a quote. PDF may be attached depending on settings.', vars:['clientCompany','brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
   brokerAccepted:   { name:'Quote Accepted (Broker)',       desc:'Sent to the broker when the client accepts their quote.',                              vars:['brokerCompany','rate','requestId','quoteId','acceptedDate'] },
   brokerRejected:   { name:'Quote Not Selected (Broker)',   desc:'Sent to the broker when the client rejects their quote.',                              vars:['requestId','quoteId'] },
   adminNotification:{ name:'Admin Alert — Quote Accepted',  desc:'Sent to all active admins when any quote is accepted. PDF may be attached.',           vars:['requestId','quoteId','clientEmail','brokerCompany','brokerEmail','rate','transit','origin','originZip','destination','destZip','freightType','weight','acceptedDate','appUrl'] },
-  brokerNewRequest: { name:'New Request (Broker)',          desc:'Sent to all active brokers when a client submits a new freight request.',              vars:['freightType','origin','originZip','destination','destZip','weight','clientNotes','quoteLink','requestId'] }
+  brokerNewRequest: { name:'New Request (Broker)',          desc:'Sent to all active brokers when a client submits a new freight request.',              vars:['brokerCompany','freightType','origin','originZip','destination','destZip','weight','clientNotes','accessories','quoteLink','requestId'] }
 };
 
 async function loadTemplatesPanel() {
@@ -2179,27 +2389,38 @@ async function loadAdminAllQuotes() {
   let aqPage = 1;
   const aqSize = 20;
 
+  let aqShowExtra = false;
+
   function renderAqPage(p, filtered) {
     aqPage = p;
     const rows = filtered !== undefined ? filtered : getFilteredQuotes();
     const tp = Math.max(1, Math.ceil(rows.length/aqSize));
     const slice = rows.slice((p-1)*aqSize, p*aqSize);
     const statusMap = {accepted:'<span class="badge b-active">Accepted</span>',rejected:'<span class="badge b-inactive">Rejected</span>',pending:'<span class="badge b-neutral">Pending</span>'};
-    let h = '<div class="table-wrap"><table><thead><tr><th>Quote ID</th><th>Request ID</th><th>Broker</th><th>Carrier</th><th>Client</th><th>Route</th><th>Type</th><th>Rate</th><th>Transit</th><th>Submitted</th><th>Status</th></tr></thead><tbody>';
+    // Primary cols always visible: Broker, Carrier, Route, Type, Rate, Submitted, Status
+    // Secondary cols (toggle): Quote ID, Request ID, Transit
+    const extraBtn = `<button onclick="aqToggleExtra()" style="padding:4px 10px;border:1.5px solid var(--border);background:transparent;border-radius:6px;font-family:'Outfit',sans-serif;font-size:11px;font-weight:600;color:var(--ink2);cursor:pointer;margin-left:8px;">${aqShowExtra ? '← Hide details' : '+ Show IDs & Transit'}</button>`;
+    let h = `<div style="display:flex;align-items:center;margin-bottom:8px;">${extraBtn}</div>`;
+    h += '<div class="table-wrap"><table><thead><tr>';
+    if (aqShowExtra) h += '<th>Quote ID</th><th>Request ID</th>';
+    h += '<th>Broker</th><th>Carrier</th><th>Client</th><th>Route</th><th>Type</th><th>Rate</th>';
+    if (aqShowExtra) h += '<th>Transit</th>';
+    h += '<th>Submitted</th><th>Status</th></tr></thead><tbody>';
     if (!slice.length) {
-      h += '<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--ink3);">No quotes match the current filter.</td></tr>';
+      h += `<tr><td colspan="${aqShowExtra ? 11 : 8}" style="text-align:center;padding:32px;color:var(--ink3);">No quotes match the current filter.</td></tr>`;
     } else {
       slice.forEach(q => {
-        h += `<tr>
-          <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
-          <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
+        h += `<tr>`;
+        if (aqShowExtra) h += `<td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td><td style="font-family:monospace;font-size:12px;font-weight:700;color:var(--ink);">${q.requestId}</td>`;
+        h += `
           <td style="font-size:12px;">${esc(q.brokerCompany)}<br><span style="color:var(--ink3);font-size:11px;">${esc(q.brokerEmail)}</span></td>
           <td style="font-size:12px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);">—</span>'}</td>
           <td style="font-size:12px;color:var(--ink2);">${esc(q.clientEmail)}</td>
           <td style="font-size:12px;">${esc(q.origin)} → ${esc(q.destination)}</td>
           <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
-          <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
-          <td>${q.transitDays} days</td>
+          <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>`;
+        if (aqShowExtra) h += `<td>${q.transitDays} days</td>`;
+        h += `
           <td style="font-size:12px;color:var(--ink2);">${fdt(q.submittedAt)}</td>
           <td>${statusMap[q.status]||q.status}</td>
         </tr>`;
@@ -2209,6 +2430,8 @@ async function loadAdminAllQuotes() {
     if (tp>1) h += paginationBar(p, tp, rows.length, 'applyAqFilter');
     document.getElementById('aqTableWrap').innerHTML = h;
   }
+
+  window.aqToggleExtra = function() { aqShowExtra = !aqShowExtra; renderAqPage(aqPage, getFilteredQuotes()); };
 
   // Build unique broker list for filter
   const aqBrokers = ['', ...new Set(allQuotes.map(q => q.brokerCompany||q.brokerEmail))].sort();
@@ -2381,6 +2604,7 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
         <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Freight Type</div><strong>${esc(req.freightType)}</strong></div>
         <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Weight</div><strong>${Number(req.weight).toLocaleString()} lbs</strong></div>
         ${req.notes ? '<div style="grid-column:1/-1;"><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Notes</div><strong>' + esc(req.notes) + '</strong></div>' : ''}
+        ${req.accessories ? '<div style="grid-column:1/-1;"><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Accessories Required</div><strong style="color:#0A2540;">' + esc(req.accessories) + '</strong></div>' : ''}
       </div>
       <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px solid #c7d7fe;">Request ID: ${esc(req.requestId)}</div>
     </div>
