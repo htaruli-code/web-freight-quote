@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.7.3 | build: 202604142600 -->
+<!-- version: 2.7.4 | build: 202604151000 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -548,7 +548,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.7.3 — 202604142600';
+  out.textContent = 'v2.7.4 — 202604151000';
 }
 
 async function sendOTP() {
@@ -1157,13 +1157,33 @@ async function loadClientDash() {
     api({action:'getClientBookings', email:S.email, token:S.token})
   ]);
   if (!r.success) { document.getElementById('p-clientDash').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
-  if (!r.requests.length) { document.getElementById('p-clientDash').innerHTML = '<div class="empty"><h3>No requests yet</h3><p>Submit your first freight request to get started.</p></div>'; return; }
+
+  const noOrg = !(r.profile && r.profile.orgId);
+  const orgNudge = noOrg ? `
+    <div id="orgNudgeBanner" style="background:#fff8f0;border:1.5px solid #ffd0a0;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:28px;">🏢</span>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:#0A2540;">No Organisation set up yet</div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:2px;">Create an organisation to share requests with your team and manage bookings together.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <button onclick="loadClientSettings().then(()=>switchProfileTab('team'));setNav(document.getElementById('n-clientTeam'),'clientSettings');" style="padding:9px 18px;background:#FF6200;color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">Set Up Organisation →</button>
+        <button onclick="document.getElementById('orgNudgeBanner').remove()" style="padding:9px 12px;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;color:var(--ink2);">✕</button>
+      </div>
+    </div>` : '';
 
   // Map quoteId → bookingId for "View Booking" button
   const bookedMap = {};
   if (rb.success) (rb.bookings||[]).forEach(b => { bookedMap[b.quoteId] = b.bookingId; });
 
-  document.getElementById('p-clientDash').innerHTML = '<div id="clientReqWrap"></div>';
+  if (!r.requests.length) {
+    document.getElementById('p-clientDash').innerHTML = `${orgNudge}<div class="empty"><h3>No requests yet</h3><p>Submit your first freight request to get started.</p></div>`;
+    return;
+  }
+
+  document.getElementById('p-clientDash').innerHTML = `${orgNudge}<div id="clientReqWrap"></div>`;
   let cPage = 1;
   const cPageSize = 10;
   const allReqs = r.requests;
