@@ -7,8 +7,8 @@
 
 // Apps Script deployment URL
 // Found at: Apps Script → Deploy → Manage Deployments → copy URL
-const API = "https://script.google.com/macros/s/AKfycbwy_b9kh2LQmGpNovpwka5-Bqkvx-FRdXyq1Oo4It1uN3GyLhUadEO2uMcjqJZklo-M9Q/exec";
+const API = "https://script.google.com/macros/s/AKfycbyL76atg0ZnztpEJT6dlIUZyQmcmZgHrlW9YNL9HHqs0QVZSqL2LM_Kunb6kOw3EZimgw/exec";
 
 // Your GitHub Pages or custom domain URL
 // Used in the "Go to Dashboard" links on broker and accept/reject pages
-const APP_URL_JS = "https://freightratesnow.com/";
+const APP_URL_JS = "https://app.loadro.com/";
