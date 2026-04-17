@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.5.0 | build: 202604141900 -->
+<!-- version: 2.7.3 | build: 202604142600 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -300,6 +300,48 @@ tbody tr:hover td{background:var(--bg);}
 .btn-add-cb:hover{opacity:.85;}
 .btn-del-cb{padding:4px 8px;border-radius:5px;border:1px solid rgba(192,57,43,.3);background:transparent;color:var(--red);font-size:11px;cursor:pointer;}
 .btn-del-cb:hover{background:var(--red-bg);}
+
+/* ─── BOOKING MODAL ──────────────────────────────────────────── */
+.bk-overlay{position:fixed;inset:0;background:rgba(10,20,40,.55);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;}
+.bk-modal{background:var(--surface);border-radius:18px;width:100%;max-width:860px;box-shadow:0 24px 60px rgba(0,0,0,.22);overflow:hidden;animation:bkIn .18s ease;}
+@keyframes bkIn{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:none;}}
+.bk-header{background:#0A2540;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;}
+.bk-header h2{color:#fff;font-size:18px;font-weight:700;margin:0;}
+.bk-header p{color:rgba(255,255,255,.55);font-size:13px;margin:2px 0 0;}
+.bk-close{background:rgba(255,255,255,.12);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.bk-close:hover{background:rgba(255,255,255,.22);}
+.bk-body{padding:28px;}
+.bk-section{margin-bottom:24px;}
+.bk-section-title{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.bk-row{display:grid;gap:12px;margin-bottom:12px;}
+.bk-row-2{grid-template-columns:1fr 1fr;}
+.bk-row-3{grid-template-columns:1fr 1fr 1fr;}
+.bk-row-date{grid-template-columns:1fr 200px;}
+.bk-field label{display:block;font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--ink2);margin-bottom:5px;}
+.bk-field input,.bk-field select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);outline:none;transition:border-color .15s;}
+.bk-field input:focus,.bk-field select:focus{border-color:#0A2540;}
+.bk-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+/* LTL items table */
+.ltl-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ltl-table th{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2);padding:0 6px 8px;text-align:left;white-space:nowrap;}
+.ltl-table td{padding:4px 4px;}
+.ltl-table td input,.ltl-table td select{width:100%;padding:7px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:13px;color:var(--ink);outline:none;transition:border-color .15s;}
+.ltl-table td input:focus,.ltl-table td select:focus{border-color:#0A2540;}
+.ltl-table td.ltl-x{width:16px;text-align:center;color:var(--ink3);font-size:12px;padding:0 2px;}
+.ltl-totals{display:flex;gap:24px;padding:12px 14px;background:var(--surface2);border-radius:8px;margin-top:10px;font-size:12px;color:var(--ink2);}
+.ltl-totals span strong{color:var(--ink);font-weight:700;}
+.ltl-add-row{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 14px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;transition:all .15s;}
+.ltl-add-row:hover{border-color:var(--blue);background:var(--blue-bg);}
+.ltl-remove-row{background:none;border:none;color:var(--ink3);font-size:16px;cursor:pointer;padding:0 4px;line-height:1;transition:color .15s;}
+.ltl-remove-row:hover{color:var(--red);}
+.bk-footer{display:flex;align-items:center;justify-content:space-between;padding:20px 28px;border-top:1px solid var(--border);background:var(--surface2);}
+.btn-book{padding:11px 28px;background:#0A2540;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-book:hover{background:#0d2f52;}
+.btn-book:disabled{opacity:.4;cursor:not-allowed;}
+.btn-book-cancel{padding:11px 20px;background:transparent;color:var(--ink2);border:1.5px solid var(--border);border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;}
+.bk-ab-divider{display:flex;align-items:center;gap:8px;margin:8px 0;}
+.bk-ab-divider span{font-size:11px;color:var(--ink3);white-space:nowrap;}
+.bk-ab-divider::before,.bk-ab-divider::after{content:'';flex:1;height:1px;background:var(--border);}
 </style>
 </head>
 <body>
@@ -506,7 +548,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.5.0 — 202604141900';
+  out.textContent = 'v2.7.3 — 202604142600';
 }
 
 async function sendOTP() {
@@ -613,6 +655,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Operations</div>
         <button class="nav-item" id="n-adminRequests" onclick="setNav(this,'adminRequests')"><span class="nav-icon">📦</span>All Requests</button>
         <button class="nav-item" id="n-adminAllQuotes" onclick="setNav(this,'adminAllQuotes')"><span class="nav-icon">💬</span>All Quotes</button>
+        <button class="nav-item" id="n-adminBookings" onclick="setNav(this,'adminBookings')"><span class="nav-icon">📋</span>All Bookings</button>
       </div>
       <div class="nav-section"><div class="nav-label">Configuration</div>
         <button class="nav-item" id="n-adminSettings"   onclick="setNav(this,'adminSettings')"><span class="nav-icon">⚙️</span>Settings</button>
@@ -629,6 +672,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">My Quotes</div>
         <button class="nav-item active" id="n-brokerDash"  onclick="setNav(this,'brokerDash')"><span class="nav-icon">📊</span>Dashboard</button>
         <button class="nav-item" id="n-brokerQuotes" onclick="setNav(this,'brokerQuotes')"><span class="nav-icon">📋</span>All Quotes</button>
+        <button class="nav-item" id="n-brokerBookings" onclick="setNav(this,'brokerBookings')"><span class="nav-icon">📦</span>My Bookings</button>
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
         <button class="nav-item" id="n-brokerSettings" onclick="setNav(this,'brokerSettings')"><span class="nav-icon">👤</span>My Profile</button>
@@ -638,6 +682,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Shipments</div>
         <button class="nav-item active" id="n-clientNew"  onclick="setNav(this,'clientNew')"><span class="nav-icon">➕</span>New Request</button>
         <button class="nav-item" id="n-clientDash" onclick="setNav(this,'clientDash')"><span class="nav-icon">📋</span>My Requests</button>
+        <button class="nav-item" id="n-clientBookings" onclick="setNav(this,'clientBookings')"><span class="nav-icon">📦</span>My Bookings</button>
         <button class="nav-item" id="n-clientAddrBook" onclick="setNav(this,'clientAddrBook')"><span class="nav-icon">📒</span>Address Book</button>
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
@@ -660,12 +705,14 @@ function showPanel(id) {
   // Lazy-load panels on first visit
   if (id === 'clientDash')      loadClientDash();
   if (id === 'clientAddrBook')  loadAddressBook();
+  if (id === 'clientBookings')  loadBookingsPanel('client');
   if (id === 'adminEmployees')  loadEmpPanel();
   if (id === 'adminActivity')   loadActivityPanel();
   if (id === 'adminBrokers')    loadBrokerPanel();
   if (id === 'adminClients')    loadClientsPanel();
   if (id === 'adminRequests')   loadRequestsPanel();
   if (id === 'adminAllQuotes')  loadAdminAllQuotes();
+  if (id === 'adminBookings')   loadBookingsPanel('admin');
   if (id === 'clientSettings')  loadClientSettings();
   if (id === 'brokerSettings')  loadBrokerSettings();
   if (id === 'adminSettings')   loadSettingsPanel();
@@ -673,6 +720,7 @@ function showPanel(id) {
   if (id === 'empRequests')     {} // already rendered
   if (id === 'brokerDash')      loadBrokerDashboard();
   if (id === 'brokerQuotes')    loadBrokerQuotesPanel();
+  if (id === 'brokerBookings')  loadBookingsPanel('broker');
 }
 
 // ─── CLIENT ───────────────────────────────────────────────────
@@ -692,15 +740,19 @@ async function loadClient() {
       <div id="reqMsg"></div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;">
         <div class="form-grid">
-          <div class="ff"><label>Origin City / State</label><input type="text" id="fO" placeholder="Los Angeles, CA"></div>
-          <div class="ff"><label>Origin ZIP</label><input type="text" id="fOZ" placeholder="90001" maxlength="10"></div>
+          <div class="ff"><label>Origin ZIP</label><input type="text" id="fOZ" placeholder="90001" maxlength="10"
+            onchange="lookupZip(this.value,'fO',null,'fOSpin')"
+            onkeyup="if(this.value.length===5)lookupZip(this.value,'fO',null,'fOSpin')"></div>
+          <div class="ff"><label>Origin City / State <span id="fOSpin" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-left:4px;"></span></label><input type="text" id="fO" placeholder="Los Angeles, CA" oninput="this.dataset.autoFilled='false'"></div>
           <div class="span-2" style="display:flex;align-items:center;gap:12px;padding:2px 0;">
             <div style="flex:1;height:1px;background:var(--border);"></div>
             <span style="color:var(--ink3);font-size:13px;">to destination</span>
             <div style="flex:1;height:1px;background:var(--border);"></div>
           </div>
-          <div class="ff"><label>Destination City / State</label><input type="text" id="fD" placeholder="Chicago, IL"></div>
-          <div class="ff"><label>Destination ZIP</label><input type="text" id="fDZ" placeholder="60601" maxlength="10"></div>
+          <div class="ff"><label>Destination ZIP</label><input type="text" id="fDZ" placeholder="60601" maxlength="10"
+            onchange="lookupZip(this.value,'fD',null,'fDSpin')"
+            onkeyup="if(this.value.length===5)lookupZip(this.value,'fD',null,'fDSpin')"></div>
+          <div class="ff"><label>Destination City / State <span id="fDSpin" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-left:4px;"></span></label><input type="text" id="fD" placeholder="Chicago, IL" oninput="this.dataset.autoFilled='false'"></div>
           <div class="ff span-2">
             <label>Freight Type</label>
             <div class="freight-sel">
@@ -743,6 +795,7 @@ async function loadClient() {
       </div>
     </div>
     <div class="panel" id="p-clientDash"></div>
+    <div class="panel" id="p-clientBookings"></div>
     <div class="panel" id="p-clientAddrBook"></div>
     <div class="panel" id="p-clientSettings"></div>`;
   // Build freight type buttons AFTER innerHTML is set so the DOM element exists
@@ -1099,10 +1152,16 @@ async function removeCustomBroker(id, btn) {
 
 async function loadClientDash() {
   document.getElementById('p-clientDash').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
-  const r = await api({action:'getClientData', email:S.email, token:S.token});
+  const [r, rb] = await Promise.all([
+    api({action:'getClientData',    email:S.email, token:S.token}),
+    api({action:'getClientBookings', email:S.email, token:S.token})
+  ]);
   if (!r.success) { document.getElementById('p-clientDash').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
   if (!r.requests.length) { document.getElementById('p-clientDash').innerHTML = '<div class="empty"><h3>No requests yet</h3><p>Submit your first freight request to get started.</p></div>'; return; }
 
+  // Map quoteId → bookingId for "View Booking" button
+  const bookedMap = {};
+  if (rb.success) (rb.bookings||[]).forEach(b => { bookedMap[b.quoteId] = b.bookingId; });
 
   document.getElementById('p-clientDash').innerHTML = '<div id="clientReqWrap"></div>';
   let cPage = 1;
@@ -1123,8 +1182,7 @@ async function loadClientDash() {
             <button onclick="requestAgain(${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,notes:req.notes||''}).replace(/"/g,'&quot;')})" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;white-space:nowrap;transition:all .15s;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">↺ Request Again</button>
           </div>
         </div>
-        <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span>${req.submittedBy && req.submittedBy !== S.email ? `<span class="submitter-badge">👤 ${esc(req.submittedBy)}</span>` : ''}<span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>
-        ${req.accessories ? `<div style="margin:6px 0 2px;font-size:12px;color:var(--ink2);"><span style="font-weight:600;color:var(--ink);">🔧 Accessories:</span> ${esc(req.accessories)}</div>` : ''}`;
+        <div class="card-meta"><span>📦 ${req.freightType}</span><span>⚖️ ${Number(req.weight).toLocaleString()} lbs</span><span>📅 ${fdt(req.submittedAt)}</span>${req.submittedBy && req.submittedBy !== S.email ? `<span class="submitter-badge">👤 ${esc(req.submittedBy)}</span>` : ''}<span style="opacity:.6;font-size:11px;font-weight:700;">${req.requestId}</span></div>`;
       if (req.quotes.length) {
         // Group quotes by brokerEmail so all carriers from same vendor show together
         const vendorMap = {};
@@ -1165,6 +1223,7 @@ async function loadClientDash() {
           // Each carrier row inside the vendor card
           vendor.carriers.forEach((q, idx) => {
             const isLast = idx === vendor.carriers.length - 1;
+            const alreadyBooked = bookedMap[q.quoteId] || null;
             ph += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;${!isLast?'border-bottom:1px solid var(--border);':''}${q.status==='accepted'?'background:rgba(25,122,69,.04);':''}${q.status==='rejected'?'opacity:.5;':''}gap:12px;flex-wrap:wrap;">
               <div style="flex:1;">
                 <div style="font-weight:600;font-size:13px;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">Carrier not specified</span>'}</div>
@@ -1180,6 +1239,10 @@ async function loadClientDash() {
                   <button class="btn-accept" onclick="respondQuote('${q.quoteId}','accept',this)">✓ Accept</button>
                   <button class="btn-reject" onclick="respondQuote('${q.quoteId}','reject',this)">✕ Reject</button>
                 </div>`:''}
+                ${q.status==='accepted'?(alreadyBooked
+                  ? `<button onclick="setNav(document.getElementById('n-clientBookings'),'clientBookings')" style="padding:8px 16px;border-radius:8px;border:1.5px solid #0A2540;background:transparent;color:#0A2540;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">📂 View Booking</button>`
+                  : `<button onclick="openBookingModal('${q.quoteId}',${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,brokerCompany:q.brokerCompany,carrierName:q.carrierName||'',rate:q.rate,quoteId:q.quoteId}).replace(/"/g,'&quot;')})" style="padding:8px 16px;border-radius:8px;border:none;background:#0A2540;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='#0d2f52'" onmouseout="this.style.background='#0A2540'">📋 Create Booking</button>`)
+                :''}
               </div>
             </div>`;
           });
@@ -1250,6 +1313,686 @@ function requestAgain(req) {
 
 // ─── EMPLOYEE ─────────────────────────────────────────────────
 
+// ─── ZIP CODE LOOKUP — v2.7.2 ─────────────────────────────────
+// Uses api.zippopotam.us (free, no key, US ZIPs).
+// cityFieldId   — id of the city <input> to auto-fill
+// stateFieldId  — id of the state <input> to auto-fill (2-letter abbrev)
+// spinId        — optional id of a small status element to show feedback
+
+const _zipCache = {};   // cache results to avoid duplicate calls
+
+async function lookupZip(zip, cityFieldId, stateFieldId, spinId) {
+  zip = String(zip).trim();
+  if (zip.length !== 5 || !/^\d{5}$/.test(zip)) return;  // US 5-digit only
+
+  // Show subtle loading hint
+  const spinEl = spinId ? document.getElementById(spinId) : null;
+  if (spinEl) { spinEl.textContent = '🔍'; spinEl.style.opacity = '1'; }
+
+  try {
+    // Check cache first
+    if (!_zipCache[zip]) {
+      const res  = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (!res.ok) { if (spinEl) spinEl.style.opacity = '0'; return; }
+      _zipCache[zip] = await res.json();
+    }
+    const data  = _zipCache[zip];
+    const place = data.places && data.places[0];
+    if (!place) { if (spinEl) spinEl.style.opacity = '0'; return; }
+
+    const city  = place['place name']       || '';
+    const state = place['state abbreviation'] || '';
+
+    const cityEl  = document.getElementById(cityFieldId);
+    const stateEl = stateFieldId ? document.getElementById(stateFieldId) : null;
+
+    if (stateEl) {
+      // Separate city and state fields (booking modal)
+      if (cityEl  && (!cityEl.value  || cityEl.dataset.autoFilled  === 'true')) {
+        cityEl.value = city;
+        cityEl.dataset.autoFilled = 'true';
+      }
+      if (!stateEl.value || stateEl.dataset.autoFilled === 'true') {
+        stateEl.value = state;
+        stateEl.dataset.autoFilled = 'true';
+      }
+    } else {
+      // Combined "City, ST" single field (New Request form)
+      if (cityEl && (!cityEl.value || cityEl.dataset.autoFilled === 'true')) {
+        cityEl.value = state ? `${city}, ${state}` : city;
+        cityEl.dataset.autoFilled = 'true';
+      }
+    }
+
+    if (spinEl) { spinEl.textContent = '✓'; setTimeout(() => { spinEl.style.opacity = '0'; }, 1200); }
+  } catch(e) {
+    if (spinEl) spinEl.style.opacity = '0';
+  }
+}
+
+// City/state fields — clear autoFilled flag when user manually edits them
+function _markManual(fieldId) {
+  const el = document.getElementById(fieldId);
+  if (el) el.dataset.autoFilled = 'false';
+}
+
+// ─── BOOKING MODAL ────────────────────────────────────────────
+// v2.6.0 — Shipper creates booking from accepted quote.
+// Origin / Destination from address book dropdown or manual.
+// LTL shipment items with live totals.
+
+let _bkQuoteId = '';
+let _bkItems   = [];
+
+const HANDLING_UNITS = ['Pallet','Box','Crate','Drum','Bundle','Piece','Bag','Roll','Skid'];
+const FREIGHT_CLASSES = ['50','55','60','65','70','77.5','85','92.5','100','110','125','150','175','200','250','300','400','500'];
+
+function openBookingModal(quoteId, qData) {
+  _bkQuoteId = quoteId;
+  _bkItems   = [{ qty:'', unit:'Pallet', length:'', width:'', height:'', weight:'', freightClass:'', nmfc:'', subClass:'' }];
+
+  // Ensure address book is loaded
+  const abReady = _abLoaded ? Promise.resolve() : _loadAbForBooking();
+
+  abReady.then(() => {
+    const existing = document.getElementById('bkOverlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'bk-overlay';
+    overlay.id = 'bkOverlay';
+    overlay.innerHTML = _bkModalHtml(qData);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeBookingModal(); });
+
+    // Set today as default pickup date
+    const today = new Date().toISOString().split('T')[0];
+    const dpEl = document.getElementById('bkPickupDate');
+    if (dpEl) { dpEl.value = today; dpEl.min = today; }
+
+    // Auto-select tab based on freight type
+    const ft = (qData.freightType || '').toUpperCase();
+    if (ft === 'FTL' || ft === 'FULL TRUCKLOAD') {
+      bkSelectTab('FTL');
+    } else {
+      bkSelectTab('LTL');
+    }
+
+    bkRenderItems();
+    bkPopulateAbDropdowns();
+  });
+}
+
+async function _loadAbForBooking() {
+  if (_abLoaded) return;
+  const r = await api({ action:'getAddressBook', email:S.email, token:S.token });
+  if (r.success) { _abEntries = r.entries || []; _abLoaded = true; }
+}
+
+function _bkModalHtml(q) {
+  return `
+  <div class="bk-modal">
+    <!-- version: 2.6.0 | build: 202604142100 -->
+    <div class="bk-header">
+      <div>
+        <h2>📋 Create Booking</h2>
+        <p>Quote ${q.quoteId} · ${q.brokerCompany}${q.carrierName ? ' — '+q.carrierName : ''} · $${Number(q.rate).toLocaleString()}</p>
+      </div>
+      <button class="bk-close" onclick="closeBookingModal()">✕</button>
+    </div>
+    <div class="bk-body">
+      <div id="bkMsg"></div>
+
+      <!-- FREIGHT TYPE TABS -->
+      <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
+        <button id="bkTabLTL" onclick="bkSelectTab('LTL')" style="flex:1;padding:10px;background:#0A2540;color:#fff;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">LTL</button>
+        <button id="bkTabFTL" onclick="bkSelectTab('FTL')" style="flex:1;padding:10px;background:transparent;color:var(--ink2);border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Full Truckload</button>
+      </div>
+
+      <!-- ORIGIN -->
+      <div class="bk-section">
+        <div class="bk-section-title">Origin *</div>
+        <div class="bk-row bk-row-date" style="align-items:end;">
+          <div class="bk-field">
+            <label>Select from Address Book</label>
+            <select id="bkOriginAb" onchange="bkApplyAbOrigin(this.value)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);outline:none;appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;">
+              <option value="">— Search by ZIP or Saved Location —</option>
+            </select>
+          </div>
+          <div class="bk-field">
+            <label>Pickup Date *</label>
+            <input type="date" id="bkPickupDate">
+          </div>
+        </div>
+        <div class="bk-ab-divider"><span>or enter manually</span></div>
+        <div class="bk-row bk-row-2">
+          <div class="bk-field"><label>Company / Facility</label><input type="text" id="bkOriginCompany" placeholder="ABC Warehouse"></div>
+          <div class="bk-field"><label>Address</label><input type="text" id="bkOriginAddr" placeholder="123 Main St"></div>
+        </div>
+        <div class="bk-row bk-row-3">
+          <div class="bk-field"><label>City</label><input type="text" id="bkOriginCity" placeholder="Los Angeles" oninput="_markManual('bkOriginCity')"></div>
+          <div class="bk-field"><label>State</label><input type="text" id="bkOriginState" placeholder="CA" maxlength="2" oninput="_markManual('bkOriginState')"></div>
+          <div class="bk-field">
+            <label>ZIP <span id="bkOriginZipSpin" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-left:4px;"></span></label>
+            <input type="text" id="bkOriginZip" placeholder="90001" maxlength="10"
+              onchange="lookupZip(this.value,'bkOriginCity','bkOriginState','bkOriginZipSpin')"
+              onkeyup="if(this.value.length===5)lookupZip(this.value,'bkOriginCity','bkOriginState','bkOriginZipSpin')">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin-top:4px;cursor:pointer;">
+          <input type="checkbox" id="bkOriginDefault" style="accent-color:#0A2540;width:14px;height:14px;">
+          Set as your Default Origin
+        </label>
+      </div>
+
+      <!-- DESTINATION -->
+      <div class="bk-section">
+        <div class="bk-section-title">Destination *</div>
+        <div class="bk-row" style="align-items:end;">
+          <div class="bk-field">
+            <label>Select from Address Book</label>
+            <select id="bkDestAb" onchange="bkApplyAbDest(this.value)" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);outline:none;appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;">
+              <option value="">— Search by ZIP or Saved Location —</option>
+            </select>
+          </div>
+        </div>
+        <div class="bk-ab-divider"><span>or enter manually</span></div>
+        <div class="bk-row bk-row-2">
+          <div class="bk-field"><label>Company / Facility</label><input type="text" id="bkDestCompany" placeholder="XYZ Distribution"></div>
+          <div class="bk-field"><label>Address</label><input type="text" id="bkDestAddr" placeholder="456 Oak Ave"></div>
+        </div>
+        <div class="bk-row bk-row-3">
+          <div class="bk-field"><label>City</label><input type="text" id="bkDestCity" placeholder="Chicago" oninput="_markManual('bkDestCity')"></div>
+          <div class="bk-field"><label>State</label><input type="text" id="bkDestState" placeholder="IL" maxlength="2" oninput="_markManual('bkDestState')"></div>
+          <div class="bk-field">
+            <label>ZIP <span id="bkDestZipSpin" style="font-size:11px;color:var(--green);opacity:0;transition:opacity .3s;margin-left:4px;"></span></label>
+            <input type="text" id="bkDestZip" placeholder="60601" maxlength="10"
+              onchange="lookupZip(this.value,'bkDestCity','bkDestState','bkDestZipSpin')"
+              onkeyup="if(this.value.length===5)lookupZip(this.value,'bkDestCity','bkDestState','bkDestZipSpin')">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin-top:4px;cursor:pointer;">
+          <input type="checkbox" id="bkDestDefault" style="accent-color:#0A2540;width:14px;height:14px;">
+          Set as your Default Destination
+        </label>
+      </div>
+
+      <!-- SHIPMENT DETAILS -->
+      <div class="bk-section" id="bkShipmentSection">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="bk-section-title" style="margin-bottom:0;border:none;padding:0;">Shipment Details</div>
+          <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);cursor:pointer;">
+            <input type="checkbox" id="bkMixedPallet" style="accent-color:#0A2540;width:14px;height:14px;">
+            This is a mixed pallet
+          </label>
+        </div>
+        <div style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;">
+          <div id="bkItemsWrap"></div>
+          <button class="ltl-add-row" onclick="bkAddItem()">⊕ Add Another Item</button>
+        </div>
+      </div>
+
+      <!-- FTL FIELDS (hidden by default) -->
+      <div class="bk-section" id="bkFtlSection" style="display:none;">
+        <div class="bk-section-title">Truckload Details</div>
+        <div class="bk-row bk-row-3">
+          <div class="bk-field">
+            <label>Freight Type *</label>
+            <select id="bkFtlLoadType">
+              <option value="">— Select —</option>
+              <option value="Floor Load">Floor Load</option>
+              <option value="Palletized">Palletized</option>
+            </select>
+          </div>
+          <div class="bk-field">
+            <label>Total Weight (max 44,000 lbs) *</label>
+            <input type="number" id="bkFtlWeight" placeholder="e.g. 38000" min="1" max="44000">
+          </div>
+          <div class="bk-field">
+            <label>Equipment Type *</label>
+            <select id="bkFtlEquipment">
+              <option value="">— Select —</option>
+              <option value="Dry Van Truckload">Dry Van Truckload</option>
+              <option value="Refrigerated Truckload">Refrigerated Truckload</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="bk-footer">
+      <div id="bkFooterMsg" style="font-size:13px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-book-cancel" onclick="closeBookingModal()">Cancel</button>
+        <button class="btn-book" id="bkSubmitBtn" onclick="submitBooking()">Confirm Booking →</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function bkSelectTab(tab) {
+  const ltl    = document.getElementById('bkTabLTL');
+  const ftl    = document.getElementById('bkTabFTL');
+  const ltlSec = document.getElementById('bkShipmentSection');
+  const ftlSec = document.getElementById('bkFtlSection');
+  if (!ltl || !ftl) return;
+  if (tab === 'LTL') {
+    ltl.style.background = '#0A2540'; ltl.style.color = '#fff';
+    ftl.style.background = 'transparent'; ftl.style.color = 'var(--ink2)';
+    if (ltlSec) ltlSec.style.display = '';
+    if (ftlSec) ftlSec.style.display = 'none';
+  } else {
+    ftl.style.background = '#0A2540'; ftl.style.color = '#fff';
+    ltl.style.background = 'transparent'; ltl.style.color = 'var(--ink2)';
+    if (ltlSec) ltlSec.style.display = 'none';
+    if (ftlSec) ftlSec.style.display = '';
+  }
+}
+
+function bkPopulateAbDropdowns() {
+  const opts = _abEntries.length
+    ? _abEntries.map((e,i) => {
+        const label = [e.companyName, e.city, e.state, e.zipCode].filter(Boolean).join(', ');
+        return `<option value="${i}">${esc(label)}</option>`;
+      }).join('')
+    : '';
+  const placeholder = '<option value="">— Search by ZIP or Saved Location —</option>';
+  const noEntries   = '<option value="" disabled style="color:var(--ink3);">No saved addresses yet</option>';
+  ['bkOriginAb','bkDestAb'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = placeholder + (opts || noEntries);
+  });
+}
+
+function bkApplyAbOrigin(idx) {
+  if (idx === '') return;
+  const e = _abEntries[parseInt(idx)]; if (!e) return;
+  _bkSetField('bkOriginCompany', e.companyName || '');
+  _bkSetField('bkOriginAddr',    e.addressLine1 || (e.addressLine2 || ''));
+  _bkSetField('bkOriginCity',    e.city  || '');
+  _bkSetField('bkOriginState',   e.state || '');
+  _bkSetField('bkOriginZip',     e.zipCode || '');
+}
+
+function bkApplyAbDest(idx) {
+  if (idx === '') return;
+  const e = _abEntries[parseInt(idx)]; if (!e) return;
+  _bkSetField('bkDestCompany', e.companyName || '');
+  _bkSetField('bkDestAddr',    e.addressLine1 || (e.addressLine2 || ''));
+  _bkSetField('bkDestCity',    e.city  || '');
+  _bkSetField('bkDestState',   e.state || '');
+  _bkSetField('bkDestZip',     e.zipCode || '');
+}
+
+function _bkSetField(id, val) {
+  const el = document.getElementById(id); if (el) el.value = val;
+}
+
+function bkRenderItems() {
+  const wrap = document.getElementById('bkItemsWrap');
+  if (!wrap) return;
+  const huOpts  = HANDLING_UNITS.map(u => `<option>${u}</option>`).join('');
+  const fcOpts  = FREIGHT_CLASSES.map(c => `<option>${c}</option>`).join('');
+  let h = `<table class="ltl-table">
+    <thead><tr>
+      <th>Quantity</th><th>Handling Unit</th>
+      <th>Length</th><th class="ltl-x"></th><th>Width</th><th class="ltl-x"></th><th>Height</th>
+      <th>Weight *</th><th>Freight Class *</th><th>NMFC</th><th>Sub Class</th><th></th>
+    </tr></thead><tbody>`;
+  _bkItems.forEach((item, i) => {
+    h += `<tr>
+      <td><input type="number" min="1" placeholder="" value="${esc(item.qty)}" oninput="_bkItemChange(${i},'qty',this.value)" style="width:70px;"></td>
+      <td><select oninput="_bkItemChange(${i},'unit',this.value)" style="width:110px;">${HANDLING_UNITS.map(u=>`<option${u===item.unit?' selected':''}>${u}</option>`).join('')}</select></td>
+      <td><input type="number" min="0" step="0.1" placeholder="" value="${esc(item.length)}" oninput="_bkItemChange(${i},'length',this.value)" style="width:70px;"><span style="color:var(--ink3);font-size:11px;margin-left:3px;">in</span></td>
+      <td class="ltl-x">×</td>
+      <td><input type="number" min="0" step="0.1" placeholder="" value="${esc(item.width)}" oninput="_bkItemChange(${i},'width',this.value)" style="width:70px;"><span style="color:var(--ink3);font-size:11px;margin-left:3px;">in</span></td>
+      <td class="ltl-x">×</td>
+      <td><input type="number" min="0" step="0.1" placeholder="" value="${esc(item.height)}" oninput="_bkItemChange(${i},'height',this.value)" style="width:70px;"><span style="color:var(--ink3);font-size:11px;margin-left:3px;">in</span></td>
+      <td><input type="number" min="0" placeholder="" value="${esc(item.weight)}" oninput="_bkItemChange(${i},'weight',this.value)" style="width:80px;"><span style="color:var(--ink3);font-size:11px;margin-left:3px;">lb</span><div style="font-size:10px;color:var(--ink3);">Per Unit</div></td>
+      <td><select oninput="_bkItemChange(${i},'freightClass',this.value)" style="width:90px;">${FREIGHT_CLASSES.map(c=>`<option${c===item.freightClass?' selected':''}>${c}</option>`).join('')}</select></td>
+      <td><input type="text" placeholder="" value="${esc(item.nmfc)}" oninput="_bkItemChange(${i},'nmfc',this.value)" style="width:80px;"></td>
+      <td><input type="text" placeholder="" value="${esc(item.subClass)}" oninput="_bkItemChange(${i},'subClass',this.value)" style="width:60px;"></td>
+      <td>${_bkItems.length > 1 ? `<button class="ltl-remove-row" onclick="bkRemoveItem(${i})">✕</button>` : ''}</td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+
+  // Totals bar
+  const totVol     = _bkItems.reduce((s,it) => {
+    const l=parseFloat(it.length)||0, w=parseFloat(it.width)||0, ht=parseFloat(it.height)||0, q=parseInt(it.qty)||0;
+    return s + (l*w*ht*q)/1728;
+  }, 0);
+  const totWeight  = _bkItems.reduce((s,it) => s + (parseFloat(it.weight)||0)*(parseInt(it.qty)||0), 0);
+  const totDensity = totVol > 0 ? (totWeight/totVol) : 0;
+  const skidSpots  = _bkItems.reduce((s,it) => s + Math.ceil((parseInt(it.qty)||0)/2), 0);
+
+  h += `<div class="ltl-totals">
+    <span>EST. SKID SPOTS <strong>${skidSpots||'—'}</strong></span>
+    <span>TOTAL VOLUME <strong>${totVol>0?totVol.toFixed(2)+' ft³':'— ft³'}</strong></span>
+    <span>TOTAL WEIGHT <strong>${totWeight>0?totWeight.toLocaleString()+' lb':'— lb'}</strong></span>
+    <span>TOTAL DENSITY <strong>${totDensity>0?totDensity.toFixed(2)+' lb/ft³':'— lb/ft³'}</strong></span>
+  </div>`;
+
+  wrap.innerHTML = h;
+}
+
+function _bkItemChange(i, field, val) {
+  if (_bkItems[i]) _bkItems[i][field] = val;
+  // Re-render only totals bar to avoid losing focus
+  const wrap = document.getElementById('bkItemsWrap');
+  if (!wrap) return;
+  const totVol     = _bkItems.reduce((s,it) => {
+    const l=parseFloat(it.length)||0, w=parseFloat(it.width)||0, ht=parseFloat(it.height)||0, q=parseInt(it.qty)||0;
+    return s + (l*w*ht*q)/1728;
+  }, 0);
+  const totWeight  = _bkItems.reduce((s,it) => s + (parseFloat(it.weight)||0)*(parseInt(it.qty)||0), 0);
+  const totDensity = totVol > 0 ? (totWeight/totVol) : 0;
+  const skidSpots  = _bkItems.reduce((s,it) => s + Math.ceil((parseInt(it.qty)||0)/2), 0);
+  const totEl = wrap.querySelector('.ltl-totals');
+  if (totEl) totEl.innerHTML = `
+    <span>EST. SKID SPOTS <strong>${skidSpots||'—'}</strong></span>
+    <span>TOTAL VOLUME <strong>${totVol>0?totVol.toFixed(2)+' ft³':'— ft³'}</strong></span>
+    <span>TOTAL WEIGHT <strong>${totWeight>0?totWeight.toLocaleString()+' lb':'— lb'}</strong></span>
+    <span>TOTAL DENSITY <strong>${totDensity>0?totDensity.toFixed(2)+' lb/ft³':'— lb/ft³'}</strong></span>`;
+}
+
+function bkAddItem() {
+  // Capture current field values before re-render
+  _bkItems.forEach((item, i) => {
+    ['qty','length','width','height','weight','nmfc','subClass'].forEach(f => {
+      const el = document.querySelector(`#bkItemsWrap tr:nth-child(${i+1}) input[oninput*="'${f}'"]`);
+    });
+  });
+  _bkItems.push({ qty:'', unit:'Pallet', length:'', width:'', height:'', weight:'', freightClass:'', nmfc:'', subClass:'' });
+  bkRenderItems();
+}
+
+function bkRemoveItem(i) {
+  _bkItems.splice(i, 1);
+  bkRenderItems();
+}
+
+function closeBookingModal() {
+  const el = document.getElementById('bkOverlay');
+  if (el) el.remove();
+}
+
+async function submitBooking() {
+  const gv = id => document.getElementById(id)?.value.trim() || '';
+  const pickupDate = gv('bkPickupDate');
+  const originZip  = gv('bkOriginZip');
+  const destZip    = gv('bkDestZip');
+  if (!pickupDate) return _bkMsg('Pickup date is required.','error');
+  if (!originZip)  return _bkMsg('Origin ZIP is required.','error');
+  if (!destZip)    return _bkMsg('Destination ZIP is required.','error');
+
+  // Detect LTL vs FTL
+  const isFTL = document.getElementById('bkFtlSection')?.style.display !== 'none';
+  let items = [], ftlLoadType = '', ftlEquipment = '', totalWeight = '';
+
+  if (isFTL) {
+    ftlLoadType  = gv('bkFtlLoadType');
+    ftlEquipment = gv('bkFtlEquipment');
+    totalWeight  = gv('bkFtlWeight');
+    if (!ftlLoadType)  return _bkMsg('Select a freight type (Floor Load / Palletized).','error');
+    if (!ftlEquipment) return _bkMsg('Select an equipment type.','error');
+    if (!totalWeight)  return _bkMsg('Enter total weight.','error');
+    if (Number(totalWeight) > 44000) return _bkMsg('Total weight cannot exceed 44,000 lbs.','error');
+  } else {
+    items = _bkItems;
+    const hasWeight = items.some(it => parseFloat(it.weight) > 0);
+    if (!hasWeight) return _bkMsg('Enter weight for at least one shipment item.','error');
+  }
+
+  const btn = document.getElementById('bkSubmitBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Confirming…'; }
+
+  const payload = {
+    action:        'createBooking',
+    email:         S.email,
+    token:         S.token,
+    quoteId:       _bkQuoteId,
+    pickupDate,
+    freightType:   isFTL ? 'FTL' : 'LTL',
+    ftlLoadType,   ftlEquipment,  totalWeight,
+    items,
+    originCompany: gv('bkOriginCompany'), originAddress: gv('bkOriginAddr'),
+    originCity:    gv('bkOriginCity'),    originState:   gv('bkOriginState'),  originZip,
+    destCompany:   gv('bkDestCompany'),   destAddress:   gv('bkDestAddr'),
+    destCity:      gv('bkDestCity'),      destState:     gv('bkDestState'),     destZip
+  };
+
+  const r = await api(payload);
+  if (btn) { btn.disabled = false; btn.textContent = 'Confirm Booking →'; }
+
+  if (r.success) {
+    closeBookingModal();
+    loadClientDash().then(() => {
+      const wrap = document.getElementById('clientReqWrap');
+      if (wrap) {
+        const notice = document.createElement('div');
+        notice.className = 'alert alert-success';
+        notice.style.marginBottom = '16px';
+        notice.textContent = `✓ Booking ${r.bookingId} confirmed! Confirmation emails with PDF sent to you and your broker.`;
+        wrap.prepend(notice);
+        setTimeout(() => notice.remove(), 8000);
+      }
+    });
+  } else {
+    _bkMsg(r.error || 'Booking failed. Please try again.', 'error');
+  }
+}
+
+function _bkMsg(text, type) {
+  const el = document.getElementById('bkMsg');
+  const fe = document.getElementById('bkFooterMsg');
+  const cls = type === 'error' ? 'alert alert-error' : 'alert alert-success';
+  if (el) el.innerHTML = `<div class="${cls}" style="margin-bottom:12px;">${esc(text)}</div>`;
+  if (fe) fe.innerHTML = `<span style="color:${type==='error'?'var(--red)':'var(--green)'};">${esc(text)}</span>`;
+}
+
+
+
+
+function _bkMsg(text, type) {
+  const el = document.getElementById('bkMsg');
+  const fe = document.getElementById('bkFooterMsg');
+  const cls = type === 'error' ? 'alert alert-error' : 'alert alert-success';
+  if (el) el.innerHTML = `<div class="${cls}" style="margin-bottom:12px;">${esc(text)}</div>`;
+  if (fe) fe.innerHTML = `<span style="color:${type==='error'?'var(--red)':'var(--green)'};">${esc(text)}</span>`;
+}
+
+// ─── BOOKINGS HISTORY PANEL ───────────────────────────────────
+// v2.7.0 — shared panel for client, broker, admin.
+// role = 'client' | 'broker' | 'admin'
+
+async function loadBookingsPanel(role) {
+  const panelId = role === 'admin' ? 'p-adminBookings'
+                : role === 'broker' ? 'p-brokerBookings'
+                : 'p-clientBookings';
+  const el = document.getElementById(panelId);
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+
+  let r;
+  if (role === 'admin') {
+    r = await api({ action:'adminGetBookings', email:S.email, token:S.token });
+  } else if (role === 'broker') {
+    r = await api({ action:'getBrokerBookings', brokerEmail:S.email });
+  } else {
+    r = await api({ action:'getClientBookings', email:S.email, token:S.token });
+  }
+
+  if (!r.success) {
+    el.innerHTML = `<div class="alert alert-error">${esc(r.error||'Failed to load bookings.')}</div>`;
+    return;
+  }
+
+  const allBookings = r.bookings || [];
+  const pageSize    = 20;
+  let   curPage     = 1;
+
+  function renderPage(p) {
+    curPage = p;
+    const totalPages = Math.max(1, Math.ceil(allBookings.length / pageSize));
+    const slice      = allBookings.slice((p - 1) * pageSize, p * pageSize);
+
+    const titleMap = { admin:'All Bookings', broker:'My Bookings', client:'My Bookings' };
+    let h = `<div class="page-head">
+      <h1>${titleMap[role]}</h1>
+      <p>${allBookings.length} booking${allBookings.length !== 1 ? 's' : ''} total</p>
+    </div>`;
+
+    if (!allBookings.length) {
+      h += `<div class="empty"><h3>No bookings yet</h3><p>Bookings appear here once a shipper confirms an accepted quote.</p></div>`;
+      el.innerHTML = h;
+      return;
+    }
+
+    h += `<div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;font-size:13px;">
+      <thead>
+        <tr style="background:var(--surface2);">
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Booking ID</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Request / Quote</th>
+          ${role === 'admin' ? `<th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Client</th>` : ''}
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Route</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Pickup Date</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Freight</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Status</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Booked On</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);"></th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    slice.forEach((b, i) => {
+      const origin = [b.originCity, b.originState, b.originZip].filter(Boolean).join(', ') || b.originZip || '—';
+      const dest   = [b.destCity,   b.destState,   b.destZip  ].filter(Boolean).join(', ') || b.destZip   || '—';
+      const rowBg  = i % 2 === 0 ? '' : 'background:var(--surface2);';
+      let   items  = [];
+      try { items = JSON.parse(b.items || '[]'); } catch(e) {}
+      const itemSummary = items.length
+        ? `${items.length} item${items.length>1?'s':''}, ${items.reduce((s,it)=>(s+(parseFloat(it.weight)||0)*(parseInt(it.qty)||1)),0).toLocaleString()} lb total`
+        : (b.items && b.items !== '[]' ? b.items.substring(0,60) : '');
+
+      h += `<tr style="${rowBg}border-bottom:1px solid var(--border);">
+        <td style="padding:12px 14px;font-family:monospace;font-size:12px;font-weight:700;color:var(--blue);white-space:nowrap;">${esc(b.bookingId)}</td>
+        <td style="padding:12px 14px;">
+          <div style="font-size:11px;color:var(--ink2);">Req: <span style="font-family:monospace;">${esc(b.requestId)}</span></div>
+          <div style="font-size:11px;color:var(--ink2);">Qt: <span style="font-family:monospace;">${esc(b.quoteId)}</span></div>
+        </td>
+        ${role === 'admin' ? `<td style="padding:12px 14px;font-size:12px;color:var(--ink2);">${esc(b.clientEmail)}</td>` : ''}
+        <td style="padding:12px 14px;">
+          <div style="font-weight:600;font-size:13px;">${esc(origin)}</div>
+          <div style="color:var(--ink3);font-size:11px;">→ ${esc(dest)}</div>
+          ${itemSummary ? `<div style="color:var(--ink3);font-size:11px;margin-top:2px;">📦 ${esc(itemSummary)}</div>` : ''}
+        </td>
+        <td style="padding:12px 14px;font-weight:600;white-space:nowrap;">${esc(String(b.pickupDate||'—').substring(0,10))}</td>
+        <td style="padding:12px 14px;white-space:nowrap;">${esc(b.freightType||'—')}</td>
+        <td style="padding:12px 14px;">
+          <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:var(--green-bg);color:var(--green);border:1px solid rgba(25,122,69,.2);">${esc(b.status||'Confirmed')}</span>
+        </td>
+        <td style="padding:12px 14px;font-size:12px;color:var(--ink2);white-space:nowrap;">${b.createdAt ? fdt(b.createdAt) : '—'}</td>
+        <td style="padding:12px 14px;">
+          <button onclick="showBookingDetail(${JSON.stringify(b).replace(/"/g,'&quot;')})" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">View</button>
+        </td>
+      </tr>`;
+    });
+
+    h += `</tbody></table></div>`;
+    if (totalPages > 1) h += paginationBar(p, totalPages, allBookings.length, `_bkPage_${role}`);
+    el.innerHTML = h;
+  }
+
+  // Register paginator in window scope
+  window[`_bkPage_${role}`] = renderPage;
+  renderPage(1);
+}
+
+function showBookingDetail(b) {
+  let items = [];
+  try { items = JSON.parse(b.items || '[]'); } catch(e) {}
+
+  const fmtAddr = (co, addr, city, state, zip) =>
+    [co, addr, [city, state].filter(Boolean).join(', '), zip].filter(Boolean).join('<br>') || '—';
+
+  const origin = fmtAddr(b.originCompany, b.originAddress, b.originCity, b.originState, b.originZip);
+  const dest   = fmtAddr(b.destCompany,   b.destAddress,   b.destCity,   b.destState,   b.destZip);
+
+  // Pickup date — show date only, strip any time component
+  const pickupDisplay = String(b.pickupDate || '—').substring(0, 10);
+
+  const itemRows = items.length ? items.map((it, i) =>
+    `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee;color:#555;white-space:nowrap;">Item ${i+1}</td>
+     <td style="padding:6px 10px;border-bottom:1px solid #eee;font-weight:600;">${esc(it.qty||1)} × ${esc(it.unit||'unit')} — ${esc(it.length||'?')}×${esc(it.width||'?')}×${esc(it.height||'?')} in, ${esc(it.weight||'?')} lb/unit, Class ${esc(it.freightClass||'—')}${it.nmfc?' NMFC '+esc(it.nmfc):''}</td></tr>`
+  ).join('') : '';
+
+  const existing = document.getElementById('bkDetailOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'bkDetailOverlay';
+  overlay.className = 'bk-overlay';
+  overlay.innerHTML = `
+  <div class="bk-modal" style="max-width:640px;">
+    <!-- version: 2.7.1 | build: 202604142400 -->
+    <div class="bk-header">
+      <div>
+        <h2>📦 Booking Detail</h2>
+        <p>${esc(b.bookingId)} &nbsp;·&nbsp; ${esc(b.status||'Confirmed')}</p>
+      </div>
+      <button class="bk-close" onclick="document.getElementById('bkDetailOverlay').remove()">✕</button>
+    </div>
+    <div class="bk-body" style="padding:24px 28px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;">Booking ID</div>
+          <div style="font-family:monospace;font-size:13px;font-weight:700;color:var(--blue);">${esc(b.bookingId)}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:10px;padding:14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;">Linked IDs</div>
+          <div style="font-size:11px;color:var(--ink2);">Request: <span style="font-family:monospace;font-weight:700;">${esc(b.requestId)}</span></div>
+          <div style="font-size:11px;color:var(--ink2);">Quote: <span style="font-family:monospace;font-weight:700;">${esc(b.quoteId)}</span></div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
+        <tr style="background:var(--surface2);"><th colspan="2" style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);">Route</th></tr>
+        <tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);width:120px;">Origin</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${origin}</td></tr>
+        <tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Destination</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${dest}</td></tr>
+        <tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Pickup Date</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(pickupDisplay)}</td></tr>
+        <tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);">Freight Type</td><td style="padding:8px 12px;font-weight:600;">${esc(b.freightType||'—')}</td></tr>
+      </table>
+      ${itemRows ? `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
+        <tr style="background:var(--surface2);"><th colspan="2" style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);">Shipment Items</th></tr>
+        ${itemRows}
+      </table>` : ''}
+      <div id="bkDetailMsg" style="margin-bottom:10px;"></div>
+      <div style="font-size:11px;color:var(--ink3);text-align:right;">Booked: ${b.createdAt ? fdt(b.createdAt) : '—'} &nbsp;·&nbsp; ${esc(b.clientEmail||'')}</div>
+    </div>
+    <div class="bk-footer" style="justify-content:flex-end;gap:10px;">
+      <button class="btn-book-cancel" onclick="document.getElementById('bkDetailOverlay').remove()">Close</button>
+      <button id="bkResendBtn" onclick="resendBookingEmail('${esc(b.bookingId)}')" style="padding:10px 22px;background:#1a4fc4;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s;" onmouseover="this.style.background='#163fa0'" onmouseout="this.style.background='#1a4fc4'">
+        ✉️ Resend Booking
+      </button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+async function resendBookingEmail(bookingId) {
+  const btn = document.getElementById('bkResendBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Sending…'; }
+  const r = await api({ action:'resendBooking', email:S.email, token:S.token, bookingId });
+  if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Resend Booking'; }
+  const msgEl = document.getElementById('bkDetailMsg');
+  if (r.success) {
+    if (msgEl) msgEl.innerHTML = `<div class="alert alert-success">✓ Booking email resent to broker. You have been cc'd.</div>`;
+  } else {
+    if (msgEl) msgEl.innerHTML = `<div class="alert alert-error">${esc(r.error||'Resend failed.')}</div>`;
+  }
+}
 
 // ─── BROKER DASHBOARD ─────────────────────────────────────────
 
@@ -1261,7 +2004,8 @@ async function loadBrokerDashboard() {
       <div class="page-head"><h1>Broker Dashboard</h1><p>Overview of your submitted quotes.</p></div>
       <div id="brokerDashContent"><div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div></div>
     </div>
-    <div class="panel" id="p-brokerQuotes"></div>`;
+    <div class="panel" id="p-brokerQuotes"></div>
+    <div class="panel" id="p-brokerBookings"></div>`;
   await renderBrokerDash();
 }
 
@@ -1309,7 +2053,7 @@ async function renderBrokerDash() {
       h += `<tr>
         <td style="font-family:monospace;font-size:11px;color:var(--ink3);">${q.requestId}</td>
         <td style="font-size:12px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">—</span>'}</td>
-        <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">&#8595;</span> ${q.destination}${q.accessories ? `<br><span style="color:var(--ink2);font-size:11px;">🔧 ${esc(q.accessories)}</span>` : ''}</td>
+        <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">&#8595;</span> ${q.destination}</td>
         <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
         <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
         <td style="font-size:13px;">${q.transitDays} days</td>
@@ -1349,7 +2093,7 @@ async function loadBrokerQuotesPanel() {
           <td style="font-family:monospace;font-size:10px;color:var(--ink3);">${q.quoteId}</td>
           <td style="font-family:monospace;font-size:13px;font-weight:700;color:var(--ink);">${q.requestId}</td>
           <td style="font-size:13px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">—</span>'}</td>
-          <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">↓</span> ${q.destination}${q.accessories ? `<br><span style="color:var(--ink2);font-size:11px;">🔧 ${esc(q.accessories)}</span>` : ''}</td>
+          <td style="font-size:12px;">${q.origin}<br><span style="color:var(--ink3);">↓</span> ${q.destination}</td>
           <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
           <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>
           <td>${q.transitDays} days</td>
@@ -1437,6 +2181,7 @@ async function loadAdmin() {
     <div class="panel" id="p-adminBrokers"></div>
     <div class="panel" id="p-adminRequests"></div>
     <div class="panel" id="p-adminAllQuotes"></div>
+    <div class="panel" id="p-adminBookings"></div>
     <div class="panel" id="p-adminSettings"></div>
     <div class="panel" id="p-adminTemplates"></div>`;
 
@@ -2417,7 +3162,7 @@ async function loadAdminAllQuotes() {
           <td style="font-size:12px;">${esc(q.brokerCompany)}<br><span style="color:var(--ink3);font-size:11px;">${esc(q.brokerEmail)}</span></td>
           <td style="font-size:12px;font-weight:500;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);">—</span>'}</td>
           <td style="font-size:12px;color:var(--ink2);">${esc(q.clientEmail)}</td>
-          <td style="font-size:12px;">${esc(q.origin)} → ${esc(q.destination)}${q.accessories ? `<br><span style="color:var(--ink2);font-size:11px;">🔧 ${esc(q.accessories)}</span>` : ''}</td>
+          <td style="font-size:12px;">${esc(q.origin)} → ${esc(q.destination)}</td>
           <td><span class="badge b-neutral">${q.freightType||'—'}</span></td>
           <td style="font-weight:700;color:var(--green);">$${Number(q.rate).toLocaleString()}</td>`;
         if (aqShowExtra) h += `<td>${q.transitDays} days</td>`;
