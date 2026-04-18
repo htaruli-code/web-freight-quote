@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.7.4 | build: 202604151000 -->
+<!-- version: 2.7.5 | build: 202604151200 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -358,7 +358,7 @@ tbody tr:hover td{background:var(--bg);}
         <div class="loadro-logo" style="font-size:28px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
         <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
       </div>
-      <a href="https://loadro.com/" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
+      <a href="homepage1.html" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
     </div>
   </nav>
 
@@ -548,7 +548,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.7.4 — 202604151000';
+  out.textContent = 'v2.7.5 — 202604151200';
 }
 
 async function sendOTP() {
@@ -2670,7 +2670,7 @@ async function saveSettings() {
 // ─── EMAIL TEMPLATES ──────────────────────────────────────────
 
 const TEMPLATE_META = {
-  quoteReceived:    { name:'Quote Received (Client)',       desc:'Sent to client when a broker submits a new quote. Includes accept/reject links.',    vars:['brokerCompany','rate','transit','validUntil','origin','originZip','destination','destZip','freightType','weight','brokerNotes','acceptLink','rejectLink','quoteId','requestId'] },
+  quoteReceived:    { name:'Quote Received (Client)',       desc:'Sent to client when a broker submits a quote (single or multi-carrier). Use {{carrierCards}} to render all carrier options with Accept/Decline buttons.',    vars:['brokerCompany','carrierCards','carrierCount','rate','transit','validUntil','origin','originZip','destination','destZip','freightType','weight','brokerNotes','acceptLink','rejectLink','quoteId','requestId'] },
   bookingConfirmed: { name:'Booking Confirmed (Client)',    desc:'Sent to client after they accept a quote. PDF may be attached depending on settings.', vars:['clientCompany','brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
   brokerAccepted:   { name:'Quote Accepted (Broker)',       desc:'Sent to the broker when the client accepts their quote.',                              vars:['brokerCompany','rate','requestId','quoteId','acceptedDate'] },
   brokerRejected:   { name:'Quote Not Selected (Broker)',   desc:'Sent to the broker when the client rejects their quote.',                              vars:['requestId','quoteId'] },
