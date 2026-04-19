@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.7.8 | build: 202604161600 -->
+<!-- version: 2.9.0 | build: 202604181000 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -491,7 +491,10 @@ tbody tr:hover td{background:var(--bg);}
     <h3 id="brokerModalTitle">Add Freight Broker / Vendor</h3>
     <input type="hidden" id="brokerEditId" value="">
     <div class="ff"><label>Company Name</label><input type="text" id="brokerCo" placeholder="FastHaul Logistics LLC"></div>
-    <div class="ff"><label>Email Address</label><input type="email" id="brokerEmail" placeholder="quotes@fasthaul.com"></div>
+    <div class="ff"><label>Primary Email</label><input type="email" id="brokerEmail" placeholder="quotes@fasthaul.com"></div>
+    <div class="ff"><label>Second Email <span style="font-weight:400;color:var(--ink3);">(optional — also receives requests &amp; can login)</span></label><input type="email" id="brokerEmail2" placeholder="ops@fasthaul.com"></div>
+    <div class="ff"><label>USDOT Number <span style="font-weight:400;color:var(--ink3);">(optional)</span></label><input type="text" id="brokerUsdot" placeholder="e.g. 1234567"></div>
+    <div class="ff"><label>MC Number <span style="font-weight:400;color:var(--ink3);">(optional)</span></label><input type="text" id="brokerMc" placeholder="e.g. MC-123456"></div>
     <div class="ff">
       <label>Freight Types Serviced</label>
       <div id="brokerFtBtns" class="freight-sel" style="margin-top:6px;"></div>
@@ -548,7 +551,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.7.8 — 202604161600';
+  out.textContent = 'v2.9.0 — 202604181000';
 }
 
 async function sendOTP() {
@@ -661,7 +664,7 @@ function showOrgNudge() {
       <span style="font-size:26px;">🏢</span>
       <div>
         <div style="font-weight:700;font-size:14px;color:#0A2540;">No Organisation set up yet</div>
-        <div style="font-size:13px;color:var(--ink2);margin-top:2px;">Create an organisation to share requests with your team and manage bookings together.</div>
+        <div style="font-size:13px;color:var(--ink2);margin-top:2px;">Create an organisation to share requests with your team and manage loads together.</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -689,7 +692,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Operations</div>
         <button class="nav-item" id="n-adminRequests" onclick="setNav(this,'adminRequests')"><span class="nav-icon">📦</span>All Requests</button>
         <button class="nav-item" id="n-adminAllQuotes" onclick="setNav(this,'adminAllQuotes')"><span class="nav-icon">💬</span>All Quotes</button>
-        <button class="nav-item" id="n-adminBookings" onclick="setNav(this,'adminBookings')"><span class="nav-icon">📋</span>All Bookings</button>
+        <button class="nav-item" id="n-adminBookings" onclick="setNav(this,'adminBookings')"><span class="nav-icon">📋</span>All Loads</button>
       </div>
       <div class="nav-section"><div class="nav-label">Configuration</div>
         <button class="nav-item" id="n-adminSettings"   onclick="setNav(this,'adminSettings')"><span class="nav-icon">⚙️</span>Settings</button>
@@ -706,7 +709,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">My Quotes</div>
         <button class="nav-item active" id="n-brokerDash"  onclick="setNav(this,'brokerDash')"><span class="nav-icon">📊</span>Dashboard</button>
         <button class="nav-item" id="n-brokerQuotes" onclick="setNav(this,'brokerQuotes')"><span class="nav-icon">📋</span>All Quotes</button>
-        <button class="nav-item" id="n-brokerBookings" onclick="setNav(this,'brokerBookings')"><span class="nav-icon">📦</span>My Bookings</button>
+        <button class="nav-item" id="n-brokerBookings" onclick="setNav(this,'brokerBookings')"><span class="nav-icon">📦</span>My Loads</button>
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
         <button class="nav-item" id="n-brokerSettings" onclick="setNav(this,'brokerSettings')"><span class="nav-icon">👤</span>My Profile</button>
@@ -716,7 +719,7 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Shipments</div>
         <button class="nav-item active" id="n-clientNew"  onclick="setNav(this,'clientNew')"><span class="nav-icon">➕</span>New Request</button>
         <button class="nav-item" id="n-clientDash" onclick="setNav(this,'clientDash')"><span class="nav-icon">📋</span>My Requests</button>
-        <button class="nav-item" id="n-clientBookings" onclick="setNav(this,'clientBookings')"><span class="nav-icon">📦</span>My Bookings</button>
+        <button class="nav-item" id="n-clientBookings" onclick="setNav(this,'clientBookings')"><span class="nav-icon">📦</span>My Loads</button>
         <button class="nav-item" id="n-clientAddrBook" onclick="setNav(this,'clientAddrBook')"><span class="nav-icon">📒</span>Address Book</button>
       </div>
       <div class="nav-section"><div class="nav-label">Account</div>
@@ -1107,10 +1110,11 @@ function renderBrokerSelector() {
   } else {
     brokerSelectorData.system.forEach(b => {
       const isExcluded = excluded.includes(b.email);
+      const credentials = [b.usdot ? `USDOT: ${b.usdot}` : '', b.mc ? `MC: ${b.mc}` : ''].filter(Boolean).join(' · ');
       h += `<div class="broker-row">
         <div class="broker-row-info">
           <div class="broker-row-name">${esc(b.company)}</div>
-          <div class="broker-row-email">${esc(b.email)}</div>
+          <div class="broker-row-email">${esc(b.email)}${credentials ? `<span style="color:var(--ink3);margin-left:6px;">· ${credentials}</span>` : ''}</div>
           ${b.freightTypes.length ? '<div class="broker-row-tags">' + b.freightTypes.map(t=>'<span class="broker-tag">'+esc(t)+'</span>').join('') + '</div>' : ''}
         </div>
         <button type="button" class="broker-exclude-btn ${isExcluded?'excluded':''}" onclick="toggleBrokerExclude('${esc(b.email)}',this)">
@@ -1200,7 +1204,7 @@ async function loadClientDash() {
         <span style="font-size:28px;">🏢</span>
         <div>
           <div style="font-weight:700;font-size:14px;color:#0A2540;">No Organisation set up yet</div>
-          <div style="font-size:13px;color:var(--ink2);margin-top:2px;">Create an organisation to share requests with your team and manage bookings together.</div>
+          <div style="font-size:13px;color:var(--ink2);margin-top:2px;">Create an organisation to share requests with your team and manage loads together.</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -1295,8 +1299,8 @@ async function loadClientDash() {
                   <button class="btn-reject" onclick="respondQuote('${q.quoteId}','reject',this)">✕ Reject</button>
                 </div>`:''}
                 ${q.status==='accepted'?(alreadyBooked
-                  ? `<button onclick="setNav(document.getElementById('n-clientBookings'),'clientBookings')" style="padding:8px 16px;border-radius:8px;border:1.5px solid #0A2540;background:transparent;color:#0A2540;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">📂 View Booking</button>`
-                  : `<button onclick="openBookingModal('${q.quoteId}',${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,brokerCompany:q.brokerCompany,carrierName:q.carrierName||'',rate:q.rate,quoteId:q.quoteId}).replace(/"/g,'&quot;')})" style="padding:8px 16px;border-radius:8px;border:none;background:#0A2540;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='#0d2f52'" onmouseout="this.style.background='#0A2540'">📋 Create Booking</button>`)
+                  ? `<button onclick="setNav(document.getElementById('n-clientBookings'),'clientBookings')" style="padding:8px 16px;border-radius:8px;border:1.5px solid #0A2540;background:transparent;color:#0A2540;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='var(--blue-bg)'" onmouseout="this.style.background='transparent'">📂 View Load</button>`
+                  : `<button onclick="openBookingModal('${q.quoteId}',${JSON.stringify({origin:req.origin,originZip:req.originZip,destination:req.destination,destZip:req.destZip,freightType:req.freightType,weight:req.weight,brokerCompany:q.brokerCompany,carrierName:q.carrierName||'',rate:q.rate,quoteId:q.quoteId}).replace(/"/g,'&quot;')})" style="padding:8px 16px;border-radius:8px;border:none;background:#0A2540;color:#fff;font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;" onmouseover="this.style.background='#0d2f52'" onmouseout="this.style.background='#0A2540'">📋 Submit Load Details</button>`)
                 :''}
               </div>
             </div>`;
@@ -1490,7 +1494,7 @@ function _bkModalHtml(q) {
     <!-- version: 2.6.0 | build: 202604142100 -->
     <div class="bk-header">
       <div>
-        <h2>📋 Create Booking</h2>
+        <h2>📋 Submit Load Details</h2>
         <p>Quote ${q.quoteId} · ${q.brokerCompany}${q.carrierName ? ' — '+q.carrierName : ''} · $${Number(q.rate).toLocaleString()}</p>
       </div>
       <button class="bk-close" onclick="closeBookingModal()">✕</button>
@@ -1619,7 +1623,7 @@ function _bkModalHtml(q) {
       <div id="bkFooterMsg" style="font-size:13px;"></div>
       <div style="display:flex;gap:10px;">
         <button class="btn-book-cancel" onclick="closeBookingModal()">Cancel</button>
-        <button class="btn-book" id="bkSubmitBtn" onclick="submitBooking()">Confirm Booking →</button>
+        <button class="btn-book" id="bkSubmitBtn" onclick="submitBooking()">Submit Load Details →</button>
       </div>
     </div>
   </div>`;
@@ -1818,7 +1822,7 @@ async function submitBooking() {
   };
 
   const r = await api(payload);
-  if (btn) { btn.disabled = false; btn.textContent = 'Confirm Booking →'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'Submit Load Details →'; }
 
   if (r.success) {
     closeBookingModal();
@@ -1828,7 +1832,7 @@ async function submitBooking() {
         const notice = document.createElement('div');
         notice.className = 'alert alert-success';
         notice.style.marginBottom = '16px';
-        notice.textContent = `✓ Booking ${r.bookingId} confirmed! Confirmation emails with PDF sent to you and your broker.`;
+        notice.textContent = `✓ Load ${r.bookingId} — Load details sent to you and your carrier/broker.`;
         wrap.prepend(notice);
         setTimeout(() => notice.remove(), 8000);
       }
@@ -1879,7 +1883,7 @@ async function loadBookingsPanel(role) {
   }
 
   if (!r.success) {
-    el.innerHTML = `<div class="alert alert-error">${esc(r.error||'Failed to load bookings.')}</div>`;
+    el.innerHTML = `<div class="alert alert-error">${esc(r.error||'Failed to load loads.')}</div>`;
     return;
   }
 
@@ -1892,14 +1896,14 @@ async function loadBookingsPanel(role) {
     const totalPages = Math.max(1, Math.ceil(allBookings.length / pageSize));
     const slice      = allBookings.slice((p - 1) * pageSize, p * pageSize);
 
-    const titleMap = { admin:'All Bookings', broker:'My Bookings', client:'My Bookings' };
+    const titleMap = { admin:'All Loads', broker:'My Loads', client:'My Loads' };
     let h = `<div class="page-head">
       <h1>${titleMap[role]}</h1>
-      <p>${allBookings.length} booking${allBookings.length !== 1 ? 's' : ''} total</p>
+      <p>${allBookings.length} load${allBookings.length !== 1 ? 's' : ''} total</p>
     </div>`;
 
     if (!allBookings.length) {
-      h += `<div class="empty"><h3>No bookings yet</h3><p>Bookings appear here once a shipper confirms an accepted quote.</p></div>`;
+      h += `<div class="empty"><h3>No loads yet</h3><p>Loads appear here once a shipper submits load details for an accepted quote.</p></div>`;
       el.innerHTML = h;
       return;
     }
@@ -1908,7 +1912,7 @@ async function loadBookingsPanel(role) {
     <table style="width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;font-size:13px;">
       <thead>
         <tr style="background:var(--surface2);">
-          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Booking ID</th>
+          <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Load ID</th>
           <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Request / Quote</th>
           ${role === 'admin' ? `<th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Client</th>` : ''}
           <th style="padding:12px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--border);">Route</th>
@@ -1994,15 +1998,15 @@ function showBookingDetail(b) {
     <!-- version: 2.7.1 | build: 202604142400 -->
     <div class="bk-header">
       <div>
-        <h2>📦 Booking Detail</h2>
-        <p>${esc(b.bookingId)} &nbsp;·&nbsp; ${esc(b.status||'Confirmed')}</p>
+        <h2>📦 Load Detail</h2>
+        <p>${esc(b.bookingId)} &nbsp;·&nbsp; ${esc(b.status||'Load Sent')}</p>
       </div>
       <button class="bk-close" onclick="document.getElementById('bkDetailOverlay').remove()">✕</button>
     </div>
     <div class="bk-body" style="padding:24px 28px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <div style="background:var(--surface2);border-radius:10px;padding:14px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;">Booking ID</div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);margin-bottom:6px;">Load ID</div>
           <div style="font-family:monospace;font-size:13px;font-weight:700;color:var(--blue);">${esc(b.bookingId)}</div>
         </div>
         <div style="background:var(--surface2);border-radius:10px;padding:14px;">
@@ -2028,7 +2032,7 @@ function showBookingDetail(b) {
     <div class="bk-footer" style="justify-content:flex-end;gap:10px;">
       <button class="btn-book-cancel" onclick="document.getElementById('bkDetailOverlay').remove()">Close</button>
       <button id="bkResendBtn" onclick="resendBookingEmail('${esc(b.bookingId)}')" style="padding:10px 22px;background:#1a4fc4;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s;" onmouseover="this.style.background='#163fa0'" onmouseout="this.style.background='#1a4fc4'">
-        ✉️ Resend Booking
+        ✉️ Resend Load Details
       </button>
     </div>
   </div>`;
@@ -2040,10 +2044,10 @@ async function resendBookingEmail(bookingId) {
   const btn = document.getElementById('bkResendBtn');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Sending…'; }
   const r = await api({ action:'resendBooking', email:S.email, token:S.token, bookingId });
-  if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Resend Booking'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Resend Load Details'; }
   const msgEl = document.getElementById('bkDetailMsg');
   if (r.success) {
-    if (msgEl) msgEl.innerHTML = `<div class="alert alert-success">✓ Booking email resent to broker. You have been cc'd.</div>`;
+    if (msgEl) msgEl.innerHTML = `<div class="alert alert-success">✓ Load details resent to carrier/broker. You have been cc'd.</div>`;
   } else {
     if (msgEl) msgEl.innerHTML = `<div class="alert alert-error">${esc(r.error||'Resend failed.')}</div>`;
   }
@@ -2390,9 +2394,12 @@ async function loadBrokerPanel() {
       const ftChips = b.freightTypes && b.freightTypes.length
         ? b.freightTypes.map(t => `<span class="badge b-neutral" style="margin:1px 2px;font-size:10px;">${t}</span>`).join('')
         : '<span style="color:var(--ink3);font-size:12px;">All types</span>';
+      const emailCell = b.email2
+        ? `${esc(b.email)}<br><span style="font-size:11px;color:var(--ink3);">+ ${esc(b.email2)}</span>`
+        : esc(b.email);
       th += `<tr>
         <td style="font-weight:600;">${b.company}</td>
-        <td style="font-size:12px;color:var(--ink2);">${b.email}</td>
+        <td style="font-size:12px;color:var(--ink2);">${emailCell}</td>
         <td style="max-width:180px;">${ftChips}</td>
         <td>${b.quoteCount}</td>
         <td>${b.acceptedCount} <span style="color:var(--ink3);font-size:12px;">(${rate}%)</span></td>
@@ -2411,9 +2418,12 @@ async function loadBrokerPanel() {
 
 function openAddBrokerModal() {
   document.getElementById('brokerModalTitle').textContent = 'Add Freight Broker / Vendor';
-  document.getElementById('brokerEditId').value = '';
-  document.getElementById('brokerCo').value = '';
-  document.getElementById('brokerEmail').value = '';
+  document.getElementById('brokerEditId').value   = '';
+  document.getElementById('brokerCo').value       = '';
+  document.getElementById('brokerEmail').value    = '';
+  document.getElementById('brokerEmail2').value   = '';
+  document.getElementById('brokerUsdot').value    = '';
+  document.getElementById('brokerMc').value       = '';
   document.getElementById('brokerConfirmBtn').textContent = 'Add Broker';
   buildBrokerFtBtns([]);
   openModal('brokerModal');
@@ -2421,9 +2431,12 @@ function openAddBrokerModal() {
 
 function openEditBrokerModal(b) {
   document.getElementById('brokerModalTitle').textContent = 'Edit Broker';
-  document.getElementById('brokerEditId').value = b.id;
-  document.getElementById('brokerCo').value = b.company || '';
-  document.getElementById('brokerEmail').value = b.email || '';
+  document.getElementById('brokerEditId').value   = b.id;
+  document.getElementById('brokerCo').value       = b.company  || '';
+  document.getElementById('brokerEmail').value    = b.email    || '';
+  document.getElementById('brokerEmail2').value   = b.email2   || '';
+  document.getElementById('brokerUsdot').value    = b.usdot    || '';
+  document.getElementById('brokerMc').value       = b.mc       || '';
   document.getElementById('brokerConfirmBtn').textContent = 'Save Changes';
   buildBrokerFtBtns(b.freightTypes || []);
   openModal('brokerModal');
@@ -2610,7 +2623,7 @@ async function loadSettingsPanel() {
       <div class="settings-row">
         <div class="settings-row-info">
           <div class="settings-row-label">Generate PDF on Quote Acceptance</div>
-          <div class="settings-row-desc">When enabled, a branded PDF booking confirmation is created and attached to the client confirmation email.</div>
+          <div class="settings-row-desc">When enabled, a branded PDF with load details is created and attached to the shipper confirmation email.</div>
         </div>
         <div class="settings-row-control">
           <div class="toggle" onclick="toggleSetting('pdfEnabled', this)">
@@ -2706,7 +2719,7 @@ async function saveSettings() {
 
 const TEMPLATE_META = {
   quoteReceived:    { name:'Quote Received (Client)',       desc:'Sent to client when a broker submits a quote (single or multi-carrier). Use {{carrierCards}} to render all carrier options with Accept/Decline buttons.',    vars:['brokerCompany','carrierCards','carrierCount','rate','transit','validUntil','origin','originZip','destination','destZip','freightType','weight','brokerNotes','acceptLink','rejectLink','quoteId','requestId'] },
-  bookingConfirmed: { name:'Booking Confirmed (Client)',    desc:'Sent to client after they accept a quote. PDF may be attached depending on settings.', vars:['clientCompany','brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
+  bookingConfirmed: { name:'Quote Accepted — Load Details (Shipper)',    desc:'Sent to shipper after they accept a quote. Contains load details and rate. PDF may be attached depending on settings.', vars:['clientCompany','brokerCompany','rate','transit','origin','originZip','destination','destZip','freightType','weight','quoteId','requestId','acceptedDate'] },
   brokerAccepted:   { name:'Quote Accepted (Broker)',       desc:'Sent to the broker when the client accepts their quote.',                              vars:['brokerCompany','rate','requestId','quoteId','acceptedDate'] },
   brokerRejected:   { name:'Quote Not Selected (Broker)',   desc:'Sent to the broker when the client rejects their quote.',                              vars:['requestId','quoteId'] },
   adminNotification:{ name:'Admin Alert — Quote Accepted',  desc:'Sent to all active admins when any quote is accepted. PDF may be attached.',           vars:['requestId','quoteId','clientEmail','brokerCompany','brokerEmail','rate','transit','origin','originZip','destination','destZip','freightType','weight','acceptedDate','appUrl'] },
@@ -2720,7 +2733,7 @@ async function loadTemplatesPanel() {
 
   let h = `
     <div class="page-head"><h1>Email Templates</h1><p>Customise every outgoing email. Variables in <code style="background:var(--blue-bg);color:var(--blue);padding:1px 5px;border-radius:3px;font-size:12px;">{{double braces}}</code> are replaced automatically at send time.</p></div>
-    <div class="alert alert-info" style="margin-bottom:20px;">📌 <strong>Note:</strong> Emails always contain all booking information regardless of PDF settings. Templates only control the email formatting and wording.</div>
+    <div class="alert alert-info" style="margin-bottom:20px;">📌 <strong>Note:</strong> Emails always contain all load details regardless of PDF settings. Templates only control the email formatting and wording.</div>
     <div class="tmpl-list">`;
 
   Object.keys(TEMPLATE_META).forEach(key => {
@@ -2816,11 +2829,14 @@ async function addEmployee() {
 async function saveBroker() {
   const co  = document.getElementById('brokerCo').value.trim();
   const em  = document.getElementById('brokerEmail').value.trim();
-  const bid = document.getElementById('brokerEditId').value.trim();
-  const fts = getSelectedBrokerFts();
+  const em2  = document.getElementById('brokerEmail2').value.trim();
+  const usdot = document.getElementById('brokerUsdot').value.trim();
+  const mc    = document.getElementById('brokerMc').value.trim();
+  const bid  = document.getElementById('brokerEditId').value.trim();
+  const fts  = getSelectedBrokerFts();
   if (!co||!em) return msg('brokerModalMsg','Fill in company name and email.','error');
   setBtnLoad('brokerConfirmBtn','Saving…');
-  const payload = {action:'adminSaveBroker', email:S.email, token:S.token, brokerEmail:em, brokerCompany:co, freightTypes:fts};
+  const payload = {action:'adminSaveBroker', email:S.email, token:S.token, brokerEmail:em, brokerCompany:co, freightTypes:fts, email2:em2, usdot, mc};
   if (bid) payload.brokerId = bid;
   const r = await api(payload);
   resetBtn('brokerConfirmBtn', bid ? 'Save Changes' : 'Add Broker');
@@ -3145,7 +3161,11 @@ async function saveProfile() {
     lastName:  document.getElementById('pLast').value.trim(),
     company:   document.getElementById('pCo').value.trim(),
     phone:     document.getElementById('pPhone').value.trim(),
-    timezone:  document.getElementById('pTz').value
+    timezone:  document.getElementById('pTz').value,
+    // Broker-only fields — undefined for clients, backend ignores safely
+    email2:    document.getElementById('pEmail2')?.value.trim() || '',
+    usdot:     document.getElementById('pUsdot')?.value.trim()  || '',
+    mc:        document.getElementById('pMc')?.value.trim()     || ''
   };
   setBtnLoad('saveProfileBtn','Saving…');
   const r = await api({action:'saveUserProfile', email:S.email, token:S.token, profile});
@@ -3179,7 +3199,15 @@ async function loadBrokerSettings() {
         <div class="ff"><label>Last Name</label><input type="text" id="pLast" value="${esc(p.lastName||'')}" placeholder="Doe"></div>
         <div class="ff"><label>Company Name</label><input type="text" id="pCo" value="${esc(p.company||'')}" placeholder="FastHaul Logistics"></div>
         <div class="ff"><label>Phone Number</label><input type="tel" id="pPhone" value="${esc(p.phone||'')}" placeholder="+1 (555) 000-0000"></div>
-        <div class="ff span-2"><label>Email Address</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+        <div class="ff"><label>Primary Email</label><input type="email" value="${esc(S.email)}" disabled style="background:var(--surface2);color:var(--ink3);cursor:not-allowed;"></div>
+        <div class="ff"><label>Secondary Email <span style="font-weight:400;color:var(--ink3);">(also receives requests &amp; can login)</span></label><input type="email" id="pEmail2" value="${esc(p.email2||'')}" placeholder="ops@company.com"></div>
+      </div>
+    </div>
+    <div class="profile-section">
+      <h3>Carrier Credentials</h3>
+      <div class="profile-grid">
+        <div class="ff"><label>USDOT Number</label><input type="text" id="pUsdot" value="${esc(p.usdot||'')}" placeholder="e.g. 1234567"></div>
+        <div class="ff"><label>MC Number</label><input type="text" id="pMc" value="${esc(p.mc||'')}" placeholder="e.g. MC-123456"></div>
       </div>
     </div>
     <div class="profile-section">
@@ -3614,7 +3642,7 @@ async function showAcceptRejectPage(quoteId, action, sig) {
       <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 20px;">
         <div style="width:100%;max-width:460px;background:white;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.1);overflow:hidden;">
           <div style="background:linear-gradient(135deg,#0A2540 0%,#1E3A8A 100%);padding:28px 32px;text-align:center;">
-            <p style="color:rgba(255,255,255,.8);font-size:14px;font-weight:500;">${isAccept ? 'Confirming your booking…' : 'Processing your decision…'}</p>
+            <p style="color:rgba(255,255,255,.8);font-size:14px;font-weight:500;">${isAccept ? 'Sending load details…' : 'Processing your decision…'}</p>
           </div>
           <div id="arContent" style="padding:40px 32px;text-align:center;">
             <div class="spin" style="width:24px;height:24px;margin:0 auto;"></div>
@@ -3640,7 +3668,7 @@ async function showAcceptRejectPage(quoteId, action, sig) {
       el.innerHTML = `
         <div style="width:72px;height:72px;background:#ecfdf5;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;">✅</div>
         <h2 style="font-family:'Instrument Serif',serif;font-size:28px;color:#111827;margin-bottom:10px;">Quote Accepted!</h2>
-        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">Your booking is confirmed. The carrier has been notified and a confirmation email is on its way.</p>
+        <p style="color:#6b7280;font-size:15px;line-height:1.6;max-width:320px;margin:0 auto;">Your load details have been sent to the carrier. A confirmation email is on its way.</p>
         <p style="font-size:12px;color:#9ca3af;margin-top:16px;">You can manage all your shipments in the portal.</p>
         <a href="${APP_URL_JS}" style="display:inline-block;margin-top:20px;padding:14px 28px;background:#FF6200;color:white;border-radius:14px;text-decoration:none;font-weight:600;font-size:15px;">Go to Dashboard →</a>`;
     } else {
