@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.9.0 | build: 202604181000 -->
+<!-- version: 2.9.1 | build: 202604181400 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -358,7 +358,7 @@ tbody tr:hover td{background:var(--bg);}
         <div class="loadro-logo" style="font-size:28px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
         <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
       </div>
-      <a href="homepage1.html" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
+      <a id="homeLink" href="#" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
     </div>
   </nav>
 
@@ -538,6 +538,9 @@ tbody tr:hover td{background:var(--bg);}
 
 <script src="config.js"></script>
 <script>
+// Set Back to Home link to APP_URL from config.js
+(function(){ const el = document.getElementById('homeLink'); if(el && typeof APP_URL_JS !== 'undefined') el.href = APP_URL_JS; })();
+
 let S = {email:'', token:'', role:''};
 let userTz = '';
 let selFreight = '';
@@ -551,7 +554,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.9.0 — 202604181000';
+  out.textContent = 'v2.9.1 — 202604181400';
 }
 
 async function sendOTP() {
