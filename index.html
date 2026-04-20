@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.11.0 | build: 202604191030 -->
+<!-- version: 2.13.0 | build: 202604191300 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -551,7 +551,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.11.0 — 202604191030';
+  out.textContent = 'v2.13.0 — 202604191300';
 }
 
 async function sendOTP() {
@@ -1088,6 +1088,7 @@ async function loadBrokerSelector(freightType) {
     }
     brokerSelectorData.system = r.brokers || [];
     brokerSelectorData.custom = r.customBrokers || [];
+    brokerSelectorData.perfFlags = r.perfFlags || { showAcceptRate: true, showWonCount: true, showResponseTime: true };
     if (!brokerSelectorData.system.length && !brokerSelectorData.custom.length) {
       wrap.innerHTML = '<div style="font-size:12px;color:var(--ink3);">No active vendors found for this freight type. You can add a custom vendor below.</div>' +
         `<div class="custom-broker-add" style="margin-top:10px;">
@@ -1114,11 +1115,26 @@ function renderBrokerSelector() {
     brokerSelectorData.system.forEach(b => {
       const isExcluded = excluded.includes(b.email);
       const credentials = [b.usdot ? `USDOT: ${b.usdot}` : '', b.mc ? `MC: ${b.mc}` : ''].filter(Boolean).join(' · ');
+      const p = b.perf || {};
+      const pf = brokerSelectorData.perfFlags || {};
+      let perfHtml = '';
+      if (p.totalQuotes > 0) {
+        const parts = [];
+        if (pf.showAcceptRate  !== false) { const stars = p.acceptRate >= 60 ? '🟢' : p.acceptRate >= 30 ? '🟡' : '🔴'; parts.push(`${stars} ${p.acceptRate}% accepted`); }
+        if (pf.showWonCount    !== false) parts.push(`${p.acceptedQuotes} won`);
+        if (pf.showResponseTime !== false && p.avgResponseHrs !== null) {
+          const h = Math.floor(p.avgResponseHrs);
+          const m = Math.round((p.avgResponseHrs - h) * 60);
+          parts.push(`${h}h ${m}m avg response`);
+        }
+        if (parts.length) perfHtml = `<div style="font-size:11px;color:var(--ink3);margin-top:2px;">${parts.join(' · ')}</div>`;
+      }
       h += `<div class="broker-row">
         <div class="broker-row-info">
           <div class="broker-row-name">${esc(b.company)}</div>
           <div class="broker-row-email">${esc(b.email)}${credentials ? `<span style="color:var(--ink3);margin-left:6px;">· ${credentials}</span>` : ''}</div>
           ${b.freightTypes.length ? '<div class="broker-row-tags">' + b.freightTypes.map(t=>'<span class="broker-tag">'+esc(t)+'</span>').join('') + '</div>' : ''}
+          ${perfHtml}
         </div>
         <button type="button" class="broker-exclude-btn ${isExcluded?'excluded':''}" onclick="toggleBrokerExclude('${esc(b.email)}',this)">
           ${isExcluded ? '✕ Excluded' : '✓ Include'}
@@ -2643,6 +2659,46 @@ async function loadSettingsPanel() {
         <div class="settings-row-control">
           <div class="toggle" onclick="toggleSetting('pdfSendToAdmin', this)">
             <div class="toggle-track ${s.pdfSendToAdmin?'on':''}" id="tog-pdfSendToAdmin"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-head">
+        <span class="settings-section-icon">📊</span>
+        <div><h3>Broker Performance Indicators</h3><p>Control which performance stats are visible to shippers when selecting brokers. Never shown to brokers.</p></div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Acceptance Rate (%)</div>
+          <div class="settings-row-desc">Percentage of submitted quotes that were accepted by shippers.</div>
+        </div>
+        <div class="settings-row-control">
+          <div class="toggle" onclick="toggleSetting('showPerfAcceptRate', this)">
+            <div class="toggle-track ${s.showPerfAcceptRate!==false?'on':''}" id="tog-showPerfAcceptRate"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Number of Bookings Won</div>
+          <div class="settings-row-desc">Total accepted quotes (bookings) this broker has won.</div>
+        </div>
+        <div class="settings-row-control">
+          <div class="toggle" onclick="toggleSetting('showPerfWonCount', this)">
+            <div class="toggle-track ${s.showPerfWonCount!==false?'on':''}" id="tog-showPerfWonCount"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Average Response Time</div>
+          <div class="settings-row-desc">How quickly this broker typically submits a quote after a request is sent.</div>
+        </div>
+        <div class="settings-row-control">
+          <div class="toggle" onclick="toggleSetting('showPerfResponseTime', this)">
+            <div class="toggle-track ${s.showPerfResponseTime!==false?'on':''}" id="tog-showPerfResponseTime"><div class="toggle-thumb"></div></div>
           </div>
         </div>
       </div>
