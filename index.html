@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.9.1 | build: 202604181400 -->
+<!-- version: 2.11.0 | build: 202604191030 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -358,7 +358,7 @@ tbody tr:hover td{background:var(--bg);}
         <div class="loadro-logo" style="font-size:28px;"><span class="load">LOAD</span><span class="ro">RO</span></div>
         <div class="loadro-tagline">LOAD RATES OPTIMIZED</div>
       </div>
-      <a id="homeLink" href="#" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
+      <a href="homepage1.html" style="color:#FF6200;font-weight:500;font-size:14px;text-decoration:none;">← Back to Home</a>
     </div>
   </nav>
 
@@ -538,9 +538,6 @@ tbody tr:hover td{background:var(--bg);}
 
 <script src="config.js"></script>
 <script>
-// Set Back to Home link to APP_URL from config.js
-(function(){ const el = document.getElementById('homeLink'); if(el && typeof APP_URL_JS !== 'undefined') el.href = APP_URL_JS; })();
-
 let S = {email:'', token:'', role:''};
 let userTz = '';
 let selFreight = '';
@@ -554,7 +551,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.9.1 — 202604181400';
+  out.textContent = 'v2.11.0 — 202604191030';
 }
 
 async function sendOTP() {
@@ -801,6 +798,7 @@ async function loadClient() {
           </div>
           <div class="ff"><label>Weight (lbs)</label><input type="number" id="fW" placeholder="20000"></div>
           <div class="ff"><label>Pickup Date (optional)</label><input type="date" id="fPD"></div>
+          <div class="ff"><label>Quotes Needed By <span style="font-weight:400;color:var(--ink3);">(optional deadline for brokers)</span></label><input type="datetime-local" id="fQNB"></div>
           <div class="ff span-2"><label>Notes (optional)</label><textarea id="fN" placeholder="Special handling, hazmat, temperature requirements…"></textarea></div>
           <div class="ff span-2">
             <label>Pickup &amp; Delivery Accessories <span style="font-weight:400;color:var(--ink3);">(select all that apply)</span></label>
@@ -829,6 +827,7 @@ async function loadClient() {
               <div style="font-size:13px;color:var(--ink3);font-style:italic;">Select a freight type to see available vendors.</div>
             </div>
           </div>
+
         </div>
         <div class="form-submit"><button class="btn-submit" id="reqBtn" onclick="submitRequest()">Send to Brokers →</button></div>
         <div id="reqMsgBottom" style="margin-top:10px;"></div>
@@ -907,12 +906,13 @@ async function submitRequest() {
   payload.accessories     = getAccessories();
   payload.excludedBrokers = excludedBrokers;
   payload.customBrokers   = customBrokers;
+  payload.quotesNeededBy  = v('fQNB') || '';
   const r = await api(payload);
   btn.disabled = false; btn.textContent = 'Send to Brokers →';
   if (r.success) {
     msg('reqMsg','✓ Request sent! Brokers have been notified.','success');
     msg('reqMsgBottom','✓ Request sent! Brokers have been notified.','success');
-    ['fO','fOZ','fD','fDZ','fW','fN'].forEach(id => document.getElementById(id).value = '');
+    ['fO','fOZ','fD','fDZ','fW','fN','fQNB'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
     resetAccessories();
     buildClientFtBtns(); selFreight = '';
   } else {
@@ -1190,6 +1190,7 @@ async function removeCustomBroker(id, btn) {
     renderBrokerSelector();
   }
 }
+
 
 async function loadClientDash() {
   document.getElementById('p-clientDash').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
@@ -3449,6 +3450,7 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
     <div style="background:#f0f4ff;border:1px solid #c7d7fe;border-radius:14px;padding:18px 20px;margin-bottom:24px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0A2540;opacity:.6;margin-bottom:12px;">Shipment Details</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+        ${req.clientCompany ? '<div style="grid-column:1/-1;"><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Shipper Company</div><strong style="color:#0A2540;">' + esc(req.clientCompany) + '</strong></div>' : ''}
         <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Origin</div><strong>${esc(req.origin)} ${esc(req.originZip)}</strong></div>
         <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Destination</div><strong>${esc(req.destination)} ${esc(req.destZip)}</strong></div>
         <div><div style="color:#6b7280;font-size:11px;margin-bottom:2px;">Freight Type</div><strong>${esc(req.freightType)}</strong></div>
@@ -3458,6 +3460,15 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
       </div>
       <div style="font-size:11px;color:#9ca3af;margin-top:12px;padding-top:10px;border-top:1px solid #c7d7fe;">Request ID: ${esc(req.requestId)}</div>
     </div>
+    ${req.quotesNeededBy ? `
+    <div id="bqCountdownWrap" style="background:#fff8f0;border:1px solid #ffd0b0;border-radius:14px;padding:14px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+      <div style="font-size:22px;">⏰</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#FF6200;margin-bottom:2px;">Quote Deadline</div>
+        <div style="font-size:13px;color:#0A2540;font-weight:600;">${new Date(req.quotesNeededBy).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div>
+        <div id="bqCountdown" style="font-size:12px;color:#b45309;margin-top:2px;"></div>
+      </div>
+    </div>` : ''}
 
     <div style="grid-column:1/-1;margin-bottom:20px;">
       <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:6px;">Your Company ${bCo ? '' : '*'}</label>
@@ -3486,6 +3497,23 @@ async function showBrokerQuotePage(requestId, brokerEmail, brokerId, sig) {
 
   // Render first carrier row
   bqRenderCarriers();
+
+  // Countdown ticker
+  if (req.quotesNeededBy) {
+    const deadline = new Date(req.quotesNeededBy).getTime();
+    function tickCountdown() {
+      const el = document.getElementById('bqCountdown');
+      if (!el) return;
+      const diff = deadline - Date.now();
+      if (diff <= 0) { el.textContent = '⚠️ Deadline has passed'; el.style.color = '#c0392b'; return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      el.textContent = `${h}h ${m}m ${s}s remaining`;
+      setTimeout(tickCountdown, 1000);
+    }
+    tickCountdown();
+  }
 }
 
 function bqRenderCarriers() {
