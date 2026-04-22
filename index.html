@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.15.4 | build: 202604201130 -->
+<!-- version: 2.17.1 | build: 202604211000 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -460,9 +460,11 @@ tbody tr:hover td{background:var(--bg);}
     </div>
     <div class="topbar-right">
       <span class="t-email" id="topbarEmail"></span>
+      <button onclick="openFeedbackModal()" style="padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:transparent;color:var(--ink2);font-size:13px;font-family:'Outfit',sans-serif;cursor:pointer;" title="Feedback / Bug Report">💬 Feedback</button>
       <button class="btn-sm" onclick="logout()">Sign Out</button>
     </div>
   </div>
+  <div id="announcementBanner" style="display:none;"></div>
 
   <div class="app-body">
     <aside class="sidebar" id="sidebar"></aside>
@@ -551,7 +553,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.15.4 — 202604201130';
+  out.textContent = 'v2.17.1 — 202604211000';
 }
 
 async function sendOTP() {
@@ -583,7 +585,7 @@ function backToEmail() { sw('ls2','ls1'); document.getElementById('otpCode').val
 
 function logout() {
   localStorage.removeItem('fq'); S = {email:'',token:'',role:''};
-  _abEntries = []; _abLoaded = false; _bookingsCache = { client: null, broker: null, admin: null };
+  _abEntries = []; _abLoaded = false; _bookingsCache = { client: null, broker: null, admin: null }; _clientDashCache = null; _profileCache = null;
   document.getElementById('appScreen').classList.remove('active');
   document.getElementById('loginScreen').classList.add('active');
   sw('ls2','ls1');
@@ -632,6 +634,8 @@ function launch() {
       }
     }).catch(()=>{});
   }
+  // Load announcements for all roles after login
+  setTimeout(() => loadActiveAnnouncements(), 1000);
 }
 
 function showInviteBanner(invite) {
@@ -697,6 +701,8 @@ function buildSidebar(role) {
       <div class="nav-section"><div class="nav-label">Configuration</div>
         <button class="nav-item" id="n-adminSettings"   onclick="setNav(this,'adminSettings')"><span class="nav-icon">⚙️</span>Settings</button>
         <button class="nav-item" id="n-adminTemplates"  onclick="setNav(this,'adminTemplates')"><span class="nav-icon">✉️</span>Email Templates</button>
+        <button class="nav-item" id="n-adminFeedback"   onclick="setNav(this,'adminFeedback')"><span class="nav-icon">💬</span>Feedback</button>
+        <button class="nav-item" id="n-adminAnnounce"   onclick="setNav(this,'adminAnnounce')"><span class="nav-icon">📢</span>Announcements</button>
       </div>`;
   } else if (role === 'employee') {
     el.innerHTML = `
@@ -754,6 +760,8 @@ function showPanel(id) {
   if (id === 'brokerSettings')  loadBrokerSettings();
   if (id === 'adminSettings')   loadSettingsPanel();
   if (id === 'adminTemplates')  loadTemplatesPanel();
+  if (id === 'adminFeedback')   loadFeedbackPanel();
+  if (id === 'adminAnnounce')   loadAnnouncePanel();
   if (id === 'empRequests')     {} // already rendered
   if (id === 'brokerDash')      loadBrokerDashboard();
   if (id === 'brokerQuotes')    loadBrokerQuotesPanel();
@@ -960,6 +968,7 @@ async function submitRequest() {
   const r = await api(payload);
   btn.disabled = false; btn.textContent = 'Send to Brokers →';
   if (r.success) {
+    _clientDashCache = null; // invalidate so next visit reloads
     msg('reqMsg','✓ Request sent! Brokers have been notified.','success');
     msg('reqMsgBottom','✓ Request sent! Brokers have been notified.','success');
     ['fO','fOZ','fD','fDZ','fW','fN','fQNB'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
@@ -976,6 +985,8 @@ async function submitRequest() {
 let _abEntries = [];
 let _abLoaded  = false;
 let _bookingsCache = { client: null, broker: null, admin: null };
+let _clientDashCache = null;
+let _profileCache = null; // { profile }
 
 async function loadAddressBook() {
   const el = document.getElementById('p-clientAddrBook');
@@ -1307,10 +1318,19 @@ async function removeCustomBroker(id, btn) {
 
 async function loadClientDash() {
   document.getElementById('p-clientDash').innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
-  const [r, rb] = await Promise.all([
-    api({action:'getClientData',    email:S.email, token:S.token}),
-    api({action:'getClientBookings', email:S.email, token:S.token})
-  ]);
+
+  let r, rb;
+  if (_clientDashCache && _bookingsCache.client) {
+    r  = _clientDashCache;
+    rb = { success: true, bookings: _bookingsCache.client };
+  } else {
+    [r, rb] = await Promise.all([
+      api({action:'getClientData',    email:S.email, token:S.token}),
+      api({action:'getClientBookings', email:S.email, token:S.token})
+    ]);
+    if (r.success)  _clientDashCache    = r;
+    if (rb.success) _bookingsCache.client = rb.bookings || [];
+  }
   if (!r.success) { document.getElementById('p-clientDash').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
 
   const noOrg = !(r.profile && r.profile.orgId);
@@ -1448,7 +1468,7 @@ async function respondQuote(quoteId, quoteAction, btn) {
   payload.quoteId   = quoteId;
   payload.quoteAction = quoteAction;
   const r = await api(payload);
-  if (r.success) loadClientDash();
+  if (r.success) { _clientDashCache = null; loadClientDash(); }
   else { btn.disabled = false; btn.textContent = orig; alert(r.error); }
 }
 
@@ -1608,7 +1628,7 @@ async function _loadAbForBooking() {
 function _bkModalHtml(q) {
   return `
   <div class="bk-modal">
-    <!-- version: 2.15.4 | build: 202604201130 -->
+    <!-- version: 2.17.1 | build: 202604211000 -->
     <div class="bk-header">
       <div>
         <h2>📋 Submit Load Details</h2>
@@ -1960,7 +1980,8 @@ async function submitBooking() {
   if (btn) { btn.disabled = false; btn.textContent = 'Submit Load Details →'; }
 
   if (r.success) {
-    _bookingsCache.client = null; // invalidate cache
+    _bookingsCache.client = null;
+    _clientDashCache = null; // invalidate so bookedMap refreshes
     closeBookingModal();
     loadClientDash().then(() => {
       const wrap = document.getElementById('clientReqWrap');
@@ -2140,7 +2161,7 @@ function showBookingDetail(b) {
   overlay.className = 'bk-overlay';
   overlay.innerHTML = `
   <div class="bk-modal" style="max-width:640px;">
-    <!-- version: 2.15.4 | build: 202604201130 -->
+    <!-- version: 2.17.1 | build: 202604211000 -->
     <div class="bk-header">
       <div>
         <h2>📦 Load Detail</h2>
@@ -2393,7 +2414,9 @@ async function loadAdmin() {
     <div class="panel" id="p-adminAllQuotes"></div>
     <div class="panel" id="p-adminBookings"></div>
     <div class="panel" id="p-adminSettings"></div>
-    <div class="panel" id="p-adminTemplates"></div>`;
+    <div class="panel" id="p-adminTemplates"></div>
+    <div class="panel" id="p-adminFeedback"></div>
+    <div class="panel" id="p-adminAnnounce"></div>`;
 
   const r = await api({action:'adminGetOverview', email:S.email, token:S.token});
   if (!r.success) { document.getElementById('p-adminOverview').innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
@@ -3004,6 +3027,231 @@ async function resetTemplate() {
   } else msg('tmplModalMsg', r.error,'error');
 }
 
+// ─── FEEDBACK PANEL (Admin) ───────────────────────────────────
+
+async function loadFeedbackPanel() {
+  const el = document.getElementById('p-adminFeedback');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetFeedback', email:S.email, token:S.token});
+  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`; return; }
+  const items = r.items || [];
+  const cats  = ['All','Bug','Feature Request','General'];
+  let activeFilter = 'All';
+
+  function render(filter) {
+    activeFilter = filter;
+    const filtered = filter === 'All' ? items : items.filter(i => i.category === filter);
+    const statusColor = s => s === 'Resolved' ? 'var(--green)' : s === 'In Progress' ? 'var(--amber)' : 'var(--blue)';
+    let h = `<div class="page-head"><h1>Feedback</h1><p>${items.length} submission${items.length!==1?'s':''} total</p></div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      ${cats.map(c=>`<button onclick="document.querySelectorAll('.fb-filter').forEach(b=>b.style.background='transparent');this.style.background='var(--surface2)';fbRender('${c}')" class="fb-filter" style="padding:6px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;background:${activeFilter===c?'var(--surface2)':'transparent'};">${c}</button>`).join('')}
+    </div>`;
+    if (!filtered.length) { h += '<div class="empty"><h3>No submissions</h3></div>'; el.innerHTML = h; return; }
+    h += '<div style="display:grid;gap:12px;">';
+    filtered.forEach(fb => {
+      h += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+          <div>
+            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--surface2);color:var(--ink2);margin-right:6px;">${esc(fb.category)}</span>
+            <span style="font-size:11px;font-weight:700;color:${statusColor(fb.status)};">${esc(fb.status)}</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink3);">${esc(fb.email)} · ${esc(fb.role)} · ${fdt(fb.submittedAt)}</div>
+        </div>
+        <div style="font-size:14px;color:var(--ink);margin-bottom:12px;line-height:1.5;">${esc(fb.message)}</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select onchange="fbUpdateStatus('${esc(fb.feedbackId)}',this.value)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;">
+            ${['Open','In Progress','Resolved'].map(s=>`<option${fb.status===s?' selected':''}>${s}</option>`).join('')}
+          </select>
+          <input type="text" id="fb-note-${esc(fb.feedbackId)}" value="${esc(fb.adminNote||'')}" placeholder="Internal note (not sent to user)…" style="flex:1;min-width:200px;padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;outline:none;">
+          <button onclick="fbSaveNote('${esc(fb.feedbackId)}')" style="padding:6px 14px;border:none;background:#0A2540;color:white;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Save Note</button>
+          ${fb.feedbackId ? `<span style="font-size:10px;color:var(--ink3);font-family:monospace;">${esc(fb.feedbackId)}</span>` : ''}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+          <input type="text" id="fb-reply-${esc(fb.feedbackId)}" value="${esc(fb.replyMessage||'')}" placeholder="Reply to submitter (sends email)…" style="flex:1;min-width:200px;padding:6px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;outline:none;">
+          <button onclick="fbSendReply('${esc(fb.feedbackId)}')" style="padding:6px 14px;border:none;background:var(--green);color:white;border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✉️ Send Reply</button>
+          ${fb.repliedAt ? `<span style="font-size:11px;color:var(--green);">✓ Replied ${fdt(fb.repliedAt)}</span>` : ''}
+        </div>
+      </div>`;
+    });
+    h += '</div>';
+    el.innerHTML = h;
+  }
+
+  window.fbRender = render;
+  window.fbUpdateStatus = async (id, status) => {
+    await api({action:'adminUpdateFeedback', email:S.email, token:S.token, feedbackId:id, status});
+    const item = items.find(i => i.feedbackId === id); if (item) item.status = status;
+    render(activeFilter);
+  };
+  window.fbSaveNote = async (id) => {
+    const note = document.getElementById('fb-note-' + id)?.value.trim() || '';
+    const item = items.find(i => i.feedbackId === id);
+    await api({action:'adminUpdateFeedback', email:S.email, token:S.token, feedbackId:id, status: item?.status || 'Open', adminNote: note});
+    if (item) item.adminNote = note;
+  };
+  window.fbSendReply = async (id) => {
+    const replyMsg = document.getElementById('fb-reply-' + id)?.value.trim();
+    if (!replyMsg) return;
+    const btn = document.querySelector(`[onclick="fbSendReply('${id}')"]`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+    const r2 = await api({action:'adminReplyFeedback', email:S.email, token:S.token, feedbackId:id, replyMessage:replyMsg});
+    if (btn) { btn.disabled = false; btn.textContent = '✉️ Send Reply'; }
+    if (r2.success) {
+      const item = items.find(i => i.feedbackId === id);
+      if (item) { item.replyMessage = replyMsg; item.repliedAt = new Date().toISOString(); }
+      render(activeFilter);
+    }
+  };
+  render('All');
+}
+
+// ─── ANNOUNCEMENTS PANEL (Admin) ──────────────────────────────
+
+async function loadAnnouncePanel() {
+  const el = document.getElementById('p-adminAnnounce');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+  const r = await api({action:'adminGetAnnouncements', email:S.email, token:S.token});
+  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${esc(r.error)}</div>`; return; }
+  const items = r.announcements || [];
+
+  function render() {
+    let h = `<div class="page-head"><h1>Announcements</h1><p>Shown to users as banners after login.</p></div>
+    <div id="anMsg" style="margin-bottom:12px;"></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2);margin-bottom:14px;">New Announcement</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div class="ff" style="grid-column:1/-1;"><label>Title *</label><input type="text" id="anTitle" placeholder="e.g. Scheduled Maintenance"></div>
+        <div class="ff" style="grid-column:1/-1;"><label>Message *</label><textarea id="anMsg2" placeholder="What should users know?" style="height:80px;"></textarea></div>
+        <div class="ff"><label>Target Audience</label>
+          <select id="anTarget" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+            <option>All</option><option>Shippers</option><option>Brokers</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="anSave()" style="padding:10px 22px;background:#0A2540;color:white;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Post Announcement</button>
+    </div>`;
+    if (items.length) {
+      h += '<div style="display:grid;gap:10px;">';
+      items.forEach(a => {
+        h += `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-weight:700;font-size:14px;">${esc(a.title)}</span>
+              <span style="font-size:11px;padding:2px 8px;border-radius:5px;background:${a.active?'var(--green-bg)':'var(--surface2)'};color:${a.active?'var(--green)':'var(--ink3)'};">${a.active?'Active':'Inactive'}</span>
+              <span style="font-size:11px;color:var(--ink3);">→ ${esc(a.target)}</span>
+            </div>
+            <div style="font-size:13px;color:var(--ink2);">${esc(a.message)}</div>
+            <div style="font-size:11px;color:var(--ink3);margin-top:4px;">${fdt(a.createdAt)} by ${esc(a.createdBy)}</div>
+          </div>
+          <button onclick="anToggle('${esc(a.announcementId)}',${!a.active})" style="padding:6px 14px;border:1.5px solid var(--border);border-radius:7px;font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">${a.active?'Deactivate':'Activate'}</button>
+        </div>`;
+      });
+      h += '</div>';
+    }
+    el.innerHTML = h;
+  }
+
+  window.anSave = async () => {
+    const title   = document.getElementById('anTitle')?.value.trim();
+    const message = document.getElementById('anMsg2')?.value.trim();
+    const target  = document.getElementById('anTarget')?.value || 'All';
+    if (!title || !message) { msg('anMsg','Title and message required.','error'); return; }
+    const r2 = await api({action:'adminSaveAnnouncement', email:S.email, token:S.token, title, message, target});
+    if (r2.success) { items.unshift({announcementId:r2.announcementId, title, message, target, active:true, createdAt:new Date().toISOString(), createdBy:S.email}); render(); }
+    else msg('anMsg', r2.error, 'error');
+  };
+  window.anToggle = async (id, active) => {
+    const item = items.find(i => i.announcementId === id); if (!item) return;
+    await api({action:'adminSaveAnnouncement', email:S.email, token:S.token, announcementId:id, title:item.title, message:item.message, target:item.target, active});
+    item.active = active; render();
+  };
+  render();
+}
+
+// ─── FEEDBACK MODAL (All users) ───────────────────────────────
+
+function openFeedbackModal() {
+  const existing = document.getElementById('fbModalOverlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'fbModalOverlay';
+  overlay.className = 'bk-overlay';
+  overlay.innerHTML = `
+  <div class="bk-modal" style="max-width:500px;">
+    <div class="bk-header">
+      <div><h2>💬 Feedback</h2><p>Report a bug, request a feature, or share your thoughts.</p></div>
+      <button class="bk-close" onclick="document.getElementById('fbModalOverlay').remove()">✕</button>
+    </div>
+    <div class="bk-body" style="padding:24px;">
+      <div id="fbModalMsg" style="margin-bottom:10px;"></div>
+      <div class="ff" style="margin-bottom:14px;">
+        <label>Category</label>
+        <select id="fbCategory" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;outline:none;">
+          <option>General</option><option>Bug</option><option>Feature Request</option>
+        </select>
+      </div>
+      <div class="ff" style="margin-bottom:16px;">
+        <label>Message *</label>
+        <textarea id="fbMessage" placeholder="Describe your feedback, bug, or idea…" style="height:120px;width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:13px;resize:vertical;outline:none;"></textarea>
+      </div>
+    </div>
+    <div class="bk-footer" style="justify-content:flex-end;gap:10px;">
+      <button class="btn-book-cancel" onclick="document.getElementById('fbModalOverlay').remove()">Cancel</button>
+      <button id="fbSubmitBtn" onclick="submitFeedbackForm()" style="padding:10px 22px;background:#0A2540;color:white;border:none;border-radius:9px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Send Feedback</button>
+    </div>
+  </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+async function submitFeedbackForm() {
+  const category = document.getElementById('fbCategory')?.value || 'General';
+  const message  = document.getElementById('fbMessage')?.value.trim();
+  if (!message) { msg('fbModalMsg','Please enter a message.','error'); return; }
+  const btn = document.getElementById('fbSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  const r = await api({action:'submitFeedback', email:S.email, token:S.token, category, message});
+  btn.disabled = false; btn.textContent = 'Send Feedback';
+  if (r.success) {
+    document.getElementById('fbModalOverlay').remove();
+  } else {
+    msg('fbModalMsg', r.error || 'Failed to send.', 'error');
+  }
+}
+
+// ─── ANNOUNCEMENTS BANNER (All users) ────────────────────────
+
+async function loadActiveAnnouncements() {
+  try {
+    const r = await api({action:'getActiveAnnouncements', email:S.email, token:S.token});
+    if (!r.success || !r.announcements?.length) return;
+    const banner = document.getElementById('announcementBanner');
+    if (!banner) return;
+    const dismissed = JSON.parse(localStorage.getItem('lro_dismissed_an') || '[]');
+    const unseen = r.announcements.filter(a => !dismissed.includes(a.announcementId));
+    if (!unseen.length) return;
+    banner.style.display = 'block';
+    banner.innerHTML = unseen.map(a => `
+      <div style="background:#fff8f0;border-left:4px solid var(--accent);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:13px;">
+        <div><strong style="color:#0A2540;">📢 ${esc(a.title)}</strong><span style="color:var(--ink2);margin-left:10px;">${esc(a.message)}</span></div>
+        <button onclick="dismissAnnouncement('${esc(a.announcementId)}')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--ink3);flex-shrink:0;">✕</button>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+function dismissAnnouncement(id) {
+  const key = 'lro_dismissed_an';
+  const list = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!list.includes(id)) list.push(id);
+  localStorage.setItem(key, JSON.stringify(list));
+  const banner = document.getElementById('announcementBanner');
+  const row = banner?.querySelector(`[onclick="dismissAnnouncement('${id}')"]`)?.closest('div[style]');
+  if (row) row.remove();
+  if (banner && !banner.querySelector('div[style]')) banner.style.display = 'none';
+}
+
 // ─── ADMIN PEOPLE ACTIONS ─────────────────────────────────────
 
 async function addEmployee() {
@@ -3075,7 +3323,16 @@ document.addEventListener('click', e => { if (e.target.classList.contains('modal
 // ─── UTILS ────────────────────────────────────────────────────
 
 async function api(d) {
-  try { const r = await fetch(API, {method:'POST', body:JSON.stringify(d)}); return await r.json(); }
+  try {
+    const r = await fetch(API, {method:'POST', body:JSON.stringify(d)});
+    const j = await r.json();
+    if (!j.success && j.error && j.error.includes('Session expired')) {
+      logout();
+      msg('loginMsg', 'Your session has expired. Please log in again.', 'error');
+      return j;
+    }
+    return j;
+  }
   catch(e) { return {success:false, error:'Network error.'}; }
 }
 
@@ -3133,9 +3390,16 @@ function paginationBar(page, totalPages, totalRecords, callbackName) {
 async function loadClientSettings(showMsg) {
   const el = document.getElementById('p-clientSettings');
   if (!el) return;
-  el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
-  const r = await api({action:'getUserProfile', email:S.email, token:S.token});
-  if (!r.success) { el.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+
+  let r;
+  if (_profileCache && !showMsg) {
+    r = _profileCache;
+  } else {
+    el.innerHTML = '<div style="padding:40px;text-align:center;"><span class="spin" style="width:20px;height:20px;"></span></div>';
+    r = await api({action:'getUserProfile', email:S.email, token:S.token});
+    if (!r.success) { el.innerHTML = `<div class="alert alert-error">${r.error}</div>`; return; }
+    _profileCache = r;
+  }
   const p = r.profile || {};
   window._clientOrgId   = p.orgId   || '';
   window._clientOrgRole = p.orgRole || '';
@@ -3362,6 +3626,7 @@ async function saveProfile() {
   const r = await api({action:'saveUserProfile', email:S.email, token:S.token, profile});
   resetBtn('saveProfileBtn','Save Profile');
   if (r.success) {
+    _profileCache = null;
     userTz = profile.timezone || '';
     msg('profileMsg','✓ Profile saved successfully.','success');
     ['pFirst','pLast','pPhone'].forEach(id => { const el=document.getElementById(id); if(el) el.style.borderColor=''; });
