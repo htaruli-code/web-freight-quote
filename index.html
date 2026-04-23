@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.17.1 | build: 202604211000 -->
+<!-- version: 2.19.0 | build: 202604221930 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -553,7 +553,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.17.1 — 202604211000';
+  out.textContent = 'v2.19.0 — 202604221930';
 }
 
 async function sendOTP() {
@@ -1606,13 +1606,16 @@ function openBookingModal(quoteId, qData) {
     const dpEl = document.getElementById('bkPickupDate');
     if (dpEl) { dpEl.value = today; dpEl.min = today; }
 
-    // Auto-select tab based on freight type
+    // v2.18.0 — Lock modal mode to the quote's freight type.
+    //   LTL            → LTL items table
+    //   FTL / Flatbed  → Truckload fields
+    //   Drayage        → Drayage fields
+    //   anything else  → fall through to LTL as safest default
     const ft = (qData.freightType || '').toUpperCase();
-    if (ft === 'FTL' || ft === 'FULL TRUCKLOAD') {
-      bkSelectTab('FTL');
-    } else {
-      bkSelectTab('LTL');
-    }
+    let mode = 'LTL';
+    if (ft === 'FTL' || ft === 'FULL TRUCKLOAD' || ft === 'FLATBED') mode = 'FTL';
+    else if (ft === 'DRAYAGE') mode = 'Drayage';
+    bkSetMode(mode);
 
     bkRenderItems();
     bkPopulateAbDropdowns();
@@ -1628,7 +1631,7 @@ async function _loadAbForBooking() {
 function _bkModalHtml(q) {
   return `
   <div class="bk-modal">
-    <!-- version: 2.17.1 | build: 202604211000 -->
+    <!-- version: 2.19.0 | build: 202604221930 -->
     <div class="bk-header">
       <div>
         <h2>📋 Submit Load Details</h2>
@@ -1639,10 +1642,11 @@ function _bkModalHtml(q) {
     <div class="bk-body">
       <div id="bkMsg"></div>
 
-      <!-- FREIGHT TYPE TABS -->
-      <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;">
-        <button id="bkTabLTL" onclick="bkSelectTab('LTL')" style="flex:1;padding:10px;background:#0A2540;color:#fff;border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">LTL</button>
-        <button id="bkTabFTL" onclick="bkSelectTab('FTL')" style="flex:1;padding:10px;background:transparent;color:var(--ink2);border:none;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Full Truckload</button>
+      <!-- FREIGHT TYPE — LOCKED to quote (v2.18.0) -->
+      <div id="bkModeLabel" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#0A2540;border-radius:10px;margin-bottom:24px;">
+        <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600;">Shipment Mode</div>
+        <div id="bkModeValue" style="font-size:15px;color:#fff;font-weight:700;">${esc(q.freightType || 'LTL')}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-left:auto;">Locked to your quote</div>
       </div>
 
       <!-- ORIGIN -->
@@ -1757,6 +1761,61 @@ function _bkModalHtml(q) {
         </div>
       </div>
 
+      <!-- DRAYAGE FIELDS (hidden by default) — v2.18.0 -->
+      <div class="bk-section" id="bkDrayageSection" style="display:none;">
+        <div class="bk-section-title">Drayage Details</div>
+        <div class="bk-row bk-row-3">
+          <div class="bk-field">
+            <label>Container Number *</label>
+            <input type="text" id="bkDrContainer" placeholder="e.g. MSCU1234567" style="text-transform:uppercase;">
+          </div>
+          <div class="bk-field">
+            <label>Booking / BOL Number</label>
+            <input type="text" id="bkDrBol" placeholder="e.g. BOL-789456">
+          </div>
+          <div class="bk-field">
+            <label>Pickup Number</label>
+            <input type="text" id="bkDrPickup" placeholder="e.g. PU-123">
+          </div>
+        </div>
+        <div class="bk-row bk-row-3" style="margin-top:12px;">
+          <div class="bk-field">
+            <label>Chassis Needed *</label>
+            <select id="bkDrChassis">
+              <option value="">— Select —</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="bk-field">
+            <label>Steamship Line</label>
+            <input type="text" id="bkDrSteamship" placeholder="e.g. Maersk, MSC, CMA CGM">
+          </div>
+          <div class="bk-field">
+            <label>Total Weight (lbs) *</label>
+            <input type="number" id="bkDrWeight" placeholder="e.g. 38000" min="1">
+          </div>
+        </div>
+        <div class="bk-row" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="bk-field">
+            <label>Terminal Name</label>
+            <input type="text" id="bkDrTerminal" placeholder="e.g. APM Terminals Pier 400">
+          </div>
+          <div class="bk-field">
+            <label>Port of Origin</label>
+            <input type="text" id="bkDrPort" placeholder="e.g. Port of Long Beach">
+          </div>
+        </div>
+      </div>
+
+      <!-- SHARED NOTES — v2.19.0 — visible for LTL, FTL, and Drayage -->
+      <div class="bk-section" id="bkNotesSection">
+        <div class="bk-section-title">Notes / Special Instructions <span style="font-weight:400;color:var(--ink3);font-size:11px;">(optional)</span></div>
+        <div class="bk-field">
+          <textarea id="bkNotes" rows="4" placeholder="Appointment details, access instructions, dock info, seal #, anything the driver should know…" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'Outfit',sans-serif;font-size:14px;color:var(--ink);background:var(--surface);outline:none;resize:vertical;"></textarea>
+        </div>
+      </div>
+
     </div>
     <div class="bk-footer">
       <div id="bkFooterMsg" style="font-size:13px;"></div>
@@ -1768,24 +1827,28 @@ function _bkModalHtml(q) {
   </div>`;
 }
 
-function bkSelectTab(tab) {
-  const ltl    = document.getElementById('bkTabLTL');
-  const ftl    = document.getElementById('bkTabFTL');
+// v2.18.0 — locked mode (LTL / FTL / Drayage), determined by the quote's freight type.
+// No longer user-switchable. Flatbed treated as FTL per spec.
+function bkSetMode(mode) {
   const ltlSec = document.getElementById('bkShipmentSection');
   const ftlSec = document.getElementById('bkFtlSection');
-  if (!ltl || !ftl) return;
-  if (tab === 'LTL') {
-    ltl.style.background = '#0A2540'; ltl.style.color = '#fff';
-    ftl.style.background = 'transparent'; ftl.style.color = 'var(--ink2)';
-    if (ltlSec) ltlSec.style.display = '';
-    if (ftlSec) ftlSec.style.display = 'none';
-  } else {
-    ftl.style.background = '#0A2540'; ftl.style.color = '#fff';
-    ltl.style.background = 'transparent'; ltl.style.color = 'var(--ink2)';
-    if (ltlSec) ltlSec.style.display = 'none';
-    if (ftlSec) ftlSec.style.display = '';
+  const drSec  = document.getElementById('bkDrayageSection');
+  const label  = document.getElementById('bkModeValue');
+
+  if (ltlSec) ltlSec.style.display = (mode === 'LTL') ? '' : 'none';
+  if (ftlSec) ftlSec.style.display = (mode === 'FTL') ? '' : 'none';
+  if (drSec)  drSec.style.display  = (mode === 'Drayage') ? '' : 'none';
+
+  if (label) {
+    label.textContent = mode === 'FTL' ? 'Full Truckload'
+                      : mode === 'Drayage' ? 'Drayage'
+                      : 'LTL';
   }
+  window._bkMode = mode;
 }
+
+// Kept as alias so older inline handlers still function; routes to bkSetMode.
+function bkSelectTab(tab) { bkSetMode(tab); }
 
 function bkPopulateAbDropdowns() {
   const opts = _abEntries.length
@@ -1932,11 +1995,16 @@ async function submitBooking() {
   if (!originZip)  return _bkMsg('Origin ZIP is required.','error');
   if (!destZip)    return _bkMsg('Destination ZIP is required.','error');
 
-  // Detect LTL vs FTL
-  const isFTL = document.getElementById('bkFtlSection')?.style.display !== 'none';
+  // v2.18.0 — three modes, locked by quote: LTL / FTL / Drayage
+  const mode = window._bkMode || 'LTL';
   let items = [], ftlLoadType = '', ftlEquipment = '', totalWeight = '';
+  let containerNumber = '', bolNumber = '', pickupNumber = '', chassisNeeded = '';
+  let steamshipLine = '', terminalName = '', portOfOrigin = '';
+  let drayageWeight = '';
+  // v2.19.0 — shared Notes field, collected regardless of mode
+  const notes = document.getElementById('bkNotes')?.value || '';
 
-  if (isFTL) {
+  if (mode === 'FTL') {
     ftlLoadType  = gv('bkFtlLoadType');
     ftlEquipment = gv('bkFtlEquipment');
     totalWeight  = gv('bkFtlWeight');
@@ -1944,7 +2012,20 @@ async function submitBooking() {
     if (!ftlEquipment) return _bkMsg('Select an equipment type.','error');
     if (!totalWeight)  return _bkMsg('Enter total weight.','error');
     if (Number(totalWeight) > 44000) return _bkMsg('Total weight cannot exceed 44,000 lbs.','error');
+  } else if (mode === 'Drayage') {
+    containerNumber = gv('bkDrContainer').toUpperCase();
+    bolNumber       = gv('bkDrBol');
+    pickupNumber    = gv('bkDrPickup');
+    chassisNeeded   = gv('bkDrChassis');
+    steamshipLine   = gv('bkDrSteamship');
+    terminalName    = gv('bkDrTerminal');
+    portOfOrigin    = gv('bkDrPort');
+    drayageWeight   = gv('bkDrWeight');
+    if (!containerNumber) return _bkMsg('Container Number is required for Drayage.','error');
+    if (!chassisNeeded)   return _bkMsg('Please select whether Chassis is needed.','error');
+    if (!drayageWeight)   return _bkMsg('Enter total weight.','error');
   } else {
+    // LTL
     items = _bkItems;
     const hasWeight = items.some(it => parseFloat(it.weight) > 0);
     if (!hasWeight) return _bkMsg('Enter weight for at least one shipment item.','error');
@@ -1959,9 +2040,14 @@ async function submitBooking() {
     token:         S.token,
     quoteId:       _bkQuoteId,
     pickupDate,
-    freightType:   isFTL ? 'FTL' : 'LTL',
+    freightType:   mode,    // 'LTL' | 'FTL' | 'Drayage'
     ftlLoadType,   ftlEquipment,  totalWeight,
     items,
+    // v2.18.0 — drayage fields
+    containerNumber, bolNumber, pickupNumber, chassisNeeded,
+    steamshipLine,   terminalName, portOfOrigin,
+    drayageWeight,
+    notes,   // v2.19.0 — generic Notes, shared across LTL / FTL / Drayage
     originCompany: gv('bkOriginCompany'), originAddress: gv('bkOriginAddr'),
     originCity:    gv('bkOriginCity'),    originState:   gv('bkOriginState'),  originZip,
     originPickupFrom: document.getElementById('bkOriginPickupFrom')?.value || '',
@@ -2161,7 +2247,7 @@ function showBookingDetail(b) {
   overlay.className = 'bk-overlay';
   overlay.innerHTML = `
   <div class="bk-modal" style="max-width:640px;">
-    <!-- version: 2.17.1 | build: 202604211000 -->
+    <!-- version: 2.19.0 | build: 202604221930 -->
     <div class="bk-header">
       <div>
         <h2>📦 Load Detail</h2>
@@ -2194,6 +2280,21 @@ function showBookingDetail(b) {
         <tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Pickup Date</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(pickupDisplay)}</td></tr>
         <tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);">Freight Type</td><td style="padding:8px 12px;font-weight:600;">${esc(b.freightType||'—')}</td></tr>
       </table>
+      ${(b.containerNumber||b.bolNumber||b.pickupNumber||b.chassisNeeded||b.steamshipLine||b.terminalName||b.portOfOrigin||b.drayageWeight) ? `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
+        <tr style="background:var(--surface2);"><th colspan="2" style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);">Drayage Details</th></tr>
+        ${b.containerNumber?`<tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);width:140px;">Container #</td><td style="padding:8px 12px;font-weight:600;font-family:monospace;border-bottom:1px solid var(--border);">${esc(b.containerNumber)}</td></tr>`:''}
+        ${b.bolNumber?`<tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Booking / BOL #</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.bolNumber)}</td></tr>`:''}
+        ${b.pickupNumber?`<tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Pickup #</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.pickupNumber)}</td></tr>`:''}
+        ${b.chassisNeeded?`<tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Chassis Needed</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.chassisNeeded)}</td></tr>`:''}
+        ${b.steamshipLine?`<tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Steamship Line</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.steamshipLine)}</td></tr>`:''}
+        ${b.terminalName?`<tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Terminal</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.terminalName)}</td></tr>`:''}
+        ${b.portOfOrigin?`<tr><td style="padding:8px 12px;color:var(--ink2);border-bottom:1px solid var(--border);">Port of Origin</td><td style="padding:8px 12px;font-weight:600;border-bottom:1px solid var(--border);">${esc(b.portOfOrigin)}</td></tr>`:''}
+        ${b.drayageWeight?`<tr style="background:var(--surface2);"><td style="padding:8px 12px;color:var(--ink2);">Total Weight</td><td style="padding:8px 12px;font-weight:600;">${esc(Number(b.drayageWeight).toLocaleString())} lbs</td></tr>`:''}
+      </table>` : ''}
+      ${b.notes ? `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
+        <tr style="background:var(--surface2);"><th style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);">Notes / Special Instructions</th></tr>
+        <tr><td style="padding:10px 12px;line-height:1.5;white-space:pre-wrap;color:var(--ink);">${esc(b.notes)}</td></tr>
+      </table>` : ''}
       ${itemRows ? `<table style="width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px;">
         <tr style="background:var(--surface2);"><th colspan="2" style="text-align:left;padding:10px 12px;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--border);">Shipment Items</th></tr>
         ${itemRows}
