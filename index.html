@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- version: 2.19.0 | build: 202604221930 -->
+<!-- version: 2.20.4 | build: 202604230100 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -553,7 +553,7 @@ let appSettings = {};
 function runDiag() {
   const out = document.getElementById('debugOut');
   out.style.display = 'block';
-  out.textContent = 'v2.19.0 — 202604221930';
+  out.textContent = 'v2.20.4 — 202604230100';
 }
 
 async function sendOTP() {
@@ -1423,7 +1423,7 @@ async function loadClientDash() {
             ph += `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 18px;${!isLast?'border-bottom:1px solid var(--border);':''}${q.status==='accepted'?'background:rgba(25,122,69,.04);':''}${q.status==='rejected'?'opacity:.5;':''}gap:12px;flex-wrap:wrap;">
               <div style="flex:1;">
                 <div style="font-weight:600;font-size:13px;">${q.carrierName ? esc(q.carrierName) : '<span style="color:var(--ink3);font-style:italic;">Carrier not specified</span>'}</div>
-                <div class="q-detail">Transit: ${q.transitDays} day${q.transitDays!=1?'s':''}${q.validUntil?' · Valid until '+q.validUntil:''}${q.notes?' · '+esc(q.notes):''}</div>
+                <div class="q-detail">Transit: ${q.transitDays} day${q.transitDays!=1?'s':''}${q.validUntil?' · Valid until '+fDate(q.validUntil):''}${q.notes?' · '+esc(q.notes):''}</div>
               </div>
               <div style="display:flex;align-items:center;gap:14px;">
                 <div style="text-align:right;">
@@ -1631,7 +1631,7 @@ async function _loadAbForBooking() {
 function _bkModalHtml(q) {
   return `
   <div class="bk-modal">
-    <!-- version: 2.19.0 | build: 202604221930 -->
+    <!-- version: 2.20.4 | build: 202604230100 -->
     <div class="bk-header">
       <div>
         <h2>📋 Submit Load Details</h2>
@@ -2247,7 +2247,7 @@ function showBookingDetail(b) {
   overlay.className = 'bk-overlay';
   overlay.innerHTML = `
   <div class="bk-modal" style="max-width:640px;">
-    <!-- version: 2.19.0 | build: 202604221930 -->
+    <!-- version: 2.20.4 | build: 202604230100 -->
     <div class="bk-header">
       <div>
         <h2>📦 Load Detail</h2>
@@ -3464,6 +3464,26 @@ function fd(ts) {
     if (tz) opts.timeZone = tz;
     return new Date(ts).toLocaleDateString('en-US', opts);
   } catch(e) { return ts; }
+}
+// v2.20.4 — smart date formatter. Accepts either:
+//   "2026-05-01"              → formats as local date (no timezone shift surprise)
+//   "2026-05-01T07:00:00.000Z" → formats via fd() with tz awareness
+// Returns clean "May 1, 2026" style for display.
+function fDate(ts) {
+  if (!ts) return '—';
+  const s = String(ts);
+  // Date-only input — parse as local to avoid UTC midnight → prev-day-in-US surprise
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split('-').map(Number);
+    const local = new Date(y, m - 1, d);
+    const tz = (typeof userTz !== 'undefined' && userTz) ? userTz : undefined;
+    const opts = {month:'short',day:'numeric',year:'numeric'};
+    if (tz) opts.timeZone = tz;
+    try { return local.toLocaleDateString('en-US', opts); }
+    catch(e) { return s; }
+  }
+  // Otherwise treat as full ISO with time component
+  return fd(s);
 }
 function fdt(ts) {
   if (!ts) return '—';
